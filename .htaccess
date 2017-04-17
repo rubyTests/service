@@ -1,0 +1,18 @@
+<IfModule authz_core_module>
+    Require all denied
+</IfModule>
+<IfModule !authz_core_module>
+    Deny from all
+</IfModule>
+
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+
+
+php_value memory_limit 300M
+php_value upload_max_filesize 300M
+php_value post_max_size 300M
+php_value max_input_vars 40000
