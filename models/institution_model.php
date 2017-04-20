@@ -20,23 +20,25 @@
 		  //           $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
 		  //           imagedestroy($im);
 		  //       } 
-				$Images=$value['image_file'];
-				$ImageSplit = explode(',', $Images);  
-				$ImageSplit1 = explode(':', $ImageSplit[0]);
-				if($ImageSplit1[0]=='http') {
-					$IMG = $value['image_file'];
-					$splitIMage = explode('/', $IMG);
-					$fileName=$splitIMage[5];
-				}else {
-					$ImageResult = base64_decode($ImageSplit[1]);
-			        $im = imagecreatefromstring($ImageResult); 
-			        if ($im !== false) 
-			        {
-			            $fileName = date('Ymdhis') .".png";
-			            $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'rubyServices/upload/'.$fileName);
-			            imagedestroy($im);
-			        }
-				}
+
+
+				// $Images=$value['image_file'];
+				// $ImageSplit = explode(',', $Images);  
+				// $ImageSplit1 = explode(':', $ImageSplit[0]);
+				// if($ImageSplit1[0]=='http') {
+				// 	$IMG = $value['image_file'];
+				// 	$splitIMage = explode('/', $IMG);
+				// 	$fileName=$splitIMage[5];
+				// }else {
+				// 	$ImageResult = base64_decode($ImageSplit[1]);
+			 //        $im = imagecreatefromstring($ImageResult); 
+			 //        if ($im !== false) 
+			 //        {
+			 //            $fileName = date('Ymdhis') .".png";
+			 //            $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'rubyServices/upload/'.$fileName);
+			 //            imagedestroy($im);
+			 //        }
+				// }
 				
 		        $profile = array(
 				   'FIRSTNAME' => $value['institute_name']
@@ -51,7 +53,7 @@
 					   'TYPE' => $value['type'],
 					   'TIME_ZONE' => $value['time_zone'],
 					   'CURRENCY' => $value['currency'],
-					   'LOGO' => $fileName
+					   'LOGO' => $value['image_file']
 					);
 					$this->db->where('ID', $value['institution_id']);
 					$this->db->update('institution', $institution);
@@ -59,16 +61,16 @@
 				return array('status'=>true, 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$value['profile_id'],'INSTITUTION_ID'=>$value['institution_id']);
 
 			}else {
-				$Images=$value['image_file'];
-			   	$ImageSplit = explode(',', $Images);        
-		        $ImageResult = base64_decode($ImageSplit[1]);
-		        $im = imagecreatefromstring($ImageResult); 
-		        if ($im !== false) 
-		        {
-		            $fileName = date('Ymdhis') .".png";
-		            $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
-		            imagedestroy($im);
-		        }  
+				// $Images=$value['image_file'];
+			 //   	$ImageSplit = explode(',', $Images);        
+		  //       $ImageResult = base64_decode($ImageSplit[1]);
+		  //       $im = imagecreatefromstring($ImageResult); 
+		  //       if ($im !== false) 
+		  //       {
+		  //           $fileName = date('Ymdhis') .".png";
+		  //           $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
+		  //           imagedestroy($im);
+		  //       }  
 
 				$data = array(
 				   'FIRSTNAME' => $value['institute_name'],
@@ -82,7 +84,7 @@
 					   'TYPE' => $value['type'],
 					   'TIME_ZONE' => $value['time_zone'],
 					   'CURRENCY' => $value['currency'],
-					   'LOGO' => $fileName
+					   'LOGO' => $value['image_file']
 					);
 					$this->db->insert('institution', $data1);
 					$inst_id=$this->db->insert_id();
@@ -92,67 +94,69 @@
 		}
 
 		function addInstitutionContactDetails($value){
-			if($value['location_id']!=''){
-				$location= array(
-				   'ADDRESS' => $value['address'],
-				   'CITY' => $value['city'],
-				   'STATE' => $value['state'],
-				   'COUNTRY' => $value['country'],
-				   'ZIP_CODE' => $value['pincode'],
-				);
-				$this->db->where('ID', $value['location_id']);
-				$this->db->update('location', $location);
+			if($value['lnstut_id']){
+				if($value['location_id']!=''){
+					$location= array(
+					   'ADDRESS' => $value['address'],
+					   'CITY' => $value['city'],
+					   'STATE' => $value['state'],
+					   'COUNTRY' => $value['country'],
+					   'ZIP_CODE' => $value['pincode'],
+					);
+					$this->db->where('ID', $value['location_id']);
+					$this->db->update('location', $location);
 
 
-				$profile1 = array(
-				   'LOCATION_ID' => $value['location_id'],
-				   'EMAIL' => $value['email'],
-				   'PHONE_NO_1' => $value['phone'],
-				   'PHONE_NO_2' => $value['mobile_no'],
-				   'FACEBOOK_LINK' => $value['facebook'],
-				   'GOOGLE_LINK' => $value['google'],
-
-				);
-				$this->db->where('ID', $value['profile_id']);
-				$this->db->update('profile', $profile1);
-
-				$ins = array(
-				   'CONTACT_PERSON' => $value['contact_name']
-				);
-				$this->db->where('ID', $value['lnstut_id']);
-				$this->db->update('institution', $ins);
-
-				return array('status'=>true, 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$value['profile_id'],'LOCATION_ID'=>$value['location_id']);
-			}else {
-				$location= array(
-				   'ADDRESS' => $value['address'],
-				   'CITY' => $value['city'],
-				   'STATE' => $value['state'],
-				   'COUNTRY' => $value['country'],
-				   'ZIP_CODE' => $value['pincode'],
-				);
-				$this->db->insert('location', $location);
-				$locat_id=$this->db->insert_id();
-				if($locat_id){
-					$profile = array(
-					   'LOCATION_ID' => $locat_id,
+					$profile1 = array(
+					   'LOCATION_ID' => $value['location_id'],
 					   'EMAIL' => $value['email'],
 					   'PHONE_NO_1' => $value['phone'],
 					   'PHONE_NO_2' => $value['mobile_no'],
 					   'FACEBOOK_LINK' => $value['facebook'],
-					   'GOOGLE_LINK' => $value['google']
+					   'GOOGLE_LINK' => $value['google'],
+
 					);
 					$this->db->where('ID', $value['profile_id']);
-					$this->db->update('profile', $profile);
+					$this->db->update('profile', $profile1);
+
+					$ins = array(
+					   'CONTACT_PERSON' => $value['contact_name']
+					);
+					$this->db->where('ID', $value['lnstut_id']);
+					$this->db->update('institution', $ins);
+
+					return array('status'=>true, 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$value['profile_id'],'LOCATION_ID'=>$value['location_id']);
+				}else {
+					$location= array(
+					   'ADDRESS' => $value['address'],
+					   'CITY' => $value['city'],
+					   'STATE' => $value['state'],
+					   'COUNTRY' => $value['country'],
+					   'ZIP_CODE' => $value['pincode'],
+					);
+					$this->db->insert('location', $location);
+					$locat_id=$this->db->insert_id();
+					if($locat_id){
+						$profile = array(
+						   'LOCATION_ID' => $locat_id,
+						   'EMAIL' => $value['email'],
+						   'PHONE_NO_1' => $value['phone'],
+						   'PHONE_NO_2' => $value['mobile_no'],
+						   'FACEBOOK_LINK' => $value['facebook'],
+						   'GOOGLE_LINK' => $value['google']
+						);
+						$this->db->where('ID', $value['profile_id']);
+						$this->db->update('profile', $profile);
+					}
+
+					$ins = array(
+					   'CONTACT_PERSON' => $value['contact_name']
+					);
+					$this->db->where('ID', $value['lnstut_id']);
+					$this->db->update('institution', $ins);
+
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'PROFILE_ID'=>$value['profile_id'],'LOCATION_ID'=>$locat_id);
 				}
-
-				$ins = array(
-				   'CONTACT_PERSON' => $value['contact_name']
-				);
-				$this->db->where('ID', $value['lnstut_id']);
-				$this->db->update('institution', $ins);
-
-				return array('status'=>true, 'message'=>"Record Inserted Successfully",'PROFILE_ID'=>$value['profile_id'],'LOCATION_ID'=>$locat_id);
 			}
 		}
 
