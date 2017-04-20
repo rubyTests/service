@@ -13,8 +13,9 @@
 		}
 		// Employee List
 		public function fetchEmployeeList(){
-			$sql="SELECT DISTINCT PROFILE.ID,CONCAT(PROFILE.FIRSTNAME,' ',PROFILE.LASTNAME) AS FULLNAME
-					FROM employee_profile JOIN PROFILE ON employee_profile.PROFILE_ID=PROFILE.ID";
+			// $sql="SELECT DISTINCT PROFILE.ID,CONCAT(PROFILE.FIRSTNAME,' ',PROFILE.LASTNAME) AS FULLNAME
+			// 		FROM employee_profile JOIN PROFILE ON employee_profile.PROFILE_ID=PROFILE.ID";
+			$sql="SELECT DISTINCT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS FULLNAME FROM employee_profile";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 	}
