@@ -86,20 +86,20 @@
 
 		public function addEmployeeAdmissionDetails($value){
 			// echo "add";exit;
-			if($value['profile_image']){
-				$Images=$value['profile_image'];
-			   	$ImageSplit = explode(',', $Images);        
-		        $ImageResult = base64_decode($ImageSplit[1]);
-		        $im = imagecreatefromstring($ImageResult); 
-		        if ($im !== false) 
-		        {
-		            $fileName = date('Ymdhis') .".png";
-		            $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
-		            imagedestroy($im);
-		        }
-			}else {
-				$fileName='';
-			}
+			// if($value['profile_image']){
+			// 	$Images=$value['profile_image'];
+			//    	$ImageSplit = explode(',', $Images);        
+		 //        $ImageResult = base64_decode($ImageSplit[1]);
+		 //        $im = imagecreatefromstring($ImageResult); 
+		 //        if ($im !== false) 
+		 //        {
+		 //            $fileName = date('Ymdhis') .".png";
+		 //            $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
+		 //            imagedestroy($im);
+		 //        }
+			// }else {
+			// 	$fileName='';
+			// }
 			
 			$profile = array(
 			   'ADMISSION_NO' => $value['admission_no'],
@@ -108,7 +108,7 @@
 			   'LASTNAME' => $value['last_name'],
 			   'GENDER' => $value['gender'],
 			   'DOB' => $value['dob'],
-			   'IMAGE1' => $fileName,
+			   'IMAGE1' => $value['profile_image'],
 			   'NATIONALITY' => $value['nationality'],
 			   'MARITAL_STATUS' => $value['marital_status']
 			);
@@ -131,27 +131,27 @@
 
 		// Edit admission Profile
 		public function editEmployeeAdmissionDetails($id,$value){
-			if($value['profile_image']){
-				$Images=$value['profile_image'];
-				$ImageSplit = explode(',', $Images);  
-				$ImageSplit1 = explode(':', $ImageSplit[0]);
-				if($ImageSplit1[0]=='http') {
-					$IMG = $value['profile_image'];
-					$splitIMage = explode('/', $IMG);
-					$fileName=$splitIMage[5];
-				}else {
-					$ImageResult = base64_decode($ImageSplit[1]);
-			        $im = imagecreatefromstring($ImageResult); 
-			        if ($im !== false) 
-			        {
-			            $fileName = date('Ymdhis') .".png";
-			            $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
-			            imagedestroy($im);
-			        }
-				}
-			}else {
-				$fileName='';
-			}			
+			// if($value['profile_image']){
+			// 	$Images=$value['profile_image'];
+			// 	$ImageSplit = explode(',', $Images);  
+			// 	$ImageSplit1 = explode(':', $ImageSplit[0]);
+			// 	if($ImageSplit1[0]=='http') {
+			// 		$IMG = $value['profile_image'];
+			// 		$splitIMage = explode('/', $IMG);
+			// 		$fileName=$splitIMage[5];
+			// 	}else {
+			// 		$ImageResult = base64_decode($ImageSplit[1]);
+			//         $im = imagecreatefromstring($ImageResult); 
+			//         if ($im !== false) 
+			//         {
+			//             $fileName = date('Ymdhis') .".png";
+			//             $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
+			//             imagedestroy($im);
+			//         }
+			// 	}
+			// }else {
+			// 	$fileName='';
+			// }			
 			$profile = array(
 			   'ADMISSION_NO' => $value['admission_no'],
 			   'ADMISSION_DATE' => $value['join_date'],
@@ -159,7 +159,7 @@
 			   'LASTNAME' => $value['last_name'],
 			   'GENDER' => $value['gender'],
 			   'DOB' => $value['dob'],
-			   'IMAGE1' => $fileName,
+			   'IMAGE1' => $value['profile_image'],
 			   'NATIONALITY' => $value['nationality'],
 			   'MARITAL_STATUS' => $value['marital_status']
 			);
@@ -403,27 +403,60 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function fetchParticularEmployeeDetails($id){
-			$sql="select 
-			employee_profile.ID,profile.ID AS PROF_ID,profile.ADMISSION_NO,profile.FIRSTNAME,profile.LASTNAME,profile.DOB,
-			profile.GENDER,profile.IMAGE1,profile.EMAIL,profile.PHONE_NO_1,profile.PHONE_NO_2,profile.FACEBOOK_LINK,
-			profile.GOOGLE_LINK,profile.LINKEDIN_LINK,profile.MAILING_ADDRESS,profile.PERMANANT_ADDRESS,
-			NATIONALITY.ID as NATION_ID,NATIONALITY.NAME AS NATION_NAME,
-			marital.ID as MARITAL_ID,marital.NAME AS MARITAL_NAME,employee_profile.QUALIFICATION,
-			department.ID as DEPT_ID,department.NAME AS DEPT_NAME,
-			employee_position.ID as POSITION_ID,employee_position.NAME AS POSITION_NAME,
-			employee_category.ID as CAT_ID,employee_category.NAME AS CATEGORY_NAME,
-			profile_extra.PASSPORT_NO,profile_extra.WORK_PERMIT,profile_extra.ID AS P_EXTRA_ID,
-			bank_details.ID AS BANK_ID,bank_details.ACCOUNT_NAME,bank_details.ACCOUNT_NO,bank_details.BANK_NAME,bank_details.BRANCH_NO
-			from employee_profile 
-			JOIN profile on employee_profile.PROFILE_ID=profile.ID 
-			JOIN nationality on profile.NATIONALITY=nationality.ID
-			JOIN marital on profile.MARITAL_STATUS=marital.ID
-			JOIN employee_category on employee_profile.EMP_CATEGORY_ID=employee_category.ID
-			JOIN department on employee_profile.DEPT_ID=department.ID
-			JOIN employee_position on employee_profile.EMP_POSTION_ID=employee_position.ID
-			JOIN profile_extra on employee_profile.PROFILE_EXTRA_ID=profile_extra.ID
-			JOIN bank_details on profile_extra.BANK_DETAIL_ID=bank_details.ID
-			where employee_profile.ID='$id'";
+			// $sql="select 
+			// employee_profile.ID,profile.ID AS PROF_ID,profile.ADMISSION_NO,profile.FIRSTNAME,profile.LASTNAME,profile.DOB,
+			// profile.GENDER,profile.IMAGE1,profile.EMAIL,profile.PHONE_NO_1,profile.PHONE_NO_2,profile.FACEBOOK_LINK,
+			// profile.GOOGLE_LINK,profile.LINKEDIN_LINK,profile.MAILING_ADDRESS,profile.PERMANANT_ADDRESS,
+			// NATIONALITY.ID as NATION_ID,NATIONALITY.NAME AS NATION_NAME,
+			// marital.ID as MARITAL_ID,marital.NAME AS MARITAL_NAME,employee_profile.QUALIFICATION,
+			// department.ID as DEPT_ID,department.NAME AS DEPT_NAME,
+			// employee_position.ID as POSITION_ID,employee_position.NAME AS POSITION_NAME,
+			// employee_category.ID as CAT_ID,employee_category.NAME AS CATEGORY_NAME,
+			// profile_extra.PASSPORT_NO,profile_extra.WORK_PERMIT,profile_extra.ID AS P_EXTRA_ID,
+			// bank_details.ID AS BANK_ID,bank_details.ACCOUNT_NAME,bank_details.ACCOUNT_NO,bank_details.BANK_NAME,bank_details.BRANCH_NO
+			// from employee_profile 
+			// JOIN profile on employee_profile.PROFILE_ID=profile.ID 
+			// JOIN nationality on profile.NATIONALITY=nationality.ID
+			// JOIN marital on profile.MARITAL_STATUS=marital.ID
+			// JOIN employee_category on employee_profile.EMP_CATEGORY_ID=employee_category.ID
+			// JOIN department on employee_profile.DEPT_ID=department.ID
+			// JOIN employee_position on employee_profile.EMP_POSTION_ID=employee_position.ID
+			// JOIN profile_extra on employee_profile.PROFILE_EXTRA_ID=profile_extra.ID
+			// JOIN bank_details on profile_extra.BANK_DETAIL_ID=bank_details.ID
+			// where employee_profile.ID='$id'";
+			$sql="select ID,PROFILE_ID,QUALIFICATION,DEPT_ID,EMP_CATEGORY_ID,EMP_POSTION_ID,BANK_DETAIL_ID,PROFILE_EXTRA_ID,MANAGER_PROFILE_ID,
+			(select FIRSTNAME from profile where ID=PROFILE_ID) AS FIRSTNAME,
+			(select LASTNAME from profile where ID=PROFILE_ID) AS LASTNAME,
+			(select ADMISSION_NO from profile where ID=PROFILE_ID) AS ADMISSION_NO,
+			(select GENDER from profile where ID=PROFILE_ID) AS GENDER,
+			(select DOB from profile where ID=PROFILE_ID) AS DOB,
+			(select IMAGE1 from profile where ID=PROFILE_ID) AS IMAGE1,
+			(select EMAIL from profile where ID=PROFILE_ID) AS EMAIL,
+			(select PHONE_NO_1 from profile where ID=PROFILE_ID) AS PHONE_NO_1,
+			(select PHONE_NO_2 from profile where ID=PROFILE_ID) AS PHONE_NO_2,
+			(select FACEBOOK_LINK from profile where ID=PROFILE_ID) AS FACEBOOK_LINK,
+			(select GOOGLE_LINK from profile where ID=PROFILE_ID) AS GOOGLE_LINK,
+			(select LINKEDIN_LINK from profile where ID=PROFILE_ID) AS LINKEDIN_LINK,
+			(select RELIGION from profile where ID=PROFILE_ID) AS RELIGION,
+			(select MOTHER_TONGUE from profile where ID=PROFILE_ID) AS MOTHER_TONGUE,
+			(select NATIONALITY from profile where ID=PROFILE_ID) AS NATIONALITY,
+			(select MARITAL_STATUS from profile where ID=PROFILE_ID) AS MARITAL_STATUS,
+			(select MAILING_ADDRESS from profile where ID=PROFILE_ID) AS MAILING_ADDRESS,
+			(select PERMANANT_ADDRESS from profile where ID=PROFILE_ID) AS PERMANANT_ADDRESS,
+			(select LOCATION_ID from profile where ID=PROFILE_ID) AS LOCATION_ID,
+			(select NAME from department where ID=DEPT_ID) AS DEPT_NAME,
+			(select NAME from employee_position where ID=EMP_POSTION_ID) AS POSITION_NAME,
+			(select NAME from employee_category where ID=EMP_CATEGORY_ID) AS CATEGORY_NAME,
+			(select NAME from nationality where ID=NATIONALITY) AS NATION_NAME,
+			(select NAME from marital where ID=MARITAL_STATUS) AS MARITAL_NAME,
+			(select PASSPORT_NO from profile_extra where ID=PROFILE_EXTRA_ID) AS PASSPORT_NO,
+			(select WORK_PERMIT from profile_extra where ID=PROFILE_EXTRA_ID) AS WORK_PERMIT,
+			(select BANK_DETAIL_ID from profile_extra where ID=PROFILE_EXTRA_ID) AS BANK_ID,
+			(select ACCOUNT_NAME from bank_details where ID=BANK_ID) AS ACCOUNT_NAME,
+			(select ACCOUNT_NO from bank_details where ID=BANK_ID) AS ACCOUNT_NO,
+			(select BRANCH_NO from bank_details where ID=BANK_ID) AS BRANCH_NO,
+			(select BANK_NAME from bank_details where ID=BANK_ID) AS BANK_NAME
+			from employee_profile where employee_profile.ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function fetchMailingAddressDetails($id){
@@ -477,6 +510,33 @@
 					);
 					$this->db->where('ID', $value['mail_add_id']);
 					$this->db->update('location', $mail);
+				}else {
+					$mail = array(
+					   'ADDRESS' => $value['m_address'],
+					   'CITY' => $value['m_city'],
+					   'STATE' => $value['m_state'],
+					   'COUNTRY' => $value['m_country'],
+					   'ZIP_CODE' => $value['m_pincode']
+					);
+					$this->db->insert('location', $mail);
+					$mailing_id= $this->db->insert_id();
+
+					$perm = array(
+					   'ADDRESS' => $value['p_address'],
+					   'CITY' => $value['p_city'],
+					   'STATE' => $value['p_state'],
+					   'COUNTRY' => $value['p_country'],
+					   'ZIP_CODE' => $value['p_pincode']
+					);
+					$this->db->insert('location', $perm);
+					$permanant_id= $this->db->insert_id();
+
+					$profile = array(
+					   'MAILING_ADDRESS' => $mailing_id,
+					   'PERMANANT_ADDRESS' => $permanant_id
+					);
+					$this->db->where('ID', $value['profile']);
+					$this->db->update('profile', $profile);
 				}
 				if($value['perm_add_id']){
 					$perm = array(
@@ -501,6 +561,32 @@
 					);
 					$this->db->where('ID', $value['bank_id']);
 					$this->db->update('bank_details', $bank);
+				}else {
+					$bank = array(
+					   'ACCOUNT_NAME' => $value['account_name'],
+					   'ACCOUNT_NO' => $value['account_num'],
+					   'BANK_NAME' => $value['bank_name'],
+					   'BRANCH_NO' => $value['branch_name']
+					);
+					$this->db->insert('bank_details', $bank);
+					$bank_id= $this->db->insert_id();
+					if(!empty($bank_id)){
+						$data1 = array(
+						   'PROFILE_ID' => $value['profile'],
+						   'BANK_DETAIL_ID' => $bank_id,
+						   'PASSPORT_NO' => $value['passport_num'],
+						   'WORK_PERMIT' => $value['work_permit'],
+						);
+						$this->db->insert('profile_extra', $data1);
+						$extra_id= $this->db->insert_id();
+						if(!empty($extra_id)){
+							$emp_profile = array(
+							   'PROFILE_EXTRA_ID' =>$extra_id
+							);
+							$this->db->where('ID', $value['emp_profile_id']);
+							$this->db->update('employee_profile', $emp_profile);
+						}
+					}
 				}
 
 				if($value['profile_extra_id'])
@@ -540,13 +626,80 @@
 		}
 
 		public function deleteEmployeeDetails($id,$prof_id){
-			$sql="DELETE FROM employee_profile where ID='$id'";
-			$result = $this->db->query($sql);
-			if($result==1){
-				$sql="DELETE FROM profile where ID='$prof_id'";
-				$result = $this->db->query($sql);
-				return $this->db->affected_rows();
+			$sql="select ID,PROFILE_ID,PROFILE_EXTRA_ID,
+			(select MAILING_ADDRESS from profile where ID=PROFILE_ID) AS MAILING_ADDRESS,
+			(select PERMANANT_ADDRESS from profile where ID=PROFILE_ID) AS PERMANANT_ADDRESS,
+			(select BANK_DETAIL_ID from profile_extra where ID=PROFILE_EXTRA_ID) AS BANK_ID
+			from employee_profile where employee_profile.ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			if(isset($result[0]['PROFILE_ID'])){
+				$emp="DELETE FROM employee_profile where ID='$id'";
+				$res = $this->db->query($emp);
+				$profile_id=$result[0]['PROFILE_ID'];
+				$sql1="DELETE FROM profile where ID='$profile_id'";
+				$result1 = $this->db->query($sql1);
+				if(isset($result[0]['MAILING_ADDRESS'])){
+					$mail_id=$result[0]['MAILING_ADDRESS'];
+					$sql2="DELETE FROM location where ID='$mail_id'";
+					$result2 = $this->db->query($sql2);
+					if(isset($result[0]['PERMANANT_ADDRESS'])){
+						$perm_id=$result[0]['PERMANANT_ADDRESS'];
+						$sql3="DELETE FROM location where ID='$perm_id'";
+						$result3 = $this->db->query($sql3);
+						if(isset($result[0]['BANK_ID'])){
+							$bank_id=$result[0]['BANK_ID'];
+							$sql4="DELETE FROM bank_details where ID='$bank_id'";
+							$result4 = $this->db->query($sql4);
+							if(isset($result[0]['PROFILE_EXTRA_ID'])){
+								$extra_id=$result[0]['PROFILE_EXTRA_ID'];
+								$sql5="DELETE FROM profile_extra where ID='$extra_id'";
+								$result5 = $this->db->query($sql5);
+							}
+						}
+					}
+				}
 			}
+
+			// print_r($result);exit;
+			// if(isset($result[0]['ID'])){
+			// 	$emp_id=$result[0]['ID'];
+			// 	$sql="DELETE FROM employee_profile where ID='$emp_id'";
+			// 	$result = $this->db->query($sql);
+			// }
+			// if(isset($result[0]['PROFILE_ID'])){
+			// 	$profile_id=$result[0]['PROFILE_ID'];
+			// 	$sql="DELETE FROM profile where ID='$profile_id'";
+			// 	$result = $this->db->query($sql);
+			// }
+			// if(isset($result[0]['MAILING_ADDRESS'])){
+			// 	$mail_id=$result[0]['MAILING_ADDRESS'];
+			// 	$sql="DELETE FROM location where ID='$mail_id'";
+			// 	$result = $this->db->query($sql);
+			// }
+			// if(isset($result[0]['PERMANANT_ADDRESS'])){
+			// 	$perm_id=$result[0]['PERMANANT_ADDRESS'];
+			// 	$sql="DELETE FROM location where ID='$perm_id'";
+			// 	$result = $this->db->query($sql);
+			// }
+			// if(isset($result[0]['BANK_ID'])){
+			// 	$bank_id=$result[0]['BANK_ID'];
+			// 	$sql="DELETE FROM bank_details where ID='$bank_id'";
+			// 	$result = $this->db->query($sql);
+			// }
+			// if(isset($result[0]['PROFILE_EXTRA_ID'])){
+			// 	$extra_id=$result[0]['PROFILE_EXTRA_ID'];
+			// 	$sql="DELETE FROM profile_extra where ID='$extra_id'";
+			// 	$result = $this->db->query($sql);
+			// }
+			return $this->db->affected_rows();
+			// $sql="DELETE FROM employee_profile where ID='$id'";
+			// $result = $this->db->query($sql);
+			// if($result==1){
+			// 	$sql="DELETE FROM profile where ID='$prof_id'";
+			// 	$result = $this->db->query($sql);
+			// 	return $this->db->affected_rows();
+			// }
 		}
 	}
 ?>
