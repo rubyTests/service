@@ -174,7 +174,7 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 	    function getViewdataforLeaveApplication(){
-	    	$sql="select employee_leave.ID,employee_leave.EMP_PROFILE_ID,employee_leave.FROM_DATE,employee_leave.TO_DATE,employee_leave.STATUS,employee_leave.TOTAL_LEAVE,(select concat(FIRSTNAME,' ',LASTNAME) from profile where ID=employee_leave.EMP_PROFILE_ID) AS EMPLOYEE_NAME,(select ID from leave_type where ID=employee_leave.LEAVE_TYPE_ID) AS LEAVE_ID,(select NAME from leave_type where ID=employee_leave.LEAVE_TYPE_ID) AS LEAVE_NAME,(select ID from employee_leave_balance where LEAVE_TYPE_ID=employee_leave.LEAVE_TYPE_ID) AS EMP_L_BAL_ID from employee_leave";
+	    	$sql="select employee_leave.ID,employee_leave.EMP_PROFILE_ID,employee_leave.FROM_DATE,employee_leave.TO_DATE,employee_leave.STATUS,employee_leave.TOTAL_LEAVE,(select concat(FIRSTNAME,' ',LASTNAME) from profile where ID=employee_leave.EMP_PROFILE_ID) AS EMPLOYEE_NAME,(select ID from leave_type where ID=employee_leave.LEAVE_TYPE_ID) AS LEAVE_ID,(select NAME from leave_type where ID=employee_leave.LEAVE_TYPE_ID) AS LEAVE_NAME from employee_leave";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 	     function getleavetypelistforEmployee($empID,$lineid){
@@ -192,14 +192,10 @@
 			$this->db->update('employee_leave', $data); 
 			return array('status'=>true, 'message'=>"Record Updated Successfully");
 	    }
-	    function deleteLeaveApplicationDetails($id,$bal_id){
+	    function deleteLeaveApplicationDetails($id){
 	    	$sql="DELETE FROM employee_leave where ID='$id'";
 			$result = $this->db->query($sql);
-			if($result==1){
-				$sql="DELETE FROM employee_leave_balance where ID='$bal_id'";
-				$result = $this->db->query($sql);
-				return $this->db->affected_rows();
-			}
+			return $this->db->affected_rows();
 	    }
 	}
 ?>

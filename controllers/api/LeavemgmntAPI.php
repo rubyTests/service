@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
-require APPPATH . '/helpers/checktoken_helper.php';
+// require APPPATH . '/helpers/checktoken_helper.php';
 class LeavemgmntAPI extends REST_Controller {
     function LeavemgmntAPI()
     {
@@ -10,9 +10,9 @@ class LeavemgmntAPI extends REST_Controller {
 		header("Access-Control-Allow-Origin: *");
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
-		$userIDByToken="";
-		checkTokenAccess();
-		checkAccess();
+		// $userIDByToken="";
+		// checkTokenAccess();
+		// checkAccess();
     }
 
     // Leave Type
@@ -318,14 +318,13 @@ class LeavemgmntAPI extends REST_Controller {
     }
     function leaveApplicationDetails_delete(){
 		$id = $this->delete('id');
-		$bal_id = $this->delete('bal_id');
 		if($id==NULL){
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Record could not be found'
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}else{
-			$users=$this->leave_mgmnt_model->deleteLeaveApplicationDetails($id,$bal_id);
+			$users=$this->leave_mgmnt_model->deleteLeaveApplicationDetails($id);
 			if ($users!=0){
 				$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 			}
