@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
-// require APPPATH . '/helpers/checktoken_helper.php';
+require APPPATH . '/helpers/checktoken_helper.php';
 class LeavemgmntAPI extends REST_Controller {
     function LeavemgmntAPI()
     {
@@ -10,9 +10,9 @@ class LeavemgmntAPI extends REST_Controller {
 		header("Access-Control-Allow-Origin: *");
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
-		// $userIDByToken="";
-		// checkTokenAccess();
-		// checkAccess();
+		$userIDByToken="";
+		checkTokenAccess();
+		checkAccess();
     }
 
     // Leave Type
