@@ -361,6 +361,28 @@ class EmployeemgmntAPI extends REST_Controller {
 		}
     }
 
+    function previousInstitute_delete(){
+		$id = $this->delete('id');
+		$LocId = $this->delete('Loc_id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$users=$this->employee_mgmnt_model->deletePrevInstDetails($id,$LocId);
+			if ($users!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Record Detail deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record Detail could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
     function updateEmployeeAdmission_post(){
     	// print_r($this->post());
     	// exit;
