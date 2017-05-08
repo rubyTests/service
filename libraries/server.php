@@ -93,12 +93,23 @@ if($loadData=='getToken'){
 	$server->addGrantType($grantType);
 
 }else if($loadData=='checkUser'){
-		// create some users in memory
-	$users = array('admin@gmail.com' => array('password' => '123'));
+	$user_status='Y';
+	$UsersList = $storage->getAuthUserDetails($user_status);
+	$AllUsers=[];
+
+	for($i=0;$i<count($UsersList);$i++){
+		$AllUsers[$UsersList[$i]['USER_EMAIL']] = array('password' => $UsersList[$i]['USER_PASSWORD']);
+	}
+	
+	// create some users in memory
+		
+	//$users = array('admin@gmail.com' => array('password' => '123'));
 
 	// create a storage object
-	$memory = new OAuth2\Storage\Memory(array('user_credentials' => $users));
+	$memory = new OAuth2\Storage\Memory(array('user_credentials' => $AllUsers));
 
+	//print_r($memory);exit;
+	
 	// create the grant type
 	$grantType = new OAuth2\GrantType\UserCredentials($memory);
 

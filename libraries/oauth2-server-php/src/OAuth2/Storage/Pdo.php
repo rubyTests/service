@@ -63,6 +63,7 @@ class Pdo implements
             'refresh_token_table' => 'oauth_refresh_tokens',
             'code_table' => 'oauth_authorization_codes',
             'user_table' => 'oauth_users',
+            'userAuth_table' => 'user',
             'jwt_table'  => 'oauth_jwt',
             'jti_table'  => 'oauth_jti',
             'scope_table'  => 'oauth_scopes',
@@ -100,6 +101,15 @@ class Pdo implements
         $stmt->execute(compact('client_id'));
 
         return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+	
+	public function getAuthUserDetails($user_status)
+    {
+        $stmt = $this->db->prepare(sprintf('SELECT USER_EMAIL,USER_PASSWORD from %s where USER_STATUS=:user_status', $this->config['userAuth_table']));
+        $stmt->execute(compact('user_status'));
+
+        //return $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function setClientDetails($client_id, $client_secret = null, $redirect_uri = null, $grant_types = null, $scope = null, $user_id = null)
