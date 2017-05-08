@@ -5,40 +5,26 @@ require APPPATH . '/libraries/REST_Controller.php';
 require APPPATH . '/helpers/phpMailer/phpmail.php';
 //require APPPATH . '/libraries/server.php';
 require APPPATH . '/helpers/checktoken_helper.php';
-class ProfileAPI extends REST_Controller {    
-    function ProfileAPI()
+class InventoryAPI extends REST_Controller {    
+    function InventoryAPI()
     {
 		parent::__construct();
 		header("Access-Control-Allow-Origin: *");
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
-		$this->load->model('profilemodel');
-		$this->load->model('GeneralMod');
+		$this->load->model('inventory_model');
 		$this->load->library('Curl');
 		$userIDByToken="";
 		checkTokenAccess();
 		checkAccess();
     }
     
-	//-------------------------------------  Profile Add/Update ---------------------------------------------------
-    function admissionDetails_post()
+	//-------------------------------------  store category ---------------------------------------------------
+    function storeCategory_post()
     {
-		// print_r($this->post());
-		// exit;
-    	$id=$this->post('profileId');
-    	$data['ADMISSION_NO']=$this->post('admission_no');
-    	$data['ADMISSION_DATE']=$this->post('admission_date');
-    	$data['FIRSTNAME']=$this->post('first_name');
-    	$data['LASTNAME']=$this->post('last_name');
-		$data['IMAGE1']=$this->post('filename');
-    	$data['GENDER']=$this->post('gender');
-    	$data['DOB']=$this->post('wizard_birth');
-    	$data['NATIONALITY']=$this->post('nationality');
-    	$data['MOTHER_TONGUE']=$this->post('mother_tongue');
-    	$data['RELIGION']=$this->post('religion');
-    	$data['COURSEBATCH_ID']=$this->post('batchId');
-    	$data['ROLL_NO']=$this->post('roll_no');
-		
+    	$id=$this->post('storeCategory_id');
+    	$data['name']=$this->post('name');
+    	$data['code']=$this->post('code');
 		if($id==null){
 			$result=$this->profilemodel->addAdmission($data);
 			if(!empty($result)){

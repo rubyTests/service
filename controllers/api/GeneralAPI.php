@@ -1,11 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
+require APPPATH . '/helpers/mailGun/test.php';
+require APPPATH . '/helpers/phpMailer/phpmail.php';
 class GeneralAPI extends REST_Controller {    
     function GeneralAPI()
     {
 		parent::__construct();
 		$this->load->model('GeneralMod');
+		$this->load->model('profilemodel');
 		header("Access-Control-Allow-Origin: *");
 		$this->load->library('Curl');
     }
@@ -58,14 +61,24 @@ class GeneralAPI extends REST_Controller {
     // print_r($result);
     // exit;
     $valu=json_decode($result,true);
+  // print_r($valu);exit;
+   if(isset($valu['access_token'])){
+		$user_token=$valu['access_token'];
+		$msg='Success';
+		$this->session->set_userdata('user_token',$user_token);
+	}else if(isset($valu['error'])){
+		$user_token=$valu['error'];
+		$msg=$valu['error_description'];
+	}
+	
+	//print_r($user_token);exit;
+	
     
-    $user_token=$valu['access_token'];
-    $this->session->set_userdata('user_token',$user_token);
     // $path=APPPATH;
     // echo $path;
     // Free up the resources $curl is using
     curl_close($curl);
-    return $user_token;
+    return array(['token' => $user_token,'message' => $msg]);
     }
 
     // Login Details 
@@ -74,20 +87,11 @@ class GeneralAPI extends REST_Controller {
     	$USER_FIRST_NAME = $users[0]['USER_FIRST_NAME'];
     	$USER_LAST_NAME = $users[0]['USER_LAST_NAME'];
     	$USER_EMAIL = $users[0]['USER_EMAIL'];
-    	$USER_ROLE_ID = $users[0]['USER_ROLE_ID'];
-    	$USER_READ = $users[0]['USER_READ'];
-    	$USER_WRITE = $users[0]['USER_WRITE'];
-    	$USER_EDIT = $users[0]['USER_EDIT'];
-    	$USER_DELETE = $users[0]['USER_DELETE'];
+    	
     	$this->session->set_userdata('USER_ID',$USER_ID);
     	$this->session->set_userdata('USER_FIRST_NAME',$USER_FIRST_NAME);
     	$this->session->set_userdata('USER_LAST_NAME',$USER_LAST_NAME);
     	$this->session->set_userdata('USER_EMAIL',$USER_EMAIL);
-    	$this->session->set_userdata('USER_ROLE_ID',$USER_ROLE_ID);
-    	$this->session->set_userdata('USER_READ',$USER_READ);
-    	$this->session->set_userdata('USER_WRITE',$USER_WRITE);
-    	$this->session->set_userdata('USER_EDIT',$USER_EDIT);
-    	$this->session->set_userdata('USER_DELETE',$USER_DELETE);
 
     }
     function user_get(){
@@ -99,13 +103,18 @@ class GeneralAPI extends REST_Controller {
 		$email = $this->get('USER_EMAIL');
 		$pwd = $this->get('USER_PASSWORD');
 		$sessionToken=$this->session->userdata('user_token');
+		//$this->session->sess_expiration = 20;
 		// echo $this->session->userdata('USER_FIRST_NAME');
 		// echo 'sessionToken';
 		//  exit;
-		if($sessionToken!=''){
-			$this->response(['status' =>TRUE,'access_token'=> $sessionToken], REST_Controller::HTTP_OK); // OK 
-			exit;
+		$sessionEmail=$this->session->userdata('USER_EMAIL');
+		if($email==$sessionEmail){
+			if($sessionToken!=''){
+				$this->response(['status' =>TRUE,'access_token'=> $sessionToken], REST_Controller::HTTP_OK); // OK 
+				exit;
+			}
 		}
+		
 		// $this->session->set_userdata('user_token','test');
 		// echo "came";
 		//exit;
@@ -120,23 +129,32 @@ class GeneralAPI extends REST_Controller {
 			//$type='client';
 			$client_id='123';
 			$users=$this->tokenGen($type,$email,$pwd,$client_id);
-			if (!empty($users)){
-				
-				//$client_secret='123456';
-				//$users=$this->tokenGen($type,$email,$pwd,$client_id);
+			//print_r($users[0]);exit;
+			if($users[0]['message']=='Success'){
 				$result=$this->GeneralMod->getLoginDetail($email,$pwd);
 				$this->setSessionData($result);
-				//$users=$this->tokenGen($type,$client_id,$client_secret);
-				//$users=json_decode($users);
-				$this->set_response(['status' =>TRUE,'access_token'=> $users,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+				$this->set_response(['status' =>TRUE,'access_token'=> $users[0]['token'],'message'=>$result], REST_Controller::HTTP_OK);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>$users[0]['message']], REST_Controller::HTTP_OK);
 			}
-			else
-			{
-				$this->set_response([
-				'status' => FALSE,
-				'message' => 'Login Detail could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
-			}
+			
+			// if (!empty($users)){
+				
+				// //$client_secret='123456';
+				// //$users=$this->tokenGen($type,$email,$pwd,$client_id);
+				// $result=$this->GeneralMod->getLoginDetail($email,$pwd);
+				// $this->setSessionData($result);
+				// //$users=$this->tokenGen($type,$client_id,$client_secret);
+				// //$users=json_decode($users);
+				// $this->set_response(['status' =>TRUE,'access_token'=> $users,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			// }
+			// else
+			// {
+				// $this->set_response([
+				// 'status' => FALSE,
+				// 'message' => 'Login Detail could not be found'
+				// ], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			// }
 		}
     }
 	
@@ -235,6 +253,42 @@ class GeneralAPI extends REST_Controller {
 
 	}
 	
+	// Send Email via MailGun
+	
+	function sendMail_get(){
+		$to=$this->get('mailId');
+		//$to='karthik@appnlogic.com';
+		$result=mailGun($to);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Email sending failed'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
+	}
+	
+	function sendMail_post(){
+		$to=$this->post('mailId');
+		//$to='karthik@appnlogic.com';
+		$result=mailGun($to);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Email sending failed'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
+	}
+	
+	// Send SMS via Way2Sms
+	
 	function smsGateway_get(){
 		// $uid=$this->get('user');
 		// $pwd=$this->get('pwd');
@@ -251,6 +305,109 @@ class GeneralAPI extends REST_Controller {
 			'message' => 'sms could not be send'
 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}
+	}
+	
+	// Set Password Details
+	
+	function setPasswordDetail_get(){
+		$token=$this->get('token');
+		$result=$this->profilemodel->getPasswordDetail($token);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Invalid token verification'
+			], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	function setPasswordDetail_post(){
+		$data=$this->post('userData');
+		$result=$this->profilemodel->setPassword($data);
+		if ($result==true){
+			$this->set_response(['status' =>TRUE,'message'=>'Your password created succesfully'], REST_Controller::HTTP_OK); 
+		}
+		else{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Invalid token verification'
+			], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	// Reset Password 
+	
+	function passwordReset_get(){
+    	$data=$this->get('userData');
+		$result=$this->profilemodel->passwordReset($data);
+		if (!empty($result)){
+			$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Your Rubycampus application password has been reset successfully.Please Click the below button and set your password <a href='http://192.168.1.138/Projects/campus/#/verification/$result'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
+			$res=mailVerify($data,$msg);
+			$this->set_response(['status' =>TRUE,'message'=>'Please check your mail'], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Invalid user email or phone'], REST_Controller::HTTP_OK);
+		} 			
+	}
+	
+	function menuLink_get(){
+		$result=$this->GeneralMod->menuLink();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Invalid user email or phone'], REST_Controller::HTTP_OK);
+		} 			
+	}
+	
+	// Mobile API's
+	function instituteDetail_get(){
+		$result=$this->GeneralMod->departmentDetails();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'There is no department details'], REST_Controller::HTTP_OK);
+		} 
+	}
+	
+	
+	function department_get(){
+		$result=$this->GeneralMod->departmentDetails();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'There is no department details'], REST_Controller::HTTP_OK);
+		} 
+	}
+	
+	function course_get(){
+		$result=$this->GeneralMod->courseDetails();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'There is no course details'], REST_Controller::HTTP_OK);
+		} 
+	}
+	
+	function courseBatch_get(){
+		$result=$this->GeneralMod->course_batchDetails();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'There is no course_batch details'], REST_Controller::HTTP_OK);
+		} 
 	}
 	
 }
