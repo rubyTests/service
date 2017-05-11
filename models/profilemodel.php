@@ -1529,7 +1529,8 @@
 							$this->db->update('user', $data);
 							
 							$data1 = array(
-								'EMAIL_STATUS' => 'Y'
+								'EMAIL_STATUS' => 'Y',
+								'PHONE_STATUS' => 'Y'
 							);
 							$this->db->where('ID', $id);
 							$this->db->update('profile', $data1);
@@ -1550,11 +1551,105 @@
 							$this->db->insert('user', $data);
 							
 							$data1 = array(
-								'EMAIL_STATUS' => 'Y'
+								'EMAIL_STATUS' => 'Y',
+								'PHONE_STATUS' => 'Y'
 							);
 							$this->db->where('ID', $id);
 							$this->db->update('profile', $data1);
 							
+							return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+						}
+					}
+				}else{
+					$phone=$result[0]['PHONE_NO_1'];
+					$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result1){
+						$data = array(
+							'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+							'USER_LAST_NAME' => $result[0]['LASTNAME'],
+							'USER_PHONE' => $result[0]['PHONE_NO_1'],
+							'USER_ROLE_ID' => 1,
+							'USER_STATUS' => 'N',
+						);
+						$this->db->where('USER_PROFILE_ID', $id);
+						$this->db->update('user', $data);
+						
+						$data1 = array(
+							'PHONE_STATUS' => 'Y'
+						);
+						$this->db->where('ID', $id);
+						$this->db->update('profile', $data1);
+						$to='';
+						$token='';
+						return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+					}else{
+						$data = array(
+							'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+							'USER_LAST_NAME' => $result[0]['LASTNAME'],
+							'USER_PROFILE_ID' => $result[0]['ID'],
+							'USER_PHONE' => $result[0]['PHONE_NO_1'],
+							'USER_ROLE_ID' => 1,
+							'USER_VERIFYKEY' => $token,
+							'USER_STATUS' => 'N',
+						);
+						$this->db->insert('user', $data);
+						
+						$data1 = array(
+							'PHONE_STATUS' => 'Y'
+						);
+						$this->db->where('ID', $id);
+						$this->db->update('profile', $data1);
+						$to='';
+						$token='';
+						return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+					}
+				}
+			}else if($result[0]['PHONE_NO_1']){
+				$phoneCheck=$result[0]['PHONE_NO_1_VERIFIED'];
+				$phoneStatus=$result[0]['PHONE_STATUS'];
+				if($phoneStatus=='N'){
+					if($phoneCheck=='N'){
+						$phone=$result[0]['PHONE_NO_1'];
+						$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
+						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($result1){
+							$data = array(
+								'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+								'USER_LAST_NAME' => $result[0]['LASTNAME'],
+								'USER_PHONE' => $result[0]['PHONE_NO_1'],
+								'USER_ROLE_ID' => 1,
+								'USER_STATUS' => 'N',
+							);
+							$this->db->where('USER_PROFILE_ID', $id);
+							$this->db->update('user', $data);
+							
+							$data1 = array(
+								'PHONE_STATUS' => 'Y'
+							);
+							$this->db->where('ID', $id);
+							$this->db->update('profile', $data1);
+							$to='';
+							$token='';
+							return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+						}else{
+							$data = array(
+								'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+								'USER_LAST_NAME' => $result[0]['LASTNAME'],
+								'USER_PROFILE_ID' => $result[0]['ID'],
+								'USER_PHONE' => $result[0]['PHONE_NO_1'],
+								'USER_ROLE_ID' => 1,
+								'USER_STATUS' => 'N',
+							);
+							$this->db->insert('user', $data);
+							
+							$data1 = array(
+								'PHONE_STATUS' => 'Y'
+							);
+							$this->db->where('ID', $id);
+							$this->db->update('profile', $data1);
+							$to='';
+							$token='';
 							return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
 						}
 					}
