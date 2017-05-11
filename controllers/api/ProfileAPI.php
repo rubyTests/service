@@ -122,7 +122,7 @@ class ProfileAPI extends REST_Controller {
 				}
 				//print_r($result);exit;
 				if($phone){
-					$this->GeneralMod->phoneVerify($phone,$sms);
+					$this->GeneralMod->phoneVerify($id,$phone);
 				}
 			}
 			
