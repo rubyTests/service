@@ -484,5 +484,15 @@
 				FROM institution";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
+		
+		public function fetchBlockDetails($id){
+			$sql="SELECT * FROM block where BUILDING_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
+		public function fetchRoomDetails($id){
+			$sql="SELECT * FROM room where BLOCK_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
 	}
 ?>
