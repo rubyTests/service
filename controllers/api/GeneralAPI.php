@@ -32,6 +32,15 @@ class GeneralAPI extends REST_Controller {
 
         );
     		$path=base_url('api/Auth/checkUser');
+    	}else if($type=='phone'){
+    		$data = array(
+            'grant_type'      => 'password',
+            'client_id' => $client_id,
+            'username' => $username,
+            'password'    => $password
+
+        );
+    		$path=base_url('api/Auth/checkUserPhone');
     	}
         
         //grant_type=client_credentials&client_id=TestClient&client_secret=TestSecret
@@ -102,6 +111,8 @@ class GeneralAPI extends REST_Controller {
 	function login_get(){
 		$email = $this->get('USER_EMAIL');
 		$pwd = $this->get('USER_PASSWORD');
+		//print_r(is_numeric($email));exit;
+		
 		$sessionToken=$this->session->userdata('user_token');
 		//$this->session->sess_expiration = 20;
 		// echo $this->session->userdata('USER_FIRST_NAME');
@@ -125,13 +136,20 @@ class GeneralAPI extends REST_Controller {
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}else{
 			//$user=$this->GeneralMod->getLoginDetail($email,$pwd);
-			$type='password';
 			//$type='client';
+			if(is_numeric($email)){
+				$type='phone';
+			}else{
+				$type='password';
+			}
 			$client_id='123';
 			$users=$this->tokenGen($type,$email,$pwd,$client_id);
-			//print_r($users[0]);exit;
 			if($users[0]['message']=='Success'){
-				$result=$this->GeneralMod->getLoginDetail($email,$pwd);
+				if($type=='phone'){
+					$result=$this->GeneralMod->getPhoneLoginDetail($email,$pwd);
+				}else{
+					$result=$this->GeneralMod->getEmailLoginDetail($email,$pwd);
+				}
 				$this->setSessionData($result);
 				$this->set_response(['status' =>TRUE,'access_token'=> $users[0]['token'],'message'=>$result], REST_Controller::HTTP_OK);
 			}else{
@@ -157,6 +175,19 @@ class GeneralAPI extends REST_Controller {
 			// }
 		}
     }
+	
+	// Check User Phone number
+
+	function checkUserValid_get(){
+		$userData=$this->get('USER_EMAIL');
+		$result=$this->GeneralMod->getLoginDetail($userData);
+		if ($result==true){
+			$this->set_response(['status' =>true,'message'=>'Already verified'], REST_Controller::HTTP_OK); 
+		}
+		else{
+			$this->set_response(['status' =>TRUE,'message'=>'Not verify'], REST_Controller::HTTP_OK);
+		}
+	}
 	
 	// File Upload API
 	
@@ -295,6 +326,7 @@ class GeneralAPI extends REST_Controller {
 		$phone=$this->get('phone');
 		$msg=$this->get('msg');
 		$users=$this->GeneralMod->sendWay2SMS($phone);
+		print_r($users);exit;
 		if ($users==true){
 			$this->set_response(['status' =>TRUE,'message'=>'sms send successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 		}
@@ -323,6 +355,18 @@ class GeneralAPI extends REST_Controller {
 		}
 	}
 	
+	function checkOtp_get(){
+		$id=$this->get('profileId');
+		$otp=$this->get('otp');
+		$result=$this->GeneralMod->checkOtp($id,$otp);
+		if ($result==true){
+			$this->set_response(['status' =>TRUE,'message'=>'Success'], REST_Controller::HTTP_OK); 
+		}
+		else{
+			$this->set_response(['status' => FALSE,'message' => 'Invalid Your OTP'], REST_Controller::HTTP_OK);
+		}
+	}
+	
 	function setPasswordDetail_post(){
 		$data=$this->post('userData');
 		$result=$this->profilemodel->setPassword($data);
@@ -346,17 +390,6 @@ class GeneralAPI extends REST_Controller {
 			$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Your Rubycampus application password has been reset successfully.Please Click the below button and set your password <a href='http://192.168.1.138/Projects/campus/#/verification/$result'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
 			$res=mailVerify($data,$msg);
 			$this->set_response(['status' =>TRUE,'message'=>'Please check your mail'], REST_Controller::HTTP_OK); 
-		}
-		else
-		{
-			$this->set_response(['status' =>FALSE,'message'=>'Invalid user email or phone'], REST_Controller::HTTP_OK);
-		} 			
-	}
-	
-	function menuLink_get(){
-		$result=$this->GeneralMod->menuLink();
-		if (!empty($result)){
-			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 		}
 		else
 		{
