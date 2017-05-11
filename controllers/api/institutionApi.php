@@ -474,4 +474,48 @@ class institutionApi extends REST_Controller {
 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}  	
 	}
+	
+	function blockDetails_get(){
+		$id=$this->get('id');
+		if($id==null){
+			$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$result=$this->institution_model->fetchBlockDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}  	
+	}
+	
+	function roomDetails_get(){
+		$id=$this->get('id');
+		if($id==null){
+			$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$result=$this->institution_model->fetchRoomDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}  	
+	}
 }
