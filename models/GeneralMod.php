@@ -4,8 +4,18 @@
 
 		// Login Details 
 		
-		public function getLoginDetail($id,$id1){
+		//Email number Login
+		public function getEmailLoginDetail($id,$id1){
 			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ID=user_roles.id AND USER_EMAIL='$id' AND USER_PASSWORD='$id1'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if(!empty($result)){
+				return $result;
+			}
+		}
+		
+		//Phone number Login
+		public function getPhoneLoginDetail($id,$id1){
+			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ID=user_roles.id AND USER_PHONE='$id' AND USER_PASSWORD='$id1'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if(!empty($result)){
 				return $result;
@@ -22,9 +32,18 @@
 			return true;
 		}
 		
+		// Check OTP
+		public function checkOtp($id,$otp){
+			$sql="SELECT * FROM user where USER_PASSWORD='$otp' AND USER_PROFILE_ID='$id' AND USER_STATUS='N'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return true;
+			}
+		}
+		
 		// Phone verification 
 
-		public function phoneVerify($phone,$msg){ 
+		public function phoneVerify($id,$phone){ 
 			$random_no = mt_rand(100000,999999);
 			// $data = array(
 			// 'phone' => $phone,
@@ -33,8 +52,15 @@
 			// );
 			// $this->db->insert('mobile_otp', $data);
 
-			//$msg = "OTP for Rubycampus E-application is ".$random_no.". This password is valid for 15 mins whichever is earlier. Do not share it with anyone";
+			$msg = "OTP for Rubycampus E-application is ".$random_no.". Please login into your application. Do not share it with anyone";
 
+			$data = array(
+				'USER_PASSWORD' => $random_no
+			);
+			$this->db->where('USER_PROFILE_ID', $id);
+			$this->db->update('user', $data);
+			
+			
 			$curl = curl_init();
 			$timeout = 30;
 			$result = array();
@@ -192,27 +218,7 @@
 			return true;
 		}
 
-		public function menuLink(){
-			$sql="SELECT * FROM `menu`";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result){
-				foreach($result as $key => $value){
-					$menuId=$value['id'];
-					$sql="SELECT * FROM `submenu` WHERE menu_id='$menuId'";
-					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-					//print_r($result);
-					// if($result){
-						// foreach($result as $key => $value){
-							// $subMenuId[$key]=$value['id'];
-							// $sql="SELECT * FROM `submenu_item` WHERE submenu_id='$subMenuId'";
-							// $result[$key] = $this->db->query($sql, $return_object = TRUE)->result_array();
-						// }
-					// }
-				}
-				//exit;
-				return $result;
-			}
-		}
+		
 		
 		public function departmentDetails(){
 			$sql="SELECT ID,NAME,CODE FROM `department`";
