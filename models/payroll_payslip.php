@@ -106,7 +106,7 @@
 			}
 	    }
 	    public function editPayStructure($id,$value){
-	    	print_r($value);exit;
+	    	// print_r($value);exit;
 			$sql="SELECT * FROM paystructure where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
 			if($result[0]['NAME']==$value['PAY_STRU_NAME']){
