@@ -35,4 +35,7 @@ class Auth extends CI_Controller {
         loadServer('checkClient');  
     }
    
+	function checkUserPhone(){
+		loadServer('checkUserPhone');
+	}
 }
