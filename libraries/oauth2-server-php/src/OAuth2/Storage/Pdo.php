@@ -111,6 +111,15 @@ class Pdo implements
         //return $stmt->fetch(\PDO::FETCH_ASSOC);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+	
+	public function getAuthUserPhoneDetails($user_status)
+    {
+        $stmt = $this->db->prepare(sprintf('SELECT USER_PHONE,USER_PASSWORD from %s where USER_STATUS=:user_status', $this->config['userAuth_table']));
+        $stmt->execute(compact('user_status'));
+
+        //return $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
     public function setClientDetails($client_id, $client_secret = null, $redirect_uri = null, $grant_types = null, $scope = null, $user_id = null)
     {
