@@ -473,15 +473,17 @@
 			$PayslipList=array();
 			foreach ($result as $key => $value) {
 				$empID=$value['ID'];
-				// print_r($empID);
-				// $PayslipList=$PayslipList || array();
+				$profile_id=$value['PROFILE_ID'];
 				$sql1="SELECT ID,GENERATION_DATE,EMP_PROFILE_ID,PAYSTRUCTURE_ID,STATUS,NETPAY,
 						(SELECT NAME FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS STRUCURE_NAME,
 						(SELECT FREQUENCY FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS FREQUENCY,
-						(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$empID') AS EMPLOYEE_NAME,
-						(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$empID') AS EMPLOYEE_NO
+						(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NAME,
+						(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NO
 						from employee_payslip where EMP_PROFILE_ID='$empID'";
-  				$PayslipList[$key] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+  				$tempArray = $this->db->query($sql1, $return_object = TRUE)->result_array();
+				foreach ($tempArray as  $value) {
+					$PayslipList[]=$value;
+				}
   				// array_push($arrayList, $result1);
 			}
 			
@@ -489,71 +491,78 @@
 			// 			// print_r($arr);
 			// 		    return $arr;
 			// 		}, $PayslipList);
-			print_r($PayslipList);
-			exit();
+			// print_r($PayslipList);
+			// exit();
 			return $PayslipList;
 	  	}
 	  	function fetchPaylipDetailbasedonDept($deptid,$fromdate,$uptodate){
 	  		if($deptid!=null && $fromdate==null && $uptodate==null){
 	  			$sql="select * from employee_profile where DEPT_ID='$deptid'";
 	  			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				$result1=array();
 	  			foreach ($result as  $value) {
-	  				$emp_id=$value['PROFILE_ID'];
+	  				$emp_id=$value['ID'];
+					$profile_id=$value['PROFILE_ID'];
 	  				$sql1="SELECT ID,GENERATION_DATE,EMP_PROFILE_ID,PAYSTRUCTURE_ID,STATUS,NETPAY,
 							(SELECT NAME FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS STRUCURE_NAME,
 							(SELECT FREQUENCY FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS FREQUENCY,
-							(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$emp_id') AS EMPLOYEE_NAME,
-							(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$emp_id') AS EMPLOYEE_NO
+							(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NAME,
+							(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NO
 							from employee_payslip where EMP_PROFILE_ID='$emp_id'";
-	  				return $result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
-	  				//print_r($result1);
+	  				$result1[] = $this->db->query($sql1, $return_object = TRUE)->result_array();
 	  			}
-	  			// print_r($result1);
-	  			// exit;
-	  			// return $result1;
+	  			return $result1[0];
 	  		}
 	  		else if($deptid!=null && $fromdate!=null && $uptodate==null){
-	  			$sql="select * from employee_profile where DEPT_ID='$deptid'";
+				$sql="select * from employee_profile where DEPT_ID='$deptid'";
 	  			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				$result1=array();
 	  			foreach ($result as  $value) {
-	  				$emp_id=$value['PROFILE_ID'];
+	  				$emp_id=$value['ID'];
+					$profile_id=$value['PROFILE_ID'];
 	  				$sql1="SELECT ID,GENERATION_DATE,EMP_PROFILE_ID,PAYSTRUCTURE_ID,STATUS,NETPAY,
 							(SELECT NAME FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS STRUCURE_NAME,
 							(SELECT FREQUENCY FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS FREQUENCY,
-							(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$emp_id') AS EMPLOYEE_NAME,
-							(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$emp_id') AS EMPLOYEE_NO
+							(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NAME,
+							(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NO
 							from employee_payslip where EMP_PROFILE_ID='$emp_id' and GENERATION_DATE >= '$fromdate'";
-	  				return $result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+	  				$result1[] = $this->db->query($sql1, $return_object = TRUE)->result_array();
 	  			}
-
+				return $result1[0];
 	  		}
 	  		else if($deptid!=null && $fromdate==null && $uptodate!=null){
-	  			$sql="select * from employee_profile where DEPT_ID='$deptid'";
+				$sql="select * from employee_profile where DEPT_ID='$deptid'";
 	  			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				$result1=array();
 	  			foreach ($result as  $value) {
-	  				$emp_id=$value['PROFILE_ID'];
+	  				$emp_id=$value['ID'];
+					$profile_id=$value['PROFILE_ID'];
 	  				$sql1="SELECT ID,GENERATION_DATE,EMP_PROFILE_ID,PAYSTRUCTURE_ID,STATUS,NETPAY,
 							(SELECT NAME FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS STRUCURE_NAME,
 							(SELECT FREQUENCY FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS FREQUENCY,
-							(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$emp_id') AS EMPLOYEE_NAME,
-							(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$emp_id') AS EMPLOYEE_NO
+							(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NAME,
+							(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NO
 							from employee_payslip where EMP_PROFILE_ID='$emp_id' and GENERATION_DATE <= '$uptodate'";
-	  				return $result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+	  				$result1[] = $this->db->query($sql1, $return_object = TRUE)->result_array();
 	  			}
+				return $result1[0];
 	  		}
 	  		else if($deptid!=null && $fromdate!=null && $uptodate!=null){
-	  			$sql="select * from employee_profile where DEPT_ID='$deptid'";
+				$sql="select * from employee_profile where DEPT_ID='$deptid'";
 	  			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				$result1=array();
 	  			foreach ($result as  $value) {
-	  				$emp_id=$value['PROFILE_ID'];
+	  				$emp_id=$value['ID'];
+					$profile_id=$value['PROFILE_ID'];
 	  				$sql1="SELECT ID,GENERATION_DATE,EMP_PROFILE_ID,PAYSTRUCTURE_ID,STATUS,NETPAY,
 							(SELECT NAME FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS STRUCURE_NAME,
 							(SELECT FREQUENCY FROM paystructure WHERE ID=PAYSTRUCTURE_ID) AS FREQUENCY,
-							(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$emp_id') AS EMPLOYEE_NAME,
-							(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$emp_id') AS EMPLOYEE_NO
+							(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NAME,
+							(SELECT ADMISSION_NO FROM PROFILE WHERE ID='$profile_id') AS EMPLOYEE_NO
 							from employee_payslip where EMP_PROFILE_ID='$emp_id' and GENERATION_DATE BETWEEN '$fromdate' AND '$uptodate'";
-	  				return $result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+	  				$result1[] = $this->db->query($sql1, $return_object = TRUE)->result_array();
 	  			}
+				return $result1[0];
 	  		}
 	  	}
 	  	function fetchApproveStatusDetails($status){
