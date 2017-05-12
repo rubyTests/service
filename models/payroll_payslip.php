@@ -216,7 +216,8 @@
 	    	return $this->db->affected_rows();
 		}
 		function getPayItemusingPaystructure($id){
-			$sql="SELECT * FROM payitemstructure where PAYSTRUCTURE_ID='$id'";
+			// $sql="SELECT * FROM payitemstructure where PAYSTRUCTURE_ID='$id'";
+			$sql="SELECT * FROM employee_profile where PAY_STRUCTURE_ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function getEmployeeList($id){
@@ -406,7 +407,6 @@
 			}
 	    }
 	    function fetchPayslipAddonDetails($empid,$stucId,$gen_date){
-	    	// $sql="SELECT ID,PROFILE_ID,PAY_STRUCTURE_ID,(SELECT ID FROM employee_payslip WHERE ID=employee_profile.ID) AS PAYSLIP_ID,(SELECT GENERATION_DATE FROM employee_payslip WHERE ID=employee_profile.ID) AS GEN_DATE,(SELECT STATUS FROM employee_payslip WHERE ID=employee_profile.ID) AS STATUS,(SELECT NETPAY FROM employee_payslip WHERE ID=employee_profile.ID) AS NETPAY FROM employee_profile WHERE employee_profile.ID='$empid' AND employee_profile.PAY_STRUCTURE_ID='$stucId'";
 	    	$sql="SELECT ID,PROFILE_ID,PAY_STRUCTURE_ID,(SELECT ID FROM employee_payslip WHERE EMP_PROFILE_ID=employee_profile.ID AND GENERATION_DATE='$gen_date') AS PAYSLIP_ID,(SELECT GENERATION_DATE FROM employee_payslip WHERE EMP_PROFILE_ID=employee_profile.ID AND GENERATION_DATE='$gen_date') AS GEN_DATE,(SELECT STATUS FROM employee_payslip WHERE EMP_PROFILE_ID=employee_profile.ID AND GENERATION_DATE='$gen_date') AS STATUS,(SELECT NETPAY FROM employee_payslip WHERE EMP_PROFILE_ID=employee_profile.ID AND GENERATION_DATE='$gen_date') AS NETPAY FROM employee_profile WHERE employee_profile.ID='$empid' AND employee_profile.PAY_STRUCTURE_ID='$stucId'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			foreach ($result as $key => $value) {
@@ -416,18 +416,19 @@
 			}
 			// print_r($result);exit;
 			return $result[0];
-			// if($result){
-			// 	$payslipId=$result[0]['ID'];
-			// 	$sql1="SELECT * FROM employee_payslip_addon WHERE EMP_PAYSLIP_ID='$payslipId'";
-			// 	return $result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
-			// }
-			// print_r($result1);exit;
+	    }
+	    function fetchAddonPayslipDetails($payslip){
+	    	$sql="SELECT * from employee_payslip where ID='$payslip'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			foreach ($result as $key => $value) {
+				$payslipId=$value['ID'];
+				$sql1="SELECT * FROM employee_payslip_addon WHERE EMP_PAYSLIP_ID='$payslipId'";
+				$result[$key]['addon'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			}
+			// print_r($result);exit;
+			return $result[0];
 	    }
 	    function fetchEmployeePayslipDetails($id){
-	    	// $sql="SELECT ID,PROFILE_ID,PAY_STRUCTURE_ID,(SELECT ID FROM employee_payslip WHERE ID=employee_profile.ID) AS PAYSLIP_ID,(SELECT GENERATION_DATE FROM employee_payslip WHERE ID=employee_profile.ID) AS GEN_DATE,(SELECT STATUS FROM employee_payslip WHERE ID=employee_profile.ID) AS STATUS,(SELECT NETPAY FROM employee_payslip WHERE ID=employee_profile.ID) AS NETPAY FROM employee_profile WHERE employee_profile.ID='$id'";
-
-	    	// modified on 2-5-17
-
 	    	$sql="SELECT * FROM employee_payslip WHERE EMP_PROFILE_ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }

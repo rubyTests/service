@@ -405,6 +405,28 @@ class PayrollPayslipAPI extends REST_Controller {
 			}
 		}
 	}
+	function fetchAddonPaySlipDetails_get(){
+		$payslip = $this->get('payslipId');
+		if($payslip==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+
+		}else{
+			$result=$this->payroll_payslip->fetchAddonPayslipDetails($payslip);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+	}
 	function fetchPaySlipAddonDetails_get(){
 		$Empid = $this->get('empId');
 		$Struc_id = $this->get('pay_struc_ID');
