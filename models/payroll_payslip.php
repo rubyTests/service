@@ -212,6 +212,8 @@
 				$this->db->update('employee_profile', $data);
 			}
 			$sql="DELETE FROM paystructure where ID='$id'";
+			$result = $this->db->query($sql);
+			$sql="DELETE FROM payitemstructure where PAYSTRUCTURE_ID='$id'";
 			$result = $this->db->query($sql);			
 	    	return $this->db->affected_rows();
 		}
