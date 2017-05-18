@@ -72,7 +72,7 @@
 	    	return $this->db->affected_rows();
 		}
 		function getStudentList(){
-			$sql="SELECT PROF_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROF_ID) AS STUDENT_NAME,(SELECT ADMISSION_NO FROM PROFILE WHERE ID=PROF_ID) AS ADMISSION_NO FROM student_profile";
+			$sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS STUDENT_NAME,(SELECT ADMISSION_NO FROM PROFILE WHERE ID=PROFILE_ID) AS ADMISSION_NO FROM student_profile";
 			return  $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function getFeeFineList(){
@@ -273,7 +273,7 @@
 			// print_r($result);exit;
 			foreach ($result as $key => $value) {
 				$id=$value['ID'];
-				$sql1="SELECT PROF_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROF_ID) AS STUDENT_NAME FROM student_profile where COU_BATCH_ID='$id'";
+				$sql1="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) AS STUDENT_NAME FROM student_profile where COURSEBATCH_ID='$id'";
 				$result[$key]['studentlist']=$this->db->query($sql1, $return_object = TRUE)->result_array();
 			}
 			return $result;
@@ -283,7 +283,7 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function getStudentListbasedon_batch($batchid){
-			$sql="SELECT PROF_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROF_ID) AS STUDENT_NAME FROM student_profile where COU_BATCH_ID='$batchid'";
+			$sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) AS STUDENT_NAME FROM student_profile where COURSEBATCH_ID='$batchid'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 	}
