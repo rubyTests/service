@@ -2,7 +2,7 @@
 	defined('BASEPATH') OR exit('No direct script access allowed');
 	class usermenumodel extends CI_Model {
 		
-		public function menuLink(){
+		public function userMenu(){
 			$value=[];
 			$value1=[];
 			$value2=[];
@@ -13,26 +13,31 @@
 					$test[$key]=$value;
 					$menuId=$value['id'];
 					$sql="SELECT * FROM `submenu` WHERE menu_id='$menuId'";
-					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-					array_push($value2,$result);
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					$result[$key]['children']=$result1;
+					$result[$key]['folder']=true;
+					$result[$key]['expanded']=($key == 1)? true:false;
+					//array_push($value2,$result);
 					//print_r($result);
-					if($result){
-						foreach($result as $key => $value){
+					if($result1){
+						foreach($result1 as $key => $value){
 							$subMenuId=$value['id'];
 							$sql="SELECT * FROM `submenu_item` WHERE submenu_id='$subMenuId'";
-							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-							array_push($value1,$result);
+							$result2 = $this->db->query($sql, $return_object = TRUE)->result_array();
+							//array_push($value1,$result);
+							$result1[$key]['children']=$result2;
 						}
 					}
-					array_push($value,$test);
+					//array_push($value,$test);
 				}
 				//exit;
 				//return $value;
-				return array(['data' => $value,'data1'=> $value2,'data2' =>$value1]);
+				//return array(['data' => $result]);
+				return $result;
 			}
 		}
 		
-		public function menuLink1(){
+		public function menuLink(){
 			$sql="select m.id,m.title,m.icon,m.link,sm.id as submenu_id,sm.menu_id,sm.title as submenuTitle,sm.link as submenuLink,sm.icon as submenuIcon,smi.id as item_id,smi.submenu_id as Itemsubmenu_id,smi.title as itemTitle,smi.link as itemLink from menu m LEFT JOIN submenu sm ON m.id=sm.menu_id LEFT JOIN submenu_item smi ON sm.id=smi.submenu_id ORDER BY m.id,sm.id,smi.id";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
