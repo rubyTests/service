@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
-require APPPATH . '/helpers/checktoken_helper.php';
+// require APPPATH . '/helpers/checktoken_helper.php';
 class FinanceAPI extends REST_Controller {
     function FinanceAPI()
     {
@@ -11,9 +11,9 @@ class FinanceAPI extends REST_Controller {
 		header("Access-Control-Allow-Origin: *");
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
-		$userIDByToken="";
-		checkTokenAccess();
-		checkAccess();
+		// $userIDByToken="";
+		// checkTokenAccess();
+		// checkAccess();
     }
 
     // Payitem Details 	
@@ -220,14 +220,14 @@ class FinanceAPI extends REST_Controller {
 		}
     }
     function feeStructure_post(){
-    	print_r($this->post());exit;
+    	// print_r($this->post());exit;
     	$id = $this->post('stru_id');
     	$data['stru_name'] = $this->post('structure_name');
 		$data['assign_to']=$this->post('assigned_to');
-		$data['assign_name']=$this->post('assigned_name');
-		$data['course_details']=$this->post('course');
-		$data['student_details']=$this->post('student');
+		$data['studentData']=$this->post('studentData');
+		$data['student_id']=$this->post('student');
 		$data['fee_data']=$this->post('feedata');
+		$data['batch_id']=$this->post('batch');
 		if($id==NULL){
 			$result=$this->financemodel->addFeeStructure($data);
 			if($result['status']==true){
@@ -331,6 +331,90 @@ class FinanceAPI extends REST_Controller {
 			$result=$this->financemodel->getBatchListbasedoncourse($id);
 			if (!empty($result)){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+    function feeStructureView_get(){
+    	$id = $this->get('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$result=$this->financemodel->getFeeStructureViewDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+    function editFeeStructure_get(){
+    	$id = $this->get('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$result=$this->financemodel->getFeeStructureDataforEdit($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+    function feeStructure_delete(){
+    	$id = $this->delete('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$result=$this->financemodel->deleteFeeStructure($id);
+			if ($result!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+    function particularFeeStructure_delete(){
+    	$id = $this->delete('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$result=$this->financemodel->deleteParticularFeeStructure($id);
+			if ($result!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 			}
 			else
 			{
