@@ -20,8 +20,9 @@ class UserMenuAPI extends REST_Controller {
     }
     
 	function menuLink_get(){
-		$result=$this->usermenumodel->menuLink1();
+		$result=$this->usermenumodel->menuLink();
 		if (!empty($result)){
+			// $this->set_response($result, REST_Controller::HTTP_OK); 
 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 		}
 		else
@@ -31,9 +32,9 @@ class UserMenuAPI extends REST_Controller {
 	}
 	
 	function menuDetails_get(){
-		$result=$this->usermenumodel->menuDetails();
+		$result=$this->usermenumodel->userMenu();
 		if (!empty($result)){
-			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			$this->set_response($result, REST_Controller::HTTP_OK); 
 		}
 		else
 		{
