@@ -3,6 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
 // require APPPATH . '/helpers/mailGun/test.php';
 require APPPATH . '/helpers/phpMailer/phpmail.php';
+require APPPATH . '/helpers/smsGateway/sendSms.php';
+require APPPATH . '/helpers/smsGateway/ClickSend/clickSend.php';
 //require APPPATH . '/libraries/server.php';
 require APPPATH . '/helpers/checktoken_helper.php';
 class ProfileAPI extends REST_Controller {    
@@ -106,14 +108,17 @@ class ProfileAPI extends REST_Controller {
     	$data['LINKEDIN_LINK']=$this->post('linkedin');
 		$result=$this->profilemodel->contactDetails($id,$data);
 		if(!empty($result)){
-			$mailStatus=$this->profilemodel->checkMailVerification($id);
+			$type='Student';
+			//$mailStatus=$this->profilemodel->checkMailVerification($id,$type);
+			$mailStatus=$this->profilemodel->checkVerification($id,$type);
+			//print_r($mailStatus);exit;
 			if($mailStatus){
 				//print_r($mailStatus);exit;
 				$to=$mailStatus[0]['email'];
 				$token=$mailStatus[0]['token'];
 				$phone=$mailStatus[0]['phone'];
-				$verifyLink='http://192.168.1.137/Projects/campus/#/verification/';
-				$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.138/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
+				$verifyLink='http://192.168.1.139/Projects/campus/#/verification/';
+				$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.139/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
 				$sms="Welcome to Rubycampus application. Please click the link: http://192.168.1.137/Projects/campus/#/verification/$token";
 				
 				//$result=mailVerification($to,$msg);
@@ -122,7 +127,11 @@ class ProfileAPI extends REST_Controller {
 				}
 				//print_r($result);exit;
 				if($phone){
-					$this->GeneralMod->phoneVerify($id,$phone);
+					$data=$this->GeneralMod->mobileCheck($id,$phone);
+					$to=$data[0]['phone'];
+					$msg=$data[0]['msg'];
+					//$send=smsSend($to,$msg);
+					$sms=clickSend($to,$msg);
 				}
 			}
 			
@@ -136,6 +145,17 @@ class ProfileAPI extends REST_Controller {
 		}
 	}
 	
+	// function uniqueMailId_get(){
+		// $email=$this->get('email');
+		// $phone=$this->get('phone');
+		// $result=$this->profilemodel->uniqueMailId($id,$email,$phone);
+		// if($result==true){
+			// $this->set_response(['status' =>TRUE,'message'=>'Not Matched'], REST_Controller::HTTP_OK);
+		// }else{
+			// $this->set_response(['status' =>FALSE,'message'=>'Allready exist'], REST_Controller::HTTP_OK);
+		// }
+	// }
+	
 	function parentsProfile_post(){
 		// print_r($this->post());
 		// exit;
@@ -144,36 +164,81 @@ class ProfileAPI extends REST_Controller {
 		$data['father']=$this->post('father');
 		$data['mother']=$this->post('mother');
 		$data['guardian']=$this->post('guardian');
+		//print_r($data);exit;
 		$result=$this->profilemodel->parentsProfile($id,$data);
+		$type='Parents';
 		if(!empty($result)){
 			if($result[0]['frelation_id']){
-				$mailStatus=$this->profilemodel->checkMailVerification($result[0]['frelation_id']);
-				if($mailStatus){
-					$to=$mailStatus[0]['email'];
-					$token=$mailStatus[0]['token'];
-					$verifyLink='http://192.168.1.138/Projects/campus/#/verification/';
-					$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.138/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
-					$res=mailVerify($to,$msg);
-					//print_r($result);exit;
+				$availabeStatus=$data['father']['availabe'];
+				if($availabeStatus=='Y'){
+					//print_r($result[0]['frelation_id']);exit;
+					// $mailStatus=$this->profilemodel->checkMailVerification($result[0]['frelation_id'],$type);
+					$mailStatus=$this->profilemodel->checkVerification($result[0]['frelation_id'],$type);
+					//print_r($mailStatus);exit;
+					if($mailStatus){
+						$to=$mailStatus[0]['email'];
+						$token=$mailStatus[0]['token'];
+						$phone=$mailStatus[0]['phone'];
+						$verifyLink='http://192.168.1.139/Projects/campus/#/verification/';
+						$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.139/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
+						if($to){
+							$res=mailVerify($to,$msg);
+						}
+						if($phone){
+							$data=$this->GeneralMod->mobileCheck($result[0]['frelation_id'],$phone);
+							$to=$data[0]['phone'];
+							$msg=$data[0]['msg'];
+							// $send=smsSend($to,$msg);
+							$sms=clickSend($to,$msg);
+						}
+						//print_r($result);exit;
+					}
 				}
 			}else if($result[0]['mrelation_id']){
-				$mailStatus=$this->profilemodel->checkMailVerification($result[0]['mrelation_id']);
-				if($mailStatus){
-					$to=$mailStatus[0]['email'];
-					$token=$mailStatus[0]['token'];
-					$verifyLink='http://192.168.1.138/Projects/campus/#/verification/';
-					$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.138/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
-					$res=mailVerify($to,$msg);
-					//print_r($result);exit;
+				$availabeStatus=$data['mother']['availabe'];
+				if($availabeStatus=='Y'){
+					// $mailStatus=$this->profilemodel->checkMailVerification($result[0]['mrelation_id'],$type);
+					$mailStatus=$this->profilemodel->checkVerification($result[0]['mrelation_id'],$type);
+					if($mailStatus){
+						$to=$mailStatus[0]['email'];
+						$token=$mailStatus[0]['token'];
+						$phone=$mailStatus[0]['phone'];
+						$verifyLink='http://192.168.1.139/Projects/campus/#/verification/';
+						$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.139/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
+						//$res=mailVerify($to,$msg);
+						if($to){
+							$res=mailVerify($to,$msg);
+						}
+						if($phone){
+							$data=$this->GeneralMod->mobileCheck($result[0]['mrelation_id'],$phone);
+							$to=$data[0]['phone'];
+							$msg=$data[0]['msg'];
+							// $send=smsSend($to,$msg);
+							$sms=clickSend($to,$msg);
+						}
+						//print_r($result);exit;
+					}
 				}
 			}else if($result[0]['grelation_id']){
-				$mailStatus=$this->profilemodel->checkMailVerification($result[0]['grelation_id']);
+				// $mailStatus=$this->profilemodel->checkMailVerification($result[0]['grelation_id'],$type);
+				$mailStatus=$this->profilemodel->checkVerification($result[0]['grelation_id'],$type);
 				if($mailStatus){
 					$to=$mailStatus[0]['email'];
 					$token=$mailStatus[0]['token'];
-					$verifyLink='http://192.168.1.138/Projects/campus/#/verification/';
-					$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.138/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
-					$res=mailVerify($to,$msg);
+					$phone=$mailStatus[0]['phone'];
+					$verifyLink='http://192.168.1.139/Projects/campus/#/verification/';
+					$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.139/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
+					//$res=mailVerify($to,$msg);
+					if($to){
+						$res=mailVerify($to,$msg);
+					}
+					if($phone){
+						$data=$this->GeneralMod->mobileCheck($result[0]['grelation_id'],$phone);
+						$to=$data[0]['phone'];
+						$msg=$data[0]['msg'];
+						// $send=smsSend($to,$msg);
+						$sms=clickSend($to,$msg);
+					}
 					//print_r($result);exit;
 				}
 			}
@@ -184,83 +249,21 @@ class ProfileAPI extends REST_Controller {
 		}
 	}
 	
-	function profileDetails_post()
-    {
-		// print_r($this->post());
-		// exit;
-    	$id=$this->post('profileId');
-    	$data['ADMISSION_NO']=$this->post('admission_no');
-    	$data['ADMISSION_DATE']=$this->post('admission_date');
-    	$data['FIRSTNAME']=$this->post('first_name');
-    	$data['LASTNAME']=$this->post('last_name');
-		$data['IMAGE1']=$this->post('filename');
-    	$data['GENDER']=$this->post('gender');
-    	$data['DOB']=$this->post('wizard_birth');
-    	$data['NATIONALITY']=$this->post('nationality');
-    	$data['MOTHER_TONGUE']=$this->post('mother_tongue');
-    	$data['RELIGION']=$this->post('religion');
-    	$data['COURSEBATCH_ID']=$this->post('batchId');
-    	$data['ROLL_NO']=$this->post('roll_no');
-    	$data['ADDRESS']=$this->post('address');
-		$data['CITY'] = $this->post('stu_city');
-	   	$data['STATE'] = $this->post('stu_state');
-	   	$data['COUNTRY'] = $this->post('selectize_country');
-	   	$data['ZIP_CODE'] = $this->post('pincode');
-    	$data['EMAIL']=$this->post('email'); 
-    	$data['PHONE_NO_1']=$this->post('wizard_phone');
-    	$data['PHONE_NO_2']=$this->post('mobile_no');
-		
-    	$data['BLOOD_GROUP']=$this->post('selectize_blood');
-    	$data['BIRTHPLACE']=$this->post('birthplace');
-    	$data['STUDENTCATEGORY_ID']=$this->post('selectize_cat');
-    	$data['STUDENT_TYPE']=$this->post('selectize_styType');
-		
-		$data['INSTITUTE'] = $this->post('institute');
-		$data['LEVEL'] = $this->post('course_name');
-		$data['YEAR_COMPLETION'] = $this->post('completion');
-		$data['TOTAL_GRADE'] = $this->post('total_mark');
-		
-		$data['SIBLING'] = $this->post('Sibling');
-		
-    	$data['FACEBOOK_LINK']=$this->post('facebook');
-    	$data['GOOGLE_LINK']=$this->post('google');
-    	$data['LINKEDIN_LINK']=$this->post('linkedin');
-    	
-		$data['CRT_USER_ID'] = $this->post('CRT_USER_ID');
-		$data['UPD_USER_ID'] = $this->post('UPD_USER_ID');
-    	
-		if($id==null){
-			$result=$this->profilemodel->addProfileDetails($data);
-			if(!empty($result)){
-				$this->set_response(['status' =>TRUE,'admission_no'=>$result], REST_Controller::HTTP_CREATED);
-			}else{
-				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
-			}
-		}else{
-			$result=$this->profilemodel->editProfileDetails($id,$data);
-			if(!empty($result)){
-				$this->set_response(['status' =>TRUE,'admission_no'=>$result,'message'=>'Student Admission Details Updated successfully'], REST_Controller::HTTP_CREATED);
-			}else{
-				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
-			}
-		}
-    }
-	
     function profileDetails_get(){
     	$id=$this->get('id');
     	if ($id == null)
         {
-        	$result=$this->profilemodel->getProfileDetailsAll();
-        	if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
-			}
-			else
-			{
+        	// $result=$this->profilemodel->getProfileDetailsAll();
+        	// if (!empty($result)){
+				// $this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			// }
+			// else
+			// {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Profile data could not be found'
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
-			}
+			//}
         }else{
         	$result=$this->profilemodel->getProfileDetails($id);
     		if (!empty($result)){
@@ -467,6 +470,18 @@ class ProfileAPI extends REST_Controller {
 			}
 		}  
     }
+	// myProfile 
+	function myProfile_get(){
+    	$id=$this->get('user_id');
+		$result=$this->profilemodel->myProfile($id);
+		if ($result==true){
+			$this->set_response(['status' =>FALSE,'message'=>'Admission number already exist'], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>TRUE,'message'=>'Success'], REST_Controller::HTTP_OK);
+		} 			
+	}
 	
 	// Student admission number check 
 	

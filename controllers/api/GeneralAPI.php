@@ -178,6 +178,18 @@ class GeneralAPI extends REST_Controller {
 	
 	// Check User Phone number
 
+	function ranGen_get(){
+		$userData=$this->get('USER_EMAIL');
+		$result=$this->GeneralMod->ranGen($userData);
+		// $result = Math.floor((Math.random() * 1000000000) + 1);
+		if ($result==true){
+			$this->set_response(['status' =>true,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else{
+			$this->set_response(['status' =>TRUE,'message'=>'Not verify'], REST_Controller::HTTP_OK);
+		}
+	}
+	
 	function checkUserValid_get(){
 		$userData=$this->get('USER_EMAIL');
 		$result=$this->GeneralMod->getLoginDetail($userData);
@@ -387,7 +399,7 @@ class GeneralAPI extends REST_Controller {
     	$data=$this->get('userData');
 		$result=$this->profilemodel->passwordReset($data);
 		if (!empty($result)){
-			$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Your Rubycampus application password has been reset successfully.Please Click the below button and set your password <a href='http://192.168.1.138/Projects/campus/#/verification/$result'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
+			$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Your Rubycampus application password has been reset successfully.Please Click the below button and set your password <a href='http://192.168.1.139/Projects/campus/#/verification/$result'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
 			$res=mailVerify($data,$msg);
 			$this->set_response(['status' =>TRUE,'message'=>'Please check your mail'], REST_Controller::HTTP_OK); 
 		}

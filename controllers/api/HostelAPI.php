@@ -160,6 +160,63 @@ class HostelAPI extends REST_Controller {
 		} 
     }
 	
+	function TranferView_get(){
+		$id=$this->get('profileId');
+		$result=$this->hostelmodel->TranferView();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	function hostelStudentDetail_get(){
+		$result=$this->hostelmodel->hostelStudentDetail();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	function allocateStudentDetail_get(){
+		$id=$this->get('batchId');
+		if($id==null){
+			$result=$this->hostelmodel->allocateAllStudentDetail();
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}else{
+			$result=$this->hostelmodel->allocateStudentDetail($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+	
+	function allocateEmployeeDetail_get(){
+		$result=$this->hostelmodel->allocateEmployeeDetail();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+	
 	function vacate_post(){
 		$id=$this->post('id');
 		$data['RESIDENT_TYPE']=$this->post('type');
@@ -168,7 +225,7 @@ class HostelAPI extends REST_Controller {
 		if($id==null){
 			$result=$this->hostelmodel->addVacateDetails($data);
 			if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+				$this->set_response(['status' =>TRUE,'message'=>'Data inserted Successfully'], REST_Controller::HTTP_OK); 
 			}
 			else
 			{
@@ -198,7 +255,7 @@ class HostelAPI extends REST_Controller {
 		if($id==null){
 			$result=$this->hostelmodel->addVisitorsDetails($data);
 			if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+				$this->set_response(['status' =>TRUE,'message'=>'Data Inserted Successfully'], REST_Controller::HTTP_OK); 
 			}
 			else
 			{
@@ -217,7 +274,8 @@ class HostelAPI extends REST_Controller {
 	}
 	
 	function vacate_get(){
-		$result=$this->hostelmodel->vacateDetails();
+		$id=$this->get('id');
+		$result=$this->hostelmodel->vacateDetails($id);
 		if (!empty($result)){
 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 		}
@@ -226,6 +284,21 @@ class HostelAPI extends REST_Controller {
 			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
 		} 			
 	}
+	
+	function vacate_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->hostelmodel->deleteVacateDetails($id);
+			if($result!=0){
+				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
+			}else{
+				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
+			}
+		} 
+    }
 	
 	function visitors_get(){
 		$id=$this->get('id');
@@ -238,6 +311,21 @@ class HostelAPI extends REST_Controller {
 			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
 		}
 	}
+	
+	function visitors_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->hostelmodel->deleteVisitorsDetails($id);
+			if($result!=0){
+				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
+			}else{
+				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
+			}
+		} 
+    }
 	
 	// Get Hostel building blocks 
 	function hostelBlocks_get(){
