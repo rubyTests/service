@@ -22,25 +22,860 @@ class InventoryAPI extends REST_Controller {
 	//-------------------------------------  store category ---------------------------------------------------
     function storeCategory_post()
     {
-    	$id=$this->post('storeCategory_id');
-    	$data['name']=$this->post('name');
-    	$data['code']=$this->post('code');
-		if($id==null){
-			$result=$this->profilemodel->addAdmission($data);
-			if(!empty($result)){
-				$this->set_response(['status' =>TRUE,'profile'=>$result], REST_Controller::HTTP_CREATED);
-			}else{
-				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
-			}
+    	$data['id']=$this->post('store_cat_id');
+    	$data['name']=$this->post('store_cat_name');
+    	$data['code']=$this->post('store_cat_code');
+		$result=$this->inventory_model->storeCategoryDetails($data);
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
 		}else{
-			$result=$this->profilemodel->editAdmission($id,$data);
-			if(!empty($result)){
-				$this->set_response(['status' =>TRUE,'profile'=>$result,'message'=>'Student Admission Details Updated successfully'], REST_Controller::HTTP_CREATED);
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function storeCategory_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllStoreCategory_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getStoreCategory_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function storeCategory_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->inventory_model->deleteStoreCategoryData($id);
+			if($result!=0){
+				$message = [
+				'id' => $id,
+				'message' => 'Record Deleted Successfully'
+				];
+				$this->set_response(['status'=>TRUE,'message'=>$message], REST_Controller::HTTP_OK);
 			}else{
-				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+				$message = [
+				'id' => $id,
+				'message' => 'There is no Record found'
+				];
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
+			}
+		}  
+    }
+
+    //-------------------------------------  Item category ---------------------------------------------------
+    function itemCategory_post()
+    {
+    	$data['id']=$this->post('item_cat_id');
+    	$data['name']=$this->post('item_cat_name');
+    	$data['code']=$this->post('item_cat_code');
+		$result=$this->inventory_model->itemCategoryDetails($data);
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function itemCategory_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllItemCategory_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getItemCategory_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function itemCategory_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->inventory_model->deleteItemCategoryData($id);
+			if($result!=0){
+				$message = [
+				'id' => $id,
+				'message' => 'Record Deleted Successfully'
+				];
+				$this->set_response(['status'=>TRUE,'message'=>$message], REST_Controller::HTTP_OK);
+			}else{
+				$message = [
+				'id' => $id,
+				'message' => 'There is no Record found'
+				];
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
+			}
+		}  
+    }
+
+    //-------------------------------------  Supplier Type ---------------------------------------------------
+
+    function supplierType_post()
+    {
+    	$data['id']=$this->post('supp_type_id');
+    	$data['name']=$this->post('supp_type_name');
+    	$data['code']=$this->post('supp_type_code');
+		$result=$this->inventory_model->supplierTypeDetails($data);
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function supplierType_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllSupplierType_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getSupplierType_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function supplierType_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->inventory_model->deleteSupplierTypeData($id);
+			if($result!=0){
+				$message = [
+				'id' => $id,
+				'message' => 'Record Deleted Successfully'
+				];
+				$this->set_response(['status'=>TRUE,'message'=>$message], REST_Controller::HTTP_OK);
+			}else{
+				$message = [
+				'id' => $id,
+				'message' => 'There is no Record found'
+				];
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
+			}
+		}  
+    }
+
+    function supplierIdData_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Data could not be found'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+        }else{
+        	$result=$this->inventory_model->getSupplierData_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+    }
+
+    //-------------------------------------  Store ---------------------------------------------------
+
+    function store_post()
+    {
+    	$data['id']=$this->post('store_id');
+    	$data['name']=$this->post('store_name');
+    	$data['code']=$this->post('store_code');
+    	$data['store_category_id']=$this->post('store_category_id');
+		$result=$this->inventory_model->storeDetails($data);
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function store_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllStore_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getStore_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function store_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->inventory_model->deleteStoreData($id);
+			if($result!=0){
+				$message = [
+				'id' => $id,
+				'message' => 'Record Deleted Successfully'
+				];
+				$this->set_response(['status'=>TRUE,'message'=>$message], REST_Controller::HTTP_OK);
+			}else{
+				$message = [
+				'id' => $id,
+				'message' => 'There is no Record found'
+				];
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
+			}
+		}  
+    }
+
+    //-------------------------------------  Item ---------------------------------------------------
+
+    function item_post()
+    {
+    	$data['id']=$this->post('item_id');
+    	$data['name']=$this->post('item_name');
+    	$data['code']=$this->post('item_code');
+    	$data['unit']=$this->post('item_unit');
+    	$data['part_no']=$this->post('item_part_no');
+    	$data['image']=$this->post('item_image');
+    	$data['item_category_id']=$this->post('item_category_id');
+		$result=$this->inventory_model->itemDetails($data);
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function item_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllItem_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getItem_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function item_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->inventory_model->deleteItemData($id);
+			if($result!=0){
+				$message = [
+				'id' => $id,
+				'message' => 'Record Deleted Successfully'
+				];
+				$this->set_response(['status'=>TRUE,'message'=>$message], REST_Controller::HTTP_OK);
+			}else{
+				$message = [
+				'id' => $id,
+				'message' => 'There is no Record found'
+				];
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
+			}
+		}  
+    }
+
+    //-------------------------------------  Store Item---------------------------------------------------
+
+    function storeItem_post()
+    {
+    	$data['id']=$this->post('store_item_id');
+    	$data['item_id']=$this->post('store_item_name');
+    	$data['quantity']=$this->post('store_item_quantity');
+    	$data['price']=$this->post('store_item_price');
+    	$data['store_id']=$this->post('store_id');
+    	$data['item_category_id']=$this->post('item_category_id');
+		$result=$this->inventory_model->storeItemDetails($data);
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function storeItem_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllStoreItem_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getStoreItem_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function storeIdData_get(){
+		$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllStoreItem_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getStoreItemData_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function storeItem_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->inventory_model->deleteStoreItemData($id);
+			if($result!=0){
+				$message = [
+				'id' => $id,
+				'message' => 'Record Deleted Successfully'
+				];
+				$this->set_response(['status'=>TRUE,'message'=>$message], REST_Controller::HTTP_OK);
+			}else{
+				$message = [
+				'id' => $id,
+				'message' => 'There is no Record found'
+				];
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
+			}
+		}  
+    }
+
+    function itemCategoryItems_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+        }else{
+        	$result=$this->inventory_model->getItemCategoryItems($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+    }
+
+    //-------------------------------------  Supplier ---------------------------------------------------
+
+    function supplier_post()
+    {
+    	$data['id']=$this->post('supplier_id');
+    	$data['name']=$this->post('supplier_name');
+    	$data['phone']=$this->post('supplier_contact_number');
+    	$data['address']=$this->post('supplier_address');
+    	$data['region']=$this->post('supplier_region');
+    	$data['supplier_type_id']=$this->post('supplier_type_id');
+		$result=$this->inventory_model->supplierDetails($data);
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function supplier_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllSupplier_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getSupplier_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function supplier_delete(){
+    	$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->inventory_model->deleteSupplierData($id);
+			if($result!=0){
+				$message = [
+				'id' => $id,
+				'message' => 'Record Deleted Successfully'
+				];
+				$this->set_response(['status'=>TRUE,'message'=>$message], REST_Controller::HTTP_OK);
+			}else{
+				$message = [
+				'id' => $id,
+				'message' => 'There is no Record found'
+				];
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
+			}
+		}  
+    }
+
+    //-------------------------------------  Material Request ---------------------------------------------------
+
+    function materialRequest_post()
+    {
+    	$data['id']=$this->post('materialReq_id');
+    	$data['req_num']=$this->post('request_no');
+    	$data['req_date']=$this->post('request_date');
+    	$data['store_id']=$this->post('store_id');
+    	$data['notesData']=$this->post('notesData');
+    	$data['itemData']=$this->post('itemData');
+    	
+		$result=$this->inventory_model->materialRequestDetails($data);
+		
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function materialRequest_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllMaterialRequest_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getMaterialRequest_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function fetchAllMaterialRequest_get(){
+		$id  = $this->get('id');
+		if($id){
+			$data=$this->inventory_model->getAllMaterialRequestData($id);
+			if (!empty($data)){
+				$this->set_response(['status' =>TRUE,'data'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Material Request Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Material Request Details could not be found'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
+	}
+
+	function getItemCode_get(){
+		$id  = $this->get('id');
+		if($id){
+			$data=$this->inventory_model->getItemCode($id);
+			if (!empty($data)){
+				$this->set_response(['status' =>TRUE,'data'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Material Request Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Material Request Details could not be found'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
+	}
+
+	//-------------------------------------  Purchase Order ---------------------------------------------------
+
+    function purchaseOrder_post()
+    {
+    	$data['id']=$this->post('purchaseOrder_id');
+    	$data['po_num']=$this->post('po_number');
+    	$data['po_date']=$this->post('po_date');
+    	$data['store_id']=$this->post('store_id');
+    	$data['supp_type_id']=$this->post('supplier_type_id');
+    	$data['supp_id']=$this->post('supplier_id');
+    	$data['po_ref']=$this->post('po_reference');
+    	$data['total_amount']=$this->post('total_amount');
+    	$data['itemData']=$this->post('itemData');
+    	
+		$result=$this->inventory_model->purchaseOrderPostData($data);
+		
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function purchaseOrder_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllPurchaseOrder_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getPurchaseOrder_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Employee data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function fetchAllPurchaseOrder_get(){
+		$id  = $this->get('id');
+		if($id){
+			$data=$this->inventory_model->getAllPurchaseOrderData($id);
+			if (!empty($data)){
+				$this->set_response(['status' =>TRUE,'data'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Material Request Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Material Request Details could not be found'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
+	}
+
+	function purchaseOrder_delete(){
+		$id = $this->delete('id');
+		$syl_id = $this->delete('syllabus_id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Purchase Order Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$users=$this->inventory_model->deletePurchaseOrderData($id);
+			if ($users!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Purchase Order Detail deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Purchase Order could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
     }
+
+    //-------------------------------------  Billing ---------------------------------------------------
+
+    function billing_post()
+    {
+    	$data['id']=$this->post('billing_id');
+    	$data['invoice_no']=$this->post('invoice_no');
+    	$data['invoice_date']=$this->post('invoice_date');
+    	$data['store_id']=$this->post('store_id');
+    	$data['notes']=$this->post('notes');
+    	$data['total_amount']=$this->post('total_amount');
+    	$data['itemData']=$this->post('itemData');
+    	
+		$result=$this->inventory_model->billingPostData($data);
+		
+    	if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+
+    function billing_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->inventory_model->getAllBilling_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->inventory_model->getBilling_details($id);
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Billing data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+
+	function fetchAllBilling_get(){
+		$id  = $this->get('id');
+		if($id){
+			$data=$this->inventory_model->getAllBillingData($id);
+			if (!empty($data)){
+				$this->set_response(['status' =>TRUE,'data'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Billing Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Billing Details could not be found'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
+	}
+
+	function billing_delete(){
+		$id = $this->delete('id');
+		$syl_id = $this->delete('syllabus_id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Billing Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$users=$this->inventory_model->deleteBillingData($id);
+			if ($users!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Billing Detail deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Billing could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+
 	
 	// Previous Academics Details
 	
