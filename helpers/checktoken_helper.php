@@ -47,8 +47,15 @@ function checkAccess(){
     //$roleID=$ci->session->userdata('USER_ROLE_ID');
 
         // $sql="SELECT user_roles.api_id FROM user,user_roles where user.user_role_id='$roleID' and user.user_role_id=user_roles.id ";
-    $sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_email='$email' and user.user_role_id=user_roles.id";
-        $resultofApi = $ci->db->query($sql, $return_object = TRUE)->result_array();
+		
+		//$sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_email='$email' and user.user_role_id=user_roles.id";
+		if(is_numeric($email)){
+			$sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_phone='$email' and user.user_role_id=user_roles.id";
+		}else{
+			$sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_email='$email' and user.user_role_id=user_roles.id";
+		}
+		
+		$resultofApi = $ci->db->query($sql, $return_object = TRUE)->result_array();
         $accessA[]=$resultofApi[0]['USER_READ'];
         $accessA[]=$resultofApi[0]['USER_WRITE'];
         $accessA[]=$resultofApi[0]['USER_EDIT'];
