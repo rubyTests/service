@@ -1,41 +1,563 @@
 <?php
 	defined('BASEPATH') OR exit('No direct script access allowed');
-	class profilemodel extends CI_Model {
+	class inventory_model extends CI_Model {
 
-		// Add Admission Details
-		public function addAdmission($values){
-			$data = array(
-			   'ADMISSION_NO' => $values['ADMISSION_NO'],
-			   'ADMISSION_DATE' => $values['ADMISSION_DATE'],
-			   'FIRSTNAME' => $values['FIRSTNAME'],
-			   'LASTNAME' => $values['LASTNAME'],
-			   'GENDER' => $values['GENDER'],
-			   'IMAGE1' => $values['IMAGE1'],
-			   'DOB' => $values['DOB'],
-			   'NATIONALITY' => $values['NATIONALITY'],
-			   'MOTHER_TONGUE' => $values['MOTHER_TONGUE'],
-			   'RELIGION' => $values['RELIGION']
-			);
-			$this->db->insert('profile', $data); 
-			$profile_id= $this->db->insert_id();
-			if(!empty($profile_id)){
-				$data1 = array(
-					'PROFILE_ID' => $profile_id,
-					'COURSEBATCH_ID' => $values['COURSEBATCH_ID'],
-					'ROLL_NO' => $values['ROLL_NO']
+		// Store Category Details
+
+		public function storeCategoryDetails($value){
+			$id=$value['id'];
+	    	$sql="SELECT count(NAME) FROM store_category WHERE ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['count(NAME)']!=0){
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code']
 				);
-				$this->db->insert('student_profile', $data1);
-				$student_profile_id= $this->db->insert_id();
-				// if(!empty($student_profile_id)){
-					// $data2 = array(
-						// 'STU_PROF_ID' => $student_profile_id
-					// );
-					// $this->db->insert('student_relation', $data2);
-				// }
-				//return $profile_id;
-				return array(['profile_id' => $profile_id,'stu_profileId'=> $student_profile_id]);
+				$this->db->where('ID', $id);
+				$this->db->update('store_category', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+			}else {
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code']
+				);
+				$this->db->insert('store_category', $data);
+				$build_id=$this->db->insert_id();
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
 			}
 	    }
+
+	    function getAllStoreCategory_details(){
+	    	$sql="SELECT * FROM store_category";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getStoreCategory_details($id){
+	    	$sql="SELECT * FROM store_category where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteStoreCategoryData($id){
+	    	$sql="DELETE FROM store_category WHERE ID='$id'";
+	    	$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    // Item Category Details
+
+	    public function itemCategoryDetails($value){
+			$id=$value['id'];
+	    	$sql="SELECT count(NAME) FROM item_category WHERE ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['count(NAME)']!=0){
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code']
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('item_category', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+			}else {
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code']
+				);
+				$this->db->insert('item_category', $data);
+				$build_id=$this->db->insert_id();
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+			}
+	    }
+
+	    function getAllItemCategory_details(){
+	    	$sql="SELECT * FROM item_category";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getItemCategory_details($id){
+	    	$sql="SELECT * FROM item_category where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteItemCategoryData($id){
+	    	$sql="DELETE FROM item_category WHERE ID='$id'";
+	    	$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    // Supplier Type Details
+
+	    public function supplierTypeDetails($value){
+			$id=$value['id'];
+	    	$sql="SELECT count(NAME) FROM supplier_type WHERE ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['count(NAME)']!=0){
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code']
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('supplier_type', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+			}else {
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code']
+				);
+				$this->db->insert('supplier_type', $data);
+				$build_id=$this->db->insert_id();
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+			}
+	    }
+
+	    function getAllSupplierType_details(){
+	    	$sql="SELECT * FROM supplier_type";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getSupplierType_details($id){
+	    	$sql="SELECT * FROM supplier_type where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteSupplierTypeData($id){
+	    	$sql="DELETE FROM supplier_type WHERE ID='$id'";
+	    	$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    function getSupplierData_details($id){
+	    	$sql="SELECT * FROM supplier where SUPPLIER_TYPE_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    // Store Details
+
+	    public function storeDetails($value){
+			$id=$value['id'];
+	    	$sql="SELECT count(NAME) FROM store WHERE ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['count(NAME)']!=0){
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code'],
+				   'STORE_CATEGORY_ID' => $value['store_category_id']
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('store', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+			}else {
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code'],
+				   'STORE_CATEGORY_ID' => $value['store_category_id']
+				);
+				$this->db->insert('store', $data);
+				$build_id=$this->db->insert_id();
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+			}
+	    }
+
+	  //   function getAllStore_details(){
+	  //   	$sql="SELECT * FROM store";
+			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	  //   }
+
+	    function getAllStore_details(){
+	    	$sql="SELECT ID,NAME,CODE,STORE_CATEGORY_ID, (SELECT NAME FROM store_category WHERE ID=STORE_CATEGORY_ID) AS STORENAME FROM store";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getStore_details($id){
+	    	$sql="SELECT * FROM store where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteStoreData($id){
+	    	$sql="DELETE FROM store WHERE ID='$id'";
+	    	$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    // Item Details
+
+	    public function itemDetails($value){
+			$id=$value['id'];
+	    	$sql="SELECT count(NAME) FROM item WHERE ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['count(NAME)']!=0){
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code'],
+				   'UNIT' => $value['unit'],
+				   'PART_NO' => $value['part_no'],
+				   'IMAGE' => $value['image'],
+				   'ITEM_CATEGORY_ID' => $value['item_category_id']
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('item', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+			}else {
+				$data = array(
+				   'NAME' => $value['name'],
+				   'CODE' => $value['code'],
+				   'UNIT' => $value['unit'],
+				   'PART_NO' => $value['part_no'],
+				   'IMAGE' => $value['image'],
+				   'ITEM_CATEGORY_ID' => $value['item_category_id']
+				);
+				$this->db->insert('item', $data);
+				$build_id=$this->db->insert_id();
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+			}
+	    }
+
+	    function getAllItem_details(){
+	  //   	$sql="SELECT * FROM item";
+			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			$sql="SELECT ID,NAME,CODE,UNIT,IMAGE,PART_NO,ITEM_CATEGORY_ID, (SELECT NAME FROM item_category WHERE ID=ITEM_CATEGORY_ID) AS ITEM_CATEGORY_NAME FROM item";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getItem_details($id){
+	    	$sql="SELECT * FROM item where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteItemData($id){
+	    	$sql="DELETE FROM item WHERE ID='$id'";
+	    	$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    // Store Item Details
+
+	    public function storeItemDetails($value){
+			$id=$value['id'];
+	    	$sql="SELECT count(QUANTITY) FROM store_item WHERE ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['count(QUANTITY)']!=0){
+				$data = array(
+				   'ITEM_ID' => $value['item_id'],
+				   'QUANTITY' => $value['quantity'],
+				   'UNIT_PRICE' => $value['price'],
+				   'STORE_ID' => $value['store_id'],
+				   'ITEM_CATEGORY_ID' => $value['item_category_id']
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('store_item', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+			}else {
+				$data = array(
+				   'ITEM_ID' => $value['item_id'],
+				   'QUANTITY' => $value['quantity'],
+				   'UNIT_PRICE' => $value['price'],
+				   'STORE_ID' => $value['store_id'],
+				   'ITEM_CATEGORY_ID' => $value['item_category_id']
+				);
+				$this->db->insert('store_item', $data);
+				$build_id=$this->db->insert_id();
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+			}
+	    }
+
+	    function getAllStoreItem_details(){
+	    	 //$sql="SELECT * FROM store_item";
+	    	 $sql="SELECT ID,ITEM_ID,QUANTITY,UNIT_PRICE,STORE_ID,ITEM_CATEGORY_ID, (SELECT NAME FROM item WHERE ID=ITEM_ID) AS ITEM_NAME, (SELECT NAME FROM item_category WHERE ID=ITEM_CATEGORY_ID) AS ITEM_CATEGORY_NAME, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM store_item";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getStoreItem_details($id){
+	    	$sql="SELECT * FROM store_item where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getStoreItemData_details($id){
+	    	$sql="SELECT ID,ITEM_ID,QUANTITY,UNIT_PRICE,STORE_ID,ITEM_CATEGORY_ID, (SELECT NAME FROM item WHERE ID=ITEM_ID) AS ITEM_NAME FROM store_item where STORE_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteStoreItemData($id){
+	    	$sql="DELETE FROM store_item WHERE ID='$id'";
+	    	$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    function getItemCategoryItems($id){
+	    	$sql="SELECT * FROM item where ITEM_CATEGORY_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    // Supplier Details
+
+	    public function supplierDetails($value){
+			$id=$value['id'];
+	    	$sql="SELECT count(NAME) FROM supplier WHERE ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['count(NAME)']!=0){
+				$data = array(
+				   'NAME' => $value['name'],
+				   'PHONE' => $value['phone'],
+				   'ADDRESS' => $value['address'],
+				   'REGION' => $value['region'],
+				   'SUPPLIER_TYPE_ID' => $value['supplier_type_id']
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('supplier', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+			}else {
+				$data = array(
+				   'NAME' => $value['name'],
+				   'PHONE' => $value['phone'],
+				   'ADDRESS' => $value['address'],
+				   'REGION' => $value['region'],
+				   'SUPPLIER_TYPE_ID' => $value['supplier_type_id']
+				);
+				$this->db->insert('supplier', $data);
+				$build_id=$this->db->insert_id();
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+			}
+	    }
+
+	    function getAllSupplier_details(){
+	  		// $sql="SELECT * FROM supplier";
+			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			$sql="SELECT ID,NAME,PHONE,ADDRESS,REGION,SUPPLIER_TYPE_ID, (SELECT NAME FROM supplier_type WHERE ID=SUPPLIER_TYPE_ID) AS SUPPLIER_TYPE_NAME FROM supplier";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getSupplier_details($id){
+	    	$sql="SELECT * FROM supplier where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteSupplierData($id){
+	    	$sql="DELETE FROM supplier WHERE ID='$id'";
+	    	$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    // Material Request Details
+
+	    public function materialRequestDetails($value){
+			$req_num=$value['req_num'];
+	    	$sql="SELECT * FROM material_request WHERE REQ_NUMBER ='$req_num'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return array('status'=>false);
+			}else {
+				$data = array(
+				   'REQ_NUMBER' => $value['req_num'],
+				   'REQ_DATE' => $value['req_date'],
+				   'NOTES' => $value['notesData'],
+				   'STORE_ID' => $value['store_id']
+				);
+				$this->db->insert('material_request', $data);
+				$req_id=$this->db->insert_id();
+				if(!empty($req_id)){
+
+					for($i=0;$i<count($value['itemData']);$i++){
+						$data1 = array(
+						   'MATERIAL_REQ_ID' => $req_id,
+						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_name'],
+						   'QUANTITY' => $value['itemData'][$i]['item_quantity']
+						);
+						$this->db->insert('material_request_items', $data1);
+					}
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'REQ_ID'=>$req_id);
+				}
+			}
+	    }
+
+	    function getAllMaterialRequest_details(){
+	  // 		$sql="SELECT * FROM material_request";
+			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			 $sql="SELECT ID,REQ_NUMBER,REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request";
+			 return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getAllMaterialRequestData($id){
+			$sql="SELECT ID,REQ_NUMBER,REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_DATA_ID FROM material_request where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			foreach ($result as $key => $value) {
+				$material_req_id=$value['ID'];
+				// $sql1="SELECT ID,MATERIAL_REQ_ID,STORE_ITEM_ID,QUANTITY, (SELECT NAME FROM store_item WHERE ID = STORE_ITEM_ID) AS STORE_ITEM_NAME FROM material_request_items where MATERIAL_REQ_ID='$material_req_id'";
+				$sql1="SELECT ID,MATERIAL_REQ_ID,STORE_ITEM_ID,QUANTITY,
+					(select ITEM_ID from store_item where ID=STORE_ITEM_ID) as ITEM_ID,
+					(select NAME from item where ID=ITEM_ID) as ITEM_NAME,
+					(select CODE from item where ID=ITEM_ID) as ITEM_CODE
+					FROM material_request_items where MATERIAL_REQ_ID='$material_req_id'";
+				$result[$key]['materialReqItems'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			}
+			return $result;
+		}
+
+	    function getMaterialRequest_details($id){
+	    	$sql="SELECT * FROM supplier where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteMaterialRequestData($id){
+	    	$sql="DELETE FROM supplier WHERE ID='$id'";
+	    	$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    function getItemCode($id){
+	    	$sql="SELECT * FROM item where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+
+	    // Purchase Order Details
+
+	    public function purchaseOrderPostData($value){
+			$po_num=$value['po_num'];
+	    	$sql="SELECT * FROM purchase_order WHERE PO_NUMBER ='$po_num'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return array('status'=>false);
+			}else {
+				$data = array(
+				   'PO_NUMBER' => $value['po_num'],
+				   'PO_DATE' => $value['po_date'],
+				   'STORE_ID' => $value['store_id'],
+				   'SUPPLIER_TYPE_ID' => $value['supp_type_id'],
+				   'SUPPLIER_ID' => $value['supp_id'],
+				   'REFERENCE' => $value['po_ref'],
+				   'AMOUNT' => $value['total_amount']
+				);
+				$this->db->insert('purchase_order', $data);
+				$po_id=$this->db->insert_id();
+				if(!empty($po_id)){
+
+					for($i=0;$i<count($value['itemData']);$i++){
+						$data1 = array(
+						   'PO_ID' => $po_id,
+						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_name'],
+						   'QUANTITY' => $value['itemData'][$i]['quantity'],
+						   'PRICE' => $value['itemData'][$i]['unitprice']
+						);
+						$this->db->insert('purchase_order_items', $data1);
+					}
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'PO_ID'=>$po_id);
+				}
+			}
+	    }
+
+	    function getAllPurchaseOrder_details(){
+			 $sql="SELECT ID,PO_NUMBER,PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order";
+			 return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getAllPurchaseOrderData($id){
+			$sql="SELECT ID,PO_NUMBER,PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			foreach ($result as $key => $value) {
+				$purchase_order_id=$value['ID'];
+				$sql1="SELECT ID,PO_ID,STORE_ITEM_ID,QUANTITY,PRICE,
+					(select ITEM_ID from store_item where ID=STORE_ITEM_ID) as ITEM_ID,
+					(select NAME from item where ID=ITEM_ID) as ITEM_NAME
+					FROM purchase_order_items where PO_ID='$purchase_order_id'";
+				$result[$key]['po_items'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			}
+
+			return $result;
+		}
+
+	    function getPurchaseOrder_details($id){
+	    	$sql="SELECT * FROM purchase_order where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deletePurchaseOrderData($id){
+	    	// $sql="DELETE FROM supplier WHERE ID='$id'";
+	    	// $result = $this->db->query($sql);
+	    	// return $this->db->affected_rows();
+	    	$sql2="DELETE FROM purchase_order where ID='$id'";
+			$result2 = $this->db->query($sql2);
+
+			$sql="DELETE FROM purchase_order_items where PO_ID='$id'";
+			$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    // Billing Details
+
+	    public function billingPostData($value){
+			$invoice_num=$value['invoice_no'];
+	    	$sql="SELECT * FROM billing WHERE INVOICE_NUMBER ='$invoice_num'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return array('status'=>false);
+			}else {
+				$data = array(
+				   'INVOICE_NUMBER' => $value['invoice_no'],
+				   'INVOICE_DATE' => $value['invoice_date'],
+				   'STORE_ID' => $value['store_id'],
+				   'NOTES' => $value['notes'],
+				   'AMOUNT' => $value['total_amount']
+				);
+				$this->db->insert('billing', $data);
+				$invoice_id=$this->db->insert_id();
+				if(!empty($invoice_id)){
+
+					for($i=0;$i<count($value['itemData']);$i++){
+						$data1 = array(
+						   'BILLING_ID' => $invoice_id,
+						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_name'],
+						   'QUANTITY' => $value['itemData'][$i]['quantity'],
+						   'PRICE' => $value['itemData'][$i]['unitprice']
+						);
+						$this->db->insert('billing_items', $data1);
+					}
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'BILLING_ID'=>$invoice_id);
+				}
+			}
+	    }
+
+	    function getAllBilling_details(){
+			 $sql="SELECT ID,INVOICE_NUMBER,INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM billing";
+			 return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getAllBillingData($id){
+			$sql="SELECT ID,INVOICE_NUMBER,INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM billing where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			foreach ($result as $key => $value) {
+				$billing_id=$value['ID'];
+				$sql1="SELECT ID,BILLING_ID,STORE_ITEM_ID,QUANTITY,PRICE,
+					(select ITEM_ID from store_item where ID=STORE_ITEM_ID) as ITEM_ID,
+					(select NAME from item where ID=ITEM_ID) as ITEM_NAME,
+					(select CODE from item where ID=ITEM_ID) as ITEM_CODE
+					FROM billing_items where BILLING_ID='$billing_id'";
+				$result[$key]['billing_items'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			}
+
+			return $result;
+		}
+
+	    function getBilling_details($id){
+	    	$sql="SELECT * FROM billing where ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteBillingData($id){
+	    	// $sql="DELETE FROM supplier WHERE ID='$id'";
+	    	// $result = $this->db->query($sql);
+	    	// return $this->db->affected_rows();
+	    	$sql2="DELETE FROM billing where ID='$id'";
+			$result2 = $this->db->query($sql2);
+
+			$sql="DELETE FROM billing_items where PO_ID='$id'";
+			$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
 		
 		public function editAdmission($id,$values){
 			$data = array(
