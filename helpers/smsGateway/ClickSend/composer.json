@@ -1,0 +1,32 @@
+{
+    "name": "apimatic/clicksendv3api",
+    "type": "library",
+    "description": "Clicksend v3 API",
+    "keywords": ["ClickSend v3 API","API","SDK"],
+    "homepage": "https://apimatic.io",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "APIMatic SDK Generator",
+            "email": "support@apimatic.io",
+            "homepage": "https://apimatic.io",
+            "role": "API Tool"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "mashape/unirest-php": "~3.0.1",
+        "apimatic/jsonmapper": "~1.2.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^2.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "ClickSendLib\\": "src/"
+        }
+    }
+}
