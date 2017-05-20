@@ -490,8 +490,18 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
+		public function fetchAllBlockDetails(){
+			$sql="SELECT * FROM block";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
 		public function fetchRoomDetails($id){
 			$sql="SELECT * FROM room where BLOCK_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
+		public function fetchAllRoomDetails($id){
+			$sql="SELECT * FROM room";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 	}

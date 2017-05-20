@@ -118,6 +118,84 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
+		public function TranferView(){
+			$tranfer=[];
+			$sql="SELECT MAX(ID),PROFILE_ID FROM h_transfer_history GROUP BY `PROFILE_ID` order by ID";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				foreach($result as $values){
+					$id=$values['MAX(ID)'];
+					$pro_id=$values['PROFILE_ID'];
+					$sql="SELECT MAX(ID) FROM h_transfer_history WHERE PROFILE_ID='$pro_id' AND NOT ID='$id'";
+					$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+					$id1=$res[0]['MAX(ID)'];
+					$sql="SELECT ID,DATE,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=h_transfer_history.PROFILE_ID)as Name,(SELECT NAME FROM hostel where ID=h_transfer_history.HOSTEL_ID)as HostelName,(SELECT NAME FROM room where ID=h_transfer_history.ROOM_ID)as RoomName FROM h_transfer_history WHERE ID IN('$id1','$id');";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					array_push($tranfer,$result1);
+				}
+				return $tranfer;
+			}
+		}
+		
+		public function hostelStudentDetail(){
+			$sql="SELECT PROFILE_ID FROM student_profile where STUDENT_TYPE='Hostel'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			$stuDetails=[];
+			if($result){
+				foreach($result as $values){
+					$proId=$values['PROFILE_ID'];
+					$sql="SELECT ID,CONCAT(FIRSTNAME,' ',LASTNAME)as NAME FROM profile where ID='$proId'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					array_push($stuDetails,$result1);
+				}
+				return $stuDetails;
+			}
+		}
+		
+		public function allocateAllStudentDetail(){
+			$sql="SELECT PROFILE_ID FROM h_allocation where RESIDENT_TYPE='Student'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			$stutype=[];
+			if($result){
+				foreach($result as $values){
+					$stuProId=$values['PROFILE_ID'];
+					$sql="SELECT ID,CONCAT(FIRSTNAME,' ',LASTNAME)as NAME FROM profile where ID='$stuProId'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					array_push($stutype,$result1);
+				}
+				return $stutype;
+			}
+		}
+		public function allocateStudentDetail($id){
+			$sql="SELECT * FROM h_allocation,student_profile where h_allocation.RESIDENT_TYPE='Student' AND h_allocation.PROFILE_ID=student_profile.PROFILE_ID AND student_profile.COURSEBATCH_ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			$stutype=[];
+			if($result){
+				foreach($result as $values){
+					$stuProId=$values['PROFILE_ID'];
+					$sql="SELECT ID,CONCAT(FIRSTNAME,' ',LASTNAME)as NAME FROM profile where ID='$stuProId'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					array_push($stutype,$result1);
+				}
+				return $stutype;
+			}
+		}
+		
+		public function allocateEmployeeDetail(){
+			$sql="SELECT PROFILE_ID FROM h_allocation where RESIDENT_TYPE='Employee'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			$stutype=[];
+			if($result){
+				foreach($result as $values){
+					$stuProId=$values['PROFILE_ID'];
+					$sql="SELECT ID,CONCAT(FIRSTNAME,' ',LASTNAME)as NAME FROM profile where ID='$stuProId'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					array_push($stutype,$result1);
+				}
+				return $stutype;
+			}
+		}
+		
 		public function deleteAllocationDetails($id){
 			$sql="DELETE FROM h_allocation where ID='$id'";
 			$result = $this->db->query($sql);
@@ -131,9 +209,9 @@
 		
 		public function addVacateDetails($values){
 			$data = array(
-				'RESIDENT_TYPE' => $values['type'],
-				'PROFILE_ID' => $values['profileId'],
-				'DATE' => $values['date']
+				'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
+				'PROFILE_ID' => $values['PROFILE_ID'],
+				'DATE' => $values['DATE']
 			);
 			$this->db->insert('h_vacate', $data);
 			$getId= $this->db->insert_id();
@@ -144,17 +222,18 @@
 		
 		public function editVacateDetails($Id,$values){
 			$data = array(
-				'RESIDENT_TYPE' => $values['type'],
-				'PROFILE_ID' => $values['profileId'],
-				'DATE' => $values['date']
+				'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
+				'PROFILE_ID' => $values['PROFILE_ID'],
+				'DATE' => $values['DATE']
 			);
 			$this->db->where('id', $Id);
 			$this->db->update('h_vacate', $data);
+			return true;
 		}
 		
 		public function vacateDetails($id){
 			if($id==null){
-				$sql="SELECT * FROM h_vacate";
+				$sql="SELECT ID,DATE,RESIDENT_TYPE,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=h_vacate.PROFILE_ID)as Name FROM h_vacate";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 				if($result){
 					return $result;
@@ -168,15 +247,20 @@
 			}
 		}
 		
+		public function deleteVacateDetails($id){
+			$sql="DELETE FROM h_vacate where ID='$id'";
+			$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+		}
+		
 		public function addVisitorsDetails($values){
 			$data = array(
-				'RESIDENT_TYPE' => $values['type'],
-				'PROFILE_ID' => $values['profileId'],
-				'NAME' => $values['name'],
-				'RELATION' => $values['relation'],
-				'DATE' => $values['date'],
-				'INTIME' => $values['inTime'],
-				'OUTTIME' => $values['outTime']
+				'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
+				'PROFILE_ID' => $values['PROFILE_ID'],
+				'NAME' => $values['NAME'],
+				'RELATION' => $values['RELATION'],
+				'DATE' => $values['DATE'],
+				'INTIME' => $values['INTIME']
 			);
 			$this->db->insert('h_visitors', $data);
 			$getId= $this->db->insert_id();
@@ -187,21 +271,22 @@
 		
 		public function editVisitorsDetails($Id,$values){
 			$data = array(
-				'RESIDENT_TYPE' => $values['type'],
-				'PROFILE_ID' => $values['profileId'],
-				'NAME' => $values['name'],
-				'RELATION' => $values['relation'],
-				'DATE' => $values['date'],
-				'INTIME' => $values['inTime'],
-				'OUTTIME' => $values['outTime']
+				'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
+				'PROFILE_ID' => $values['PROFILE_ID'],
+				'NAME' => $values['NAME'],
+				'RELATION' => $values['RELATION'],
+				'DATE' => $values['DATE'],
+				'INTIME' => $values['INTIME'],
+				'OUTTIME' => $values['OUTTIME']
 			);
 			$this->db->where('id', $Id);
 			$this->db->update('h_visitors', $data);
+			return true;
 		}
 		
 		public function visitorsDetails($id){
 			if($id==null){
-				$sql="SELECT * FROM h_visitors";
+				$sql="SELECT ID,NAME as visitorName,RELATION,DATE,INTIME,OUTTIME,RESIDENT_TYPE,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=h_visitors.PROFILE_ID)as Name,(SELECT HOSTEL_ID FROM h_allocation where PROFILE_ID=h_visitors.PROFILE_ID) as hostelID,(SELECT ROOM_ID FROM h_allocation where PROFILE_ID=h_visitors.PROFILE_ID) as roomID,(SELECT NAME FROM hostel where ID=hostelID) as HostelName,(SELECT NAME FROM room where ID=roomID) as roomName,(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=h_visitors.PROFILE_ID) as batchId,(SELECT COURSE_ID FROM course_batch where ID=batchId) as courseId,(SELECT DEPT_ID FROM course where ID=courseId) as deptId FROM h_visitors";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 				if($result){
 					return $result;
@@ -213,6 +298,12 @@
 					return $result;
 				}
 			}
+		}
+		
+		public function deleteVisitorsDetails($id){
+			$sql="DELETE FROM h_visitors where ID='$id'";
+			$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
 		}
 		
 		public function getAllHostelBlocks($id){

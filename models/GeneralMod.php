@@ -6,7 +6,7 @@
 		
 		//Email number Login
 		public function getEmailLoginDetail($id,$id1){
-			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ID=user_roles.id AND USER_EMAIL='$id' AND USER_PASSWORD='$id1'";
+			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,USER_PROFILE_ID,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ROLE_ID=user_roles.id AND USER_EMAIL='$id' AND USER_PASSWORD='$id1'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if(!empty($result)){
 				return $result;
@@ -15,7 +15,7 @@
 		
 		//Phone number Login
 		public function getPhoneLoginDetail($id,$id1){
-			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ID=user_roles.id AND USER_PHONE='$id' AND USER_PASSWORD='$id1'";
+			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,USER_PROFILE_ID,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ID=user_roles.id AND USER_PHONE='$id' AND USER_PASSWORD='$id1'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if(!empty($result)){
 				return $result;
@@ -41,9 +41,27 @@
 			}
 		}
 		
+		public function ranGen(){
+			$this->load->helper('string');
+			return mt_rand(100000,999999);
+			// return Math.floor((Math.random() * 1000000000) + 1);
+		}
+		
 		// Phone verification 
+		
+		public function mobileCheck($id,$phone){
+			$random_no = mt_rand(100000,999999);
+			$msg = "OTP for Rubycampus E-application is ".$random_no.". Please login into your application. Do not share it with anyone";
 
-		public function phoneVerify($id,$phone){ 
+			$data = array(
+				'USER_PASSWORD' => $random_no
+			);
+			$this->db->where('USER_PROFILE_ID', $id);
+			$this->db->update('user', $data);
+			return array(['phone' => $phone,'msg'=> $msg]);
+		}
+
+		public function phoneVerify($id,$phone){
 			$random_no = mt_rand(100000,999999);
 			// $data = array(
 			// 'phone' => $phone,

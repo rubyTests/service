@@ -152,7 +152,7 @@
 			// print_r($values);exit;
 			$locationId=[];
 			
-			$sql="SELECT EMAIL,EMAIL_VERIFIED,EMAIL_STATUS FROM profile where ID='$id'";
+			$sql="SELECT EMAIL,EMAIL_VERIFIED,EMAIL_STATUS,PHONE_NO_1,PHONE_NO_1_VERIFIED,PHONE_STATUS FROM profile where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
 				$email=$result[0]['EMAIL'];
@@ -162,6 +162,14 @@
 				}else{
 					$emailVerify='N';
 					$emailStatus='N';
+				}
+				$phone=$result[0]['PHONE_NO_1'];
+				if($phone==$values['PHONE_NO_1']){
+					$phoneVerify=$result[0]['PHONE_NO_1_VERIFIED'];
+					$phoneStatus=$result[0]['PHONE_STATUS'];
+				}else{
+					$phoneVerify='N';
+					$phoneStatus='N';
 				}
 			}
 			
@@ -181,6 +189,8 @@
 						'EMAIL' => $values['EMAIL'],
 						'EMAIL_VERIFIED' => $emailVerify,
 						'EMAIL_STATUS' => $emailStatus,
+						'PHONE_NO_1_VERIFIED' => $phoneVerify,
+						'PHONE_STATUS' => $phoneStatus,
 						'PHONE_NO_1' => $values['PHONE_NO_1'],
 						'PHONE_NO_2' => $values['PHONE_NO_2'],
 						'LOCATION_ID' => $values['locId'],
@@ -214,6 +224,8 @@
 							'EMAIL' => $values['EMAIL'],
 							'EMAIL_VERIFIED' => $emailVerify,
 							'EMAIL_STATUS' => $emailStatus,
+							'PHONE_NO_1_VERIFIED' => $phoneVerify,
+							'PHONE_STATUS' => $phoneStatus,
 							'PHONE_NO_1' => $values['PHONE_NO_1'],
 							'PHONE_NO_2' => $values['PHONE_NO_2'],
 							'LOCATION_ID' => $location_id,
@@ -249,6 +261,8 @@
 						'EMAIL' => $values['EMAIL'],
 						'EMAIL_VERIFIED' => $emailVerify,
 						'EMAIL_STATUS' => $emailStatus,
+						'PHONE_NO_1_VERIFIED' => $phoneVerify,
+						'PHONE_STATUS' => $phoneStatus,
 						'PHONE_NO_1' => $values['PHONE_NO_1'],
 						'PHONE_NO_2' => $values['PHONE_NO_2'],
 						'FACEBOOK_LINK' => $values['FACEBOOK_LINK'],
@@ -279,6 +293,8 @@
 							'EMAIL' => $values['EMAIL'],
 							'EMAIL_VERIFIED' => $emailVerify,
 							'EMAIL_STATUS' => $emailStatus,
+							'PHONE_NO_1_VERIFIED' => $phoneVerify,
+							'PHONE_STATUS' => $phoneStatus,
 							'PHONE_NO_1' => $values['PHONE_NO_1'],
 							'PHONE_NO_2' => $values['PHONE_NO_2'],
 							'FACEBOOK_LINK' => $values['FACEBOOK_LINK'],
@@ -312,6 +328,8 @@
 						'EMAIL' => $values['EMAIL'],
 						'EMAIL_VERIFIED' => $emailVerify,
 						'EMAIL_STATUS' => $emailStatus,
+						'PHONE_NO_1_VERIFIED' => $phoneVerify,
+						'PHONE_STATUS' => $phoneStatus,
 						'PHONE_NO_1' => $values['PHONE_NO_1'],
 						'PHONE_NO_2' => $values['PHONE_NO_2'],
 						'LOCATION_ID' => $values['locId1'],
@@ -337,6 +355,8 @@
 							'EMAIL' => $values['EMAIL'],
 							'EMAIL_VERIFIED' => $emailVerify,
 							'EMAIL_STATUS' => $emailStatus,
+							'PHONE_NO_1_VERIFIED' => $phoneVerify,
+							'PHONE_STATUS' => $phoneStatus,
 							'PHONE_NO_1' => $values['PHONE_NO_1'],
 							'PHONE_NO_2' => $values['PHONE_NO_2'],
 							'LOCATION_ID' => $location_id2,
@@ -366,54 +386,101 @@
 			
 			if($values['father']['relationId']!=0){
 				$frel_id=$values['father']['relationId'];
-				$sql="SELECT LOCATION_ID FROM profile where ID='$frel_id'";
-				$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-				//print_r($result1);exit;
-				if(isset($values['father']['country'])){
-					$country=$values['father']['country'];
-				}else{
-					$country='';
+				$sql="SELECT PROF_ID FROM student_relation where ID='$frel_id'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$proId=$result[0]['PROF_ID'];
+					$sql="SELECT EMAIL,PHONE_NO_1,EMAIL_VERIFIED,PHONE_NO_1_VERIFIED,EMAIL_STATUS,PHONE_STATUS,LOCATION_ID FROM profile where ID='$proId'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					//print_r($result1);exit;
+					if(isset($values['father']['country'])){
+						$country=$values['father']['country'];
+					}else{
+						$country='';
+					}
+					$email=$result1[0]['EMAIL'];
+					$phone=$result1[0]['PHONE_NO_1'];
+					$emailVerify=$result1[0]['EMAIL_VERIFIED'];
+					$phoneVerify=$result1[0]['PHONE_NO_1_VERIFIED'];
+					$emailStatus=$result1[0]['EMAIL_STATUS'];
+					$phoneStatus=$result1[0]['PHONE_STATUS'];
+					$lId=$result1[0]['LOCATION_ID'];
+					$data = array(
+					   'ADDRESS' => $values['father']['pr_address'],
+					   'CITY' => $values['father']['pr_city'],
+					   'STATE' => $values['father']['pr_state'],
+					   'COUNTRY' => $country,
+					   'ZIP_CODE' => $values['father']['pr_pincode']
+					);
+					$this->db->where('ID', $lId);
+					$this->db->update('location', $data);
+					
+					$data1 = array(
+						'FIRSTNAME' => $values['father']['p_first_name'],
+						'LASTNAME' => $values['father']['p_last_name'],
+						'DOB' => $values['father']['p_dob'],
+						'PHONE_NO_2' => $values['father']['p_mobile_no'],
+						'FACEBOOK_LINK' => $values['father']['facebook'],
+						'GOOGLE_LINK' => $values['father']['google'],
+						'LINKEDIN_LINK' => $values['father']['linkedin']
+					);
+					$this->db->where('ID', $proId);
+					$this->db->update('profile', $data1);
+					
+					if($values['father']['p_email']==$email){
+						$data1 = array(
+							'EMAIL' => $values['father']['p_email'],
+							'EMAIL_VERIFIED' => $emailVerify,
+							'EMAIL_STATUS' => $emailStatus
+						);
+						$this->db->where('ID', $proId);
+						$this->db->update('profile', $data1);
+					}else{
+						$data1 = array(
+							'EMAIL' => $values['father']['p_email'],
+							'EMAIL_VERIFIED' => 'N',
+							'EMAIL_STATUS' => 'N'
+						);
+						$this->db->where('ID', $proId);
+						$this->db->update('profile', $data1);
+					}
+					
+					if($values['father']['p_phone']==$email){
+						$data1 = array(
+							'PHONE_NO_1' => $values['father']['p_phone'],
+							'PHONE_NO_1_VERIFIED' => $phoneVerify,
+							'PHONE_STATUS' => $phoneStatus
+						);
+						$this->db->where('ID', $proId);
+						$this->db->update('profile', $data1);
+					}else{
+						$data1 = array(
+							'PHONE_NO_1' => $values['father']['p_phone'],
+							'PHONE_NO_1_VERIFIED' => 'N',
+							'PHONE_STATUS' => 'N'
+						);
+						$this->db->where('ID', $proId);
+						$this->db->update('profile', $data1);
+					}
+					
+					
+					
+					$data2 = array (
+						'OCCUPATION' => $values['father']['occupation'],
+						'INCOME' => $values['father']['p_income'],
+					);
+					$this->db->where('PROFILE_ID', $proId);
+					$this->db->update('profile_extra', $data2);
+					
+					$data3 = array (
+						'STU_PROF_ID' => $values['stuPro_id'],
+						'EDUCATION' => $values['father']['p_education'],
+						'RELATION_TYPE' => $values['father']['first_relation'],
+						'AVAILABLE' => $values['father']['availabe']
+					);
+					$this->db->where('PROF_ID', $proId);
+					$this->db->update('student_relation', $data3);
 				}
-				$lId=$result1[0]['LOCATION_ID'];
-				$data = array(
-				   'ADDRESS' => $values['father']['pr_address'],
-				   'CITY' => $values['father']['pr_city'],
-				   'STATE' => $values['father']['pr_state'],
-				   'COUNTRY' => $country,
-				   'ZIP_CODE' => $values['father']['pr_pincode']
-				);
-				$this->db->where('ID', $lId);
-				$this->db->update('location', $data);
-				
-				$data1 = array(
-					'FIRSTNAME' => $values['father']['p_first_name'],
-					'LASTNAME' => $values['father']['p_last_name'],
-					'DOB' => $values['father']['p_dob'],
-					'PHONE_NO_1' => $values['father']['p_phone'],
-					'PHONE_NO_2' => $values['father']['p_mobile_no'],
-					'EMAIL' => $values['father']['p_email'],
-					'FACEBOOK_LINK' => $values['father']['facebook'],
-					'GOOGLE_LINK' => $values['father']['google'],
-					'LINKEDIN_LINK' => $values['father']['linkedin']
-				);
-				$this->db->where('ID', $frel_id);
-				$this->db->update('profile', $data1);
-				
-				$data2 = array (
-					'OCCUPATION' => $values['father']['occupation'],
-					'INCOME' => $values['father']['p_income'],
-				);
-				$this->db->where('PROFILE_ID', $frel_id);
-				$this->db->update('profile_extra', $data2);
-				
-				$data3 = array (
-					'STU_PROF_ID' => $values['stuPro_id'],
-					'EDUCATION' => $values['father']['p_education'],
-					'RELATION_TYPE' => $values['father']['first_relation'],
-					'AVAILABLE' => $values['father']['availabe']
-				);
-				$this->db->where('PROF_ID', $frel_id);
-				$this->db->update('student_relation', $data3);
 			}else{
 				if(isset($values['father']['country'])){
 					$country=$values['father']['country'];
@@ -471,54 +538,59 @@
 			
 			if($values['mother']['relationId']!=0){
 				$mrel_id=$values['mother']['relationId'];
-				$sql="SELECT LOCATION_ID FROM profile where ID='$mrel_id'";
-				$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-				//print_r($result1);exit;
-				if(isset($values['mother']['country'])){
-					$country=$values['mother']['country'];
-				}else{
-					$country='';
+				$sql="SELECT PROF_ID FROM student_relation where ID='$mrel_id'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$proId=$result[0]['PROF_ID'];
+					$sql="SELECT LOCATION_ID FROM profile where ID='$proId'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					//print_r($result1);exit;
+					if(isset($values['mother']['country'])){
+						$country=$values['mother']['country'];
+					}else{
+						$country='';
+					}
+					$lId=$result1[0]['LOCATION_ID'];
+					$data = array(
+					   'ADDRESS' => $values['mother']['pr_address'],
+					   'CITY' => $values['mother']['pr_city'],
+					   'STATE' => $values['mother']['pr_state'],
+					   'COUNTRY' => $country,
+					   'ZIP_CODE' => $values['mother']['pr_pincode']
+					);
+					$this->db->where('ID', $lId);
+					$this->db->update('location', $data);
+					
+					$data1 = array(
+						'FIRSTNAME' => $values['mother']['p_first_name'],
+						'LASTNAME' => $values['mother']['p_last_name'],
+						'DOB' => $values['mother']['p_dob'],
+						'PHONE_NO_1' => $values['mother']['p_phone'],
+						'PHONE_NO_2' => $values['mother']['p_mobile_no'],
+						'EMAIL' => $values['mother']['p_email'],
+						'FACEBOOK_LINK' => $values['mother']['facebook'],
+						'GOOGLE_LINK' => $values['mother']['google'],
+						'LINKEDIN_LINK' => $values['mother']['linkedin']
+					);
+					$this->db->where('ID', $proId);
+					$this->db->update('profile', $data1);
+					
+					$data2 = array (
+						'OCCUPATION' => $values['mother']['occupation'],
+						'INCOME' => $values['mother']['p_income'],
+					);
+					$this->db->where('PROFILE_ID', $proId);
+					$this->db->update('profile_extra', $data2);
+					
+					$data3 = array (
+						'STU_PROF_ID' => $values['stuPro_id'],
+						'EDUCATION' => $values['mother']['p_education'],
+						'RELATION_TYPE' => $values['mother']['second_relation'],
+						'AVAILABLE' => $values['mother']['availabe']
+					);
+					$this->db->where('PROF_ID', $proId);
+					$this->db->update('student_relation', $data3);
 				}
-				$lId=$result1[0]['LOCATION_ID'];
-				$data = array(
-				   'ADDRESS' => $values['mother']['pr_address'],
-				   'CITY' => $values['mother']['pr_city'],
-				   'STATE' => $values['mother']['pr_state'],
-				   'COUNTRY' => $country,
-				   'ZIP_CODE' => $values['mother']['pr_pincode']
-				);
-				$this->db->where('ID', $lId);
-				$this->db->update('location', $data);
-				
-				$data1 = array(
-					'FIRSTNAME' => $values['mother']['p_first_name'],
-					'LASTNAME' => $values['mother']['p_last_name'],
-					'DOB' => $values['mother']['p_dob'],
-					'PHONE_NO_1' => $values['mother']['p_phone'],
-					'PHONE_NO_2' => $values['mother']['p_mobile_no'],
-					'EMAIL' => $values['mother']['p_email'],
-					'FACEBOOK_LINK' => $values['mother']['facebook'],
-					'GOOGLE_LINK' => $values['mother']['google'],
-					'LINKEDIN_LINK' => $values['mother']['linkedin']
-				);
-				$this->db->where('ID', $mrel_id);
-				$this->db->update('profile', $data1);
-				
-				$data2 = array (
-					'OCCUPATION' => $values['mother']['occupation'],
-					'INCOME' => $values['mother']['p_income'],
-				);
-				$this->db->where('PROFILE_ID', $mrel_id);
-				$this->db->update('profile_extra', $data2);
-				
-				$data3 = array (
-					'STU_PROF_ID' => $values['stuPro_id'],
-					'EDUCATION' => $values['mother']['p_education'],
-					'RELATION_TYPE' => $values['mother']['second_relation'],
-					'AVAILABLE' => $values['mother']['availabe']
-				);
-				$this->db->where('PROF_ID', $mrel_id);
-				$this->db->update('student_relation', $data3);
 			}else{
 				if(isset($values['mother']['country'])){
 					$country=$values['mother']['country'];
@@ -574,48 +646,53 @@
 			
 			if($values['guardian']['relationId']!=0){
 				$grel_id=$values['guardian']['relationId'];
-				$sql="SELECT LOCATION_ID FROM profile where ID='$grel_id'";
-				$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-				$lId=$result1[0]['LOCATION_ID'];
-				$data = array(
-				   'ADDRESS' => $values['guardian']['pr_address'],
-				   'CITY' => $values['guardian']['pr_city'],
-				   'STATE' => $values['guardian']['pr_state'],
-				   'COUNTRY' => $values['guardian']['country'],
-				   'ZIP_CODE' => $values['guardian']['pr_pincode']
-				);
-				$this->db->where('ID', $lId);
-				$this->db->update('location', $data);
-				
-				$data1 = array(
-					'FIRSTNAME' => $values['guardian']['p_first_name'],
-					'LASTNAME' => $values['guardian']['p_last_name'],
-					'DOB' => $values['guardian']['p_dob'],
-					'PHONE_NO_1' => $values['guardian']['p_phone'],
-					'PHONE_NO_2' => $values['guardian']['p_mobile_no'],
-					'EMAIL' => $values['guardian']['p_email'],
-					'FACEBOOK_LINK' => $values['guardian']['facebook'],
-					'GOOGLE_LINK' => $values['guardian']['google'],
-					'LINKEDIN_LINK' => $values['guardian']['linkedin']
-				);
-				$this->db->where('ID', $grel_id);
-				$this->db->update('profile', $data1);
-				
-				$data2 = array (
-					'OCCUPATION' => $values['guardian']['occupation'],
-					'INCOME' => $values['guardian']['p_income'],
-				);
-				$this->db->where('PROFILE_ID', $grel_id);
-				$this->db->update('profile_extra', $data2);
-				
-				$data3 = array (
-					'STU_PROF_ID' => $values['stuPro_id'],
-					'EDUCATION' => $values['guardian']['p_education'],
-					'RELATION_TYPE' => $values['guardian']['third_relation'],
-					'AVAILABLE' => $values['guardian']['availabe']
-				);
-				$this->db->where('PROF_ID', $grel_id);
-				$this->db->update('student_relation', $data3);
+				$sql="SELECT PROF_ID FROM student_relation where ID='$grel_id'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$proId=$result[0]['PROF_ID'];
+					$sql="SELECT LOCATION_ID FROM profile where ID='$proId'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					$lId=$result1[0]['LOCATION_ID'];
+					$data = array(
+					   'ADDRESS' => $values['guardian']['pr_address'],
+					   'CITY' => $values['guardian']['pr_city'],
+					   'STATE' => $values['guardian']['pr_state'],
+					   'COUNTRY' => $values['guardian']['country'],
+					   'ZIP_CODE' => $values['guardian']['pr_pincode']
+					);
+					$this->db->where('ID', $lId);
+					$this->db->update('location', $data);
+					
+					$data1 = array(
+						'FIRSTNAME' => $values['guardian']['p_first_name'],
+						'LASTNAME' => $values['guardian']['p_last_name'],
+						'DOB' => $values['guardian']['p_dob'],
+						'PHONE_NO_1' => $values['guardian']['p_phone'],
+						'PHONE_NO_2' => $values['guardian']['p_mobile_no'],
+						'EMAIL' => $values['guardian']['p_email'],
+						'FACEBOOK_LINK' => $values['guardian']['facebook'],
+						'GOOGLE_LINK' => $values['guardian']['google'],
+						'LINKEDIN_LINK' => $values['guardian']['linkedin']
+					);
+					$this->db->where('ID', $proId);
+					$this->db->update('profile', $data1);
+					
+					$data2 = array (
+						'OCCUPATION' => $values['guardian']['occupation'],
+						'INCOME' => $values['guardian']['p_income'],
+					);
+					$this->db->where('PROFILE_ID', $proId);
+					$this->db->update('profile_extra', $data2);
+					
+					$data3 = array (
+						'STU_PROF_ID' => $values['stuPro_id'],
+						'EDUCATION' => $values['guardian']['p_education'],
+						'RELATION_TYPE' => $values['guardian']['third_relation'],
+						'AVAILABLE' => $values['guardian']['availabe']
+					);
+					$this->db->where('PROF_ID', $proId);
+					$this->db->update('student_relation', $data3);
+				}
 			}else{
 				if($values['guardian']['p_first_name']){
 					$data8 = array(
@@ -671,153 +748,6 @@
 			return array(['frelation_id' => $frel_id,'mrelation_id'=> $mrel_id,'grelation_id' => $grel_id]);
 		}
 	
-		// Profile details
-		public function addProfileDetails($values){
-			$data = array(
-			   'ADMISSION_NO' => $values['ADMISSION_NO'],
-			   'ADMISSION_DATE' => $values['ADMISSION_DATE'],
-			   'FIRSTNAME' => $values['FIRSTNAME'],
-			   'LASTNAME' => $values['LASTNAME'],
-			   'GENDER' => $values['GENDER'],
-			   'IMAGE1' => $values['IMAGE1'],
-			   'DOB' => $values['DOB'],
-			   'NATIONALITY' => $values['NATIONALITY'],
-			   'MOTHER_TONGUE' => $values['MOTHER_TONGUE'],
-			   'RELIGION' => $values['RELIGION']
-			);
-			$this->db->insert('profile', $data); 
-			$profile_id= $this->db->insert_id();
-			if(!empty($profile_id)){
-				$data1 = array(
-					'PROFILE_ID' => $profile_id,
-					'COURSEBATCH_ID' => $values['COURSEBATCH_ID'],
-					'ROLL_NO' => $values['ROLL_NO']
-				);
-				$this->db->insert('student_profile', $data1);
-				$student_profile_id= $this->db->insert_id();
-				if(!empty($student_profile_id)){
-					$data2 = array(
-						'STU_PROF_ID' => $student_profile_id
-					);
-					$this->db->insert('student_relation', $data2);
-				}
-				return $profile_id;
-			}
-	    }
-		
-		public function editProfileDetails($id,$values){
-			$sql="SELECT LOCATION_ID FROM profile where ID='$id'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result[0]['LOCATION_ID']){
-				// location updates
-				$data = array(
-				   'ADDRESS' => $values['ADDRESS'],
-				   'CITY' => $values['CITY'],
-				   'STATE' => $values['STATE'],
-				   'COUNTRY' => $values['COUNTRY'],
-				   'ZIP_CODE' => $values['ZIP_CODE']
-				);
-				$this->db->where('ID', $result[0]['LOCATION_ID']);
-				$this->db->update('location', $data);
-				
-				// Profile updates
-				$data1 = array(
-					'ADMISSION_NO' => $values['ADMISSION_NO'],
-					'ADMISSION_DATE' => $values['ADMISSION_DATE'],
-					'FIRSTNAME' => $values['FIRSTNAME'],
-					'LASTNAME' => $values['LASTNAME'],
-					'GENDER' => $values['GENDER'],
-					'IMAGE1' => $values['IMAGE1'],
-					'DOB' => $values['DOB'],
-					'NATIONALITY' => $values['NATIONALITY'],
-					'MOTHER_TONGUE' => $values['MOTHER_TONGUE'],
-					'RELIGION' => $values['RELIGION'],
-					'EMAIL' => $values['EMAIL'],
-					'PHONE_NO_1' => $values['PHONE_NO_1'],
-					'PHONE_NO_2' => $values['PHONE_NO_2'],
-					'LOCATION_ID' => $result[0]['LOCATION_ID'],
-					'BLOOD_GROUP' => $values['BLOOD_GROUP'],
-					'BIRTHPLACE' => $values['BIRTHPLACE'],
-					'FACEBOOK_LINK' => $values['FACEBOOK_LINK'],
-					'GOOGLE_LINK' => $values['GOOGLE_LINK'],
-					'LINKEDIN_LINK' => $values['LINKEDIN_LINK']
-					
-				);
-				$this->db->where('ID', $id);
-				$this->db->update('profile', $data1);
-				
-				// previous education add and updates
-				
-				$sql="SELECT PREVIOUSEDUCATION_ID FROM student_profile where PROFILE_ID='$id'";
-				$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($result1[0]['PREVIOUSEDUCATION_ID']){
-					$data = array(
-						'INSTITUTE' => $values['INSTITUTE'],
-						'LEVEL' => $values['LEVEL'],
-						'YEAR_COMPLETION' => $values['YEAR_COMPLETION'],
-						'TOTAL_GRADE' => $values['TOTAL_GRADE']
-					);
-					
-					$this->db->where('ID', $result1[0]['PREVIOUSEDUCATION_ID']);
-					$this->db->update('previous_education', $data);
-				}else{
-					$data = array(
-						'INSTITUTE' => $values['INSTITUTE'],
-						'LEVEL' => $values['LEVEL'],
-						'YEAR_COMPLETION' => $values['YEAR_COMPLETION'],
-						'TOTAL_GRADE' => $values['TOTAL_GRADE']
-					);
-					$this->db->insert('previous_education', $data);
-					
-					$preEducation_id= $this->db->insert_id();
-					if(!empty($preEducation_id)){
-						$data = array(
-						   'PREVIOUSEDUCATION_ID' => $preEducation_id
-						);
-						$this->db->where('PROFILE_ID', $id);
-						$this->db->update('student_profile', $data);
-					}
-				}	
-				return $id;
-			}else{
-				$data = array(
-				   'ADDRESS' => $values['ADDRESS'],
-				   'CITY' => $values['CITY'],
-				   'STATE' => $values['STATE'],
-				   'COUNTRY' => $values['COUNTRY'],
-				   'ZIP_CODE' => $values['ZIP_CODE']
-				);
-				$this->db->insert('location', $data); 
-				$location_id= $this->db->insert_id();
-				if(!empty($location_id)){
-					$data1 = array(
-						'ADMISSION_NO' => $values['ADMISSION_NO'],
-						'ADMISSION_DATE' => $values['ADMISSION_DATE'],
-						'FIRSTNAME' => $values['FIRSTNAME'],
-						'LASTNAME' => $values['LASTNAME'],
-						'GENDER' => $values['GENDER'],
-						'IMAGE1' => $values['IMAGE1'],
-						'DOB' => $values['DOB'],
-						'NATIONALITY' => $values['NATIONALITY'],
-						'MOTHER_TONGUE' => $values['MOTHER_TONGUE'],
-						'RELIGION' => $values['RELIGION'],
-						'EMAIL' => $values['EMAIL'],
-						'PHONE_NO_1' => $values['PHONE_NO_1'],
-						'PHONE_NO_2' => $values['PHONE_NO_2'],
-						'LOCATION_ID' => $location_id,
-						'BLOOD_GROUP' => $values['BLOOD_GROUP'],
-						'BIRTHPLACE' => $values['BIRTHPLACE'],
-						'FACEBOOK_LINK' => $values['FACEBOOK_LINK'],
-						'GOOGLE_LINK' => $values['GOOGLE_LINK'],
-						'LINKEDIN_LINK' => $values['LINKEDIN_LINK']
-					);
-					$this->db->where('ID', $id);
-					$this->db->update('profile', $data1);
-				}
-				return $id;
-			}
-	    }
-		
 		public function getProfileDetailsAll(){
 			$sql="SELECT * FROM profile";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -843,7 +773,7 @@
 					$sId=$result1[$i]['PROF_ID'];
 					$sql="SELECT ID,LOCATION_ID FROM profile where ID='$sId'";
 					$result2 = $this->db->query($sql, $return_object = TRUE)->result_array();
-					print_r($result2);exit;
+					//print_r($result2);exit;
 					$data = array(
 						'ADDRESS' => $values['pr_address'][$i]['company'],
 						'CITY' => $values['pr_city'][$i]['company'],
@@ -1487,7 +1417,8 @@
 			$this->db->update('user', $data);
 			
 			$data1 = array (
-				'EMAIL_VERIFIED' => 'Y'
+				'EMAIL_VERIFIED' => 'Y',
+				'PHONE_NO_1_VERIFIED' => 'Y'
 			);
 			$this->db->where('ID', $values['id']);
 			$this->db->update('profile', $data1);
@@ -1495,14 +1426,30 @@
 			return true;
 		}
 		
+		// public function uniqueMailId($id,$email,$phone){
+			// $sql ="SELECT EMAIL,PHONE_NO_1 FROM profile WHERE ID='$id'";
+			// $result=$this->db->query($sql, $return_object = TRUE)->result_array();
+			// if($result){
+				// $mail=$result[0]['EMAIL'];
+				// $mobile=$result[0]['PHONE_NO_1'];
+				// if($mail==$email){
+					// $chkMail=''
+				// }
+				// array_push($preEdu_id,$pre_id);
+			// }
+			
+			
+			// return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+		// }
 		
-		public function checkMailVerification($id){
+		public function checkMailVerification($id,$type){
 			//$sql="SELECT EMAIL,EMAIL_VERIFIED,PHONE_NO_1,PHONE_NO_1_VERIFIED FROM profile where ID='$id'";
 			$sql="SELECT * FROM profile where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result[0]['EMAIL']){
 				$check=$result[0]['EMAIL_VERIFIED'];
 				$mailStatus=$result[0]['EMAIL_STATUS'];
+				$phoneStatus=$result[0]['PHONE_STATUS'];
 				if($mailStatus=='N'){
 					if($check=='N'){
 						$to=$result[0]['EMAIL'];
@@ -1521,12 +1468,25 @@
 								'USER_PHONE' => $result[0]['PHONE_NO_1'],
 								'USER_EMAIL' => $result[0]['EMAIL'],
 								'USER_PASSWORD' => '',
-								'USER_ROLE_ID' => 1,
 								'USER_VERIFYKEY' => $token,
 								'USER_STATUS' => 'N',
 							);
 							$this->db->where('USER_PROFILE_ID', $id);
 							$this->db->update('user', $data);
+							
+							if($type=='Student'){
+								$dataRole = array(
+									'USER_ROLE_ID' => 3,
+								);
+								$this->db->where('USER_PROFILE_ID', $id);
+								$this->db->update('user', $dataRole);
+							}else{
+								$dataRole1 = array(
+									'USER_ROLE_ID' => 4,
+								);
+								$this->db->where('USER_PROFILE_ID', $id);
+								$this->db->update('user', $dataRole1);
+							}
 							
 							$data1 = array(
 								'EMAIL_STATUS' => 'Y',
@@ -1544,11 +1504,22 @@
 								'USER_PHONE' => $result[0]['PHONE_NO_1'],
 								'USER_EMAIL' => $result[0]['EMAIL'],
 								'USER_PASSWORD' => '',
-								'USER_ROLE_ID' => 1,
 								'USER_VERIFYKEY' => $token,
 								'USER_STATUS' => 'N',
 							);
 							$this->db->insert('user', $data);
+							
+							if($type=='Student'){
+								$dataRole = array(
+									'USER_ROLE_ID' => 3,
+								);
+								$this->db->insert('user', $dataRole);
+							}else{
+								$dataRole1 = array(
+									'USER_ROLE_ID' => 4,
+								);
+								$this->db->insert('user', $dataRole1);
+							}
 							
 							$data1 = array(
 								'EMAIL_STATUS' => 'Y',
@@ -1560,7 +1531,7 @@
 							return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
 						}
 					}
-				}else{
+				}else if($phoneStatus=='N'){
 					$phone=$result[0]['PHONE_NO_1'];
 					$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
 					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -1569,11 +1540,24 @@
 							'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
 							'USER_LAST_NAME' => $result[0]['LASTNAME'],
 							'USER_PHONE' => $result[0]['PHONE_NO_1'],
-							'USER_ROLE_ID' => 1,
 							'USER_STATUS' => 'N',
 						);
 						$this->db->where('USER_PROFILE_ID', $id);
 						$this->db->update('user', $data);
+						
+						if($type=='Student'){
+							$dataRole = array(
+								'USER_ROLE_ID' => 3,
+							);
+							$this->db->where('USER_PROFILE_ID', $id);
+							$this->db->update('user', $dataRole);
+						}else{
+							$dataRole1 = array(
+								'USER_ROLE_ID' => 4,
+							);
+							$this->db->where('USER_PROFILE_ID', $id);
+							$this->db->update('user', $dataRole1);
+						}
 						
 						$data1 = array(
 							'PHONE_STATUS' => 'Y'
@@ -1589,11 +1573,22 @@
 							'USER_LAST_NAME' => $result[0]['LASTNAME'],
 							'USER_PROFILE_ID' => $result[0]['ID'],
 							'USER_PHONE' => $result[0]['PHONE_NO_1'],
-							'USER_ROLE_ID' => 1,
 							'USER_VERIFYKEY' => $token,
 							'USER_STATUS' => 'N',
 						);
 						$this->db->insert('user', $data);
+						
+						if($type=='Student'){
+							$dataRole = array(
+								'USER_ROLE_ID' => 3,
+							);
+							$this->db->insert('user', $dataRole);
+						}else{
+							$dataRole1 = array(
+								'USER_ROLE_ID' => 4,
+							);
+							$this->db->insert('user', $dataRole1);
+						}
 						
 						$data1 = array(
 							'PHONE_STATUS' => 'Y'
@@ -1618,11 +1613,24 @@
 								'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
 								'USER_LAST_NAME' => $result[0]['LASTNAME'],
 								'USER_PHONE' => $result[0]['PHONE_NO_1'],
-								'USER_ROLE_ID' => 1,
 								'USER_STATUS' => 'N',
 							);
 							$this->db->where('USER_PROFILE_ID', $id);
 							$this->db->update('user', $data);
+							
+							if($type=='Student'){
+								$dataRole = array(
+									'USER_ROLE_ID' => 3,
+								);
+								$this->db->where('USER_PROFILE_ID', $id);
+								$this->db->update('user', $dataRole);
+							}else{
+								$dataRole1 = array(
+									'USER_ROLE_ID' => 4,
+								);
+								$this->db->where('USER_PROFILE_ID', $id);
+								$this->db->update('user', $dataRole1);
+							}
 							
 							$data1 = array(
 								'PHONE_STATUS' => 'Y'
@@ -1638,10 +1646,21 @@
 								'USER_LAST_NAME' => $result[0]['LASTNAME'],
 								'USER_PROFILE_ID' => $result[0]['ID'],
 								'USER_PHONE' => $result[0]['PHONE_NO_1'],
-								'USER_ROLE_ID' => 1,
 								'USER_STATUS' => 'N',
 							);
 							$this->db->insert('user', $data);
+							
+							if($type=='Student'){
+								$dataRole = array(
+									'USER_ROLE_ID' => 3,
+								);
+								$this->db->insert('user', $dataRole);
+							}else{
+								$dataRole1 = array(
+									'USER_ROLE_ID' => 4,
+								);
+								$this->db->insert('user', $dataRole1);
+							}
 							
 							$data1 = array(
 								'PHONE_STATUS' => 'Y'
@@ -1657,82 +1676,253 @@
 			}
 		}
 		
-		public function checkPhoneVerification($id){
-			$sql="SELECT * FROM profile where ID='$id'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result[0]['PHONE_NO_1']){
-				$check=$result[0]['PHONE_NO_1_VERIFIED'];
-				$phoneStatus=$result[0]['PHONE_STATUS'];
-				if($phoneStatus=='N'){
-					if($check=='N'){
-						$to=$result[0]['PHONE_NO_1'];
-						$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
-						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-						if($result1){
-							$mailVerify=$result1[0]['USER_VERIFYKEY'];
-							$mailStatus=$result1[0]['USER_STATUS'];
-							if($mailVerify){
+		public function checkVerification($id,$type){
+			if($type=='Parents'){
+				$sql="SELECT * FROM student_relation where ID='$id'";
+				$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result1){
+					$proId=$result1[0]['PROF_ID'];
+					$sql="SELECT * FROM profile where ID='$proId'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					//print_r($result);exit;
+					if($result){
+						$mailVerify=$result[0]['EMAIL_VERIFIED'];
+						$mailStatus=$result[0]['EMAIL_STATUS'];
+						$phoneStatus=$result[0]['PHONE_STATUS'];
+						$phoneVerify=$result[0]['PHONE_NO_1_VERIFIED'];
+						$to=$result[0]['EMAIL'];
+						$phone=$result[0]['PHONE_NO_1'];
+						
+						// Random Key Generation
+						$this->load->helper('string');
+						$token=random_string('alnum',25);
+						
+						if($mailStatus=='N'){
+							$sql="SELECT * FROM user where USER_PROFILE_ID='$proId'";
+							$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+							if($result1){
+								$data = array(
+									'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+									'USER_LAST_NAME' => $result[0]['LASTNAME'],
+									'USER_PHONE' => $result[0]['PHONE_NO_1'],
+									'USER_EMAIL' => $result[0]['EMAIL'],
+									'USER_PASSWORD' => '',
+									'USER_VERIFYKEY' => $token,
+									'USER_STATUS' => 'N',
+									'USER_ROLE_ID' => 4
+								);
+								$this->db->where('USER_PROFILE_ID', $proId);
+								$this->db->update('user', $data);
 								
+								$data1 = array(
+									'EMAIL_STATUS' => 'Y'
+								);
+								$this->db->where('ID', $id);
+								$this->db->update('profile', $data1);
+								
+								//return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
 							}else{
-								if($mailStatus!='N'){
-									$data = array(
-										'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
-										'USER_LAST_NAME' => $result[0]['LASTNAME'],
-										'USER_PHONE' => $result[0]['PHONE_NO_1'],
-										'USER_EMAIL' => $result[0]['EMAIL'],
-										'USER_PASSWORD' => '',
-										'USER_ROLE_ID' => 1,
-										'USER_STATUS' => 'N',
-									);
-									$this->db->where('USER_PROFILE_ID', $id);
-									$this->db->update('user', $data);
-								}
+								$data = array(
+									'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+									'USER_LAST_NAME' => $result[0]['LASTNAME'],
+									'USER_PROFILE_ID' => $result[0]['ID'],
+									'USER_PHONE' => $result[0]['PHONE_NO_1'],
+									'USER_EMAIL' => $result[0]['EMAIL'],
+									'USER_PASSWORD' => '',
+									'USER_VERIFYKEY' => $token,
+									'USER_STATUS' => 'N',
+									'USER_ROLE_ID' => 4
+								);
+								$this->db->insert('user', $data);
+								
+								$data1 = array(
+									'EMAIL_STATUS' => 'Y',
+								);
+								$this->db->where('ID', $proId);
+								$this->db->update('profile', $data1);
+								
+								//return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+							}
+						}else{
+							$to='';
+						}
+						if($phoneStatus=='N'){
+							$sql="SELECT * FROM user where USER_PROFILE_ID='$proId'";
+							$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+							if($result1){
+								$data = array(
+									'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+									'USER_LAST_NAME' => $result[0]['LASTNAME'],
+									'USER_PHONE' => $result[0]['PHONE_NO_1'],
+									'USER_EMAIL' => $result[0]['EMAIL'],
+									'USER_PASSWORD' => '',
+									'USER_VERIFYKEY' => $token,
+									'USER_STATUS' => 'N',
+									'USER_ROLE_ID' => 4
+								);
+								$this->db->where('USER_PROFILE_ID', $proId);
+								$this->db->update('user', $data);
 								
 								$data1 = array(
 									'PHONE_STATUS' => 'Y'
 								);
-								$this->db->where('ID', $id);
+								$this->db->where('ID', $proId);
 								$this->db->update('profile', $data1);
+								
+								//return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+							}else{
+								$data = array(
+									'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+									'USER_LAST_NAME' => $result[0]['LASTNAME'],
+									'USER_PROFILE_ID' => $result[0]['ID'],
+									'USER_PHONE' => $result[0]['PHONE_NO_1'],
+									'USER_EMAIL' => $result[0]['EMAIL'],
+									'USER_PASSWORD' => '',
+									'USER_VERIFYKEY' => $token,
+									'USER_STATUS' => 'N',
+									'USER_ROLE_ID' => 4
+								);
+								$this->db->insert('user', $data);
+								
+								$data1 = array(
+									'PHONE_STATUS' => 'Y'
+								);
+								$this->db->where('ID', $proId);
+								$this->db->update('profile', $data1);
+								
+								//return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
 							}
 						}
-						return $to;
-						
-						// $sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
-						// $result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-						// if($result1){
-							
-							
-							
-							
-							// return array(['phone' => $to,'token'=> $token]);
-						// }else{
-							// $data = array(
-								// 'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
-								// 'USER_LAST_NAME' => $result[0]['LASTNAME'],
-								// 'USER_PROFILE_ID' => $result[0]['ID'],
-								// 'USER_PHONE' => $result[0]['PHONE_NO_1'],
-								// 'USER_EMAIL' => $result[0]['EMAIL'],
-								// 'USER_PASSWORD' => '',
-								// 'USER_ROLE_ID' => 1,
-								// 'USER_STATUS' => 'N',
-							// );
-							// $this->db->insert('user', $data);
-							
-							// $data1 = array(
-								// 'PHONE_STATUS' => 'Y'
-							// );
-							// $this->db->where('ID', $id);
-							// $this->db->update('profile', $data1);
-							
-							// return array(['phone' => $to,'token'=> $token]);
-						// }
+						else{
+							$phone='';
+						}
+						return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
 					}
+				}
+			}else{
+				$sql="SELECT * FROM profile where ID='$id'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$mailVerify=$result[0]['EMAIL_VERIFIED'];
+					$mailStatus=$result[0]['EMAIL_STATUS'];
+					$phoneStatus=$result[0]['PHONE_STATUS'];
+					$phoneVerify=$result[0]['PHONE_NO_1_VERIFIED'];
+					$to=$result[0]['EMAIL'];
+					$phone=$result[0]['PHONE_NO_1'];
+					
+					// Random Key Generation
+					$this->load->helper('string');
+					$token=random_string('alnum',25);
+					
+					if($mailVerify=='N'){
+						$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
+						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($result1){
+							$data = array(
+								'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+								'USER_LAST_NAME' => $result[0]['LASTNAME'],
+								'USER_PHONE' => $result[0]['PHONE_NO_1'],
+								'USER_EMAIL' => $result[0]['EMAIL'],
+								'USER_PASSWORD' => '',
+								'USER_VERIFYKEY' => $token,
+								'USER_STATUS' => 'N',
+								'USER_ROLE_ID' => 3
+							);
+							$this->db->where('USER_PROFILE_ID', $id);
+							$this->db->update('user', $data);
+							
+							$data1 = array(
+								'EMAIL_STATUS' => 'Y'
+							);
+							$this->db->where('ID', $id);
+							$this->db->update('profile', $data1);
+							
+							//return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+						}else{
+							$data = array(
+								'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+								'USER_LAST_NAME' => $result[0]['LASTNAME'],
+								'USER_PROFILE_ID' => $result[0]['ID'],
+								'USER_PHONE' => $result[0]['PHONE_NO_1'],
+								'USER_EMAIL' => $result[0]['EMAIL'],
+								'USER_PASSWORD' => '',
+								'USER_VERIFYKEY' => $token,
+								'USER_STATUS' => 'N',
+								'USER_ROLE_ID' => 3
+							);
+							$this->db->insert('user', $data);
+							
+							$data1 = array(
+								'EMAIL_STATUS' => 'Y',
+							);
+							$this->db->where('ID', $id);
+							$this->db->update('profile', $data1);
+							
+							//return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+						}
+					}else{
+						$to='';
+					}
+					if($phoneVerify=='N'){
+						$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
+						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($result1){
+							$data = array(
+								'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+								'USER_LAST_NAME' => $result[0]['LASTNAME'],
+								'USER_PHONE' => $result[0]['PHONE_NO_1'],
+								'USER_EMAIL' => $result[0]['EMAIL'],
+								'USER_PASSWORD' => '',
+								'USER_VERIFYKEY' => $token,
+								'USER_STATUS' => 'N',
+								'USER_ROLE_ID' => 3
+							);
+							$this->db->where('USER_PROFILE_ID', $id);
+							$this->db->update('user', $data);
+							
+							$data1 = array(
+								'PHONE_STATUS' => 'Y'
+							);
+							$this->db->where('ID', $id);
+							$this->db->update('profile', $data1);
+							
+							//return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+						}else{
+							$data = array(
+								'USER_FIRST_NAME' => $result[0]['FIRSTNAME'],
+								'USER_LAST_NAME' => $result[0]['LASTNAME'],
+								'USER_PROFILE_ID' => $result[0]['ID'],
+								'USER_PHONE' => $result[0]['PHONE_NO_1'],
+								'USER_EMAIL' => $result[0]['EMAIL'],
+								'USER_PASSWORD' => '',
+								'USER_VERIFYKEY' => $token,
+								'USER_STATUS' => 'N',
+								'USER_ROLE_ID' => 3
+							);
+							$this->db->insert('user', $data);
+							
+							$data1 = array(
+								'PHONE_STATUS' => 'Y'
+							);
+							$this->db->where('ID', $id);
+							$this->db->update('profile', $data1);
+							
+							//return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
+						}
+					}else{
+						$phone='';
+					}
+					return array(['email' => $to,'token'=> $token,'phone' =>$phone]);
 				}
 			}
 		}
 		
 		public function passwordReset($data){
-			$sql="SELECT * FROM user where USER_EMAIL='$data' AND USER_STATUS='Y'";
+			if(is_numeric($data)){
+				$sql="SELECT * FROM user where USER_PHONE='$data' AND USER_STATUS='Y'";
+			}else{
+				$sql="SELECT * FROM user where USER_EMAIL='$data' AND USER_STATUS='Y'";
+			}
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
 				$user_id=$result[0]['USER_ID'];
@@ -1747,6 +1937,19 @@
 				$this->db->where('USER_ID', $user_id);
 				$this->db->update('user', $data1);
 				return $token;
+			}
+		}
+		
+		// My Profile
+		
+		public function myProfile($id){
+			$sql="select USER_PROFILE_ID from user where USER_ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				$proId=$result[0]['USER_PROFILE_ID'];
+				$sql="select * from profile where ID='$proId'";
+				$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+				return $result1;
 			}
 		}
 		
