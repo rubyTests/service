@@ -8,9 +8,15 @@ ini_set('display_errors',1);error_reporting(E_ALL);
 // Autoloading (composer is preferred, but for this example let's just do this)
 
 function loadServer($loadData){
+// Localhost
 $dsn      = 'mysql:dbname=rubycampus_new;host=localhost';
 $username = 'root';
 $password = '';
+
+// $dsn      = 'mysql:dbname=campusen_rubycampus;host=localhost';
+// $username = 'campusen_DBadmin';
+// $password = 'Rubycampus@123';
+
 require_once('oauth2-server-php/src/OAuth2/Autoloader.php');
 OAuth2\Autoloader::register();
 
