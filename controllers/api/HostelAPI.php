@@ -101,10 +101,11 @@ class HostelAPI extends REST_Controller {
 		$data['BLOCK_ID']=$this->post('blockId');
 		$data['ROOM_ID']=$this->post('roomId');
 		$data['DATE']=$this->post('date');
+		$data['REASON']=$this->post('reason');
 		if($id==null){
 			$result=$this->hostelmodel->addAllocation($data);
 			if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+				$this->set_response(['status' =>TRUE,'message'=>'Room Allocated Successfully'], REST_Controller::HTTP_OK); 
 			}
 			else
 			{
@@ -113,7 +114,7 @@ class HostelAPI extends REST_Controller {
 		}else{
 			$result=$this->hostelmodel->editAllocation($id,$data);
 			if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'message'=>'Data Updated Successfully'], REST_Controller::HTTP_OK);
+				$this->set_response(['status' =>TRUE,'message'=>'Room Transferred Successfully'], REST_Controller::HTTP_OK);
 			}
 			else
 			{
@@ -222,6 +223,7 @@ class HostelAPI extends REST_Controller {
 		$data['RESIDENT_TYPE']=$this->post('type');
 		$data['PROFILE_ID']=$this->post('profileId');
 		$data['DATE']=$this->post('date');
+		$data['REASON']=$this->post('reason');
 		if($id==null){
 			$result=$this->hostelmodel->addVacateDetails($data);
 			if (!empty($result)){
