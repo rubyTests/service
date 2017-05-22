@@ -72,35 +72,64 @@
 		}
 		
 		public function editAllocation($id,$values){
-			$data = array(
-				'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
-				'PROFILE_ID' => $values['PROFILE_ID'],
-				'HOSTEL_ID' => $values['HOSTEL_ID'],
-				'BLOCK_ID' => $values['BLOCK_ID'],
-				'ROOM_ID' => $values['ROOM_ID'],
-				'DATE' => $values['DATE']
-			);
-			$this->db->where('id', $id);
-			$this->db->update('h_allocation', $data);
-			$sql="SELECT HOSTEL_ID,BLOCK_ID,ROOM_ID FROM h_allocation where id='$id'";
+			$proId=$values['PROFILE_ID'];
+			$sql="SELECT PROFILE_ID FROM h_transfer where PROFILE_ID='$proId'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
-				$hostelId=$result[0]['HOSTEL_ID'];
-				$blockId=$result[0]['BLOCK_ID'];
-				$roomId=$result[0]['ROOM_ID'];
-				if($hostelId!=$values['HOSTEL_ID'] || $blockId!=$values['BLOCK_ID'] || $roomId!=$values['ROOM_ID']){
-					$data = array(
-						'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
-						'PROFILE_ID' => $values['PROFILE_ID'],
-						'HOSTEL_ID' => $values['HOSTEL_ID'],
-						'BLOCK_ID' => $values['BLOCK_ID'],
-						'ROOM_ID' => $values['ROOM_ID'],
-						'DATE' => $values['DATE']
-					);
-					$this->db->insert('h_transfer_history', $data);
+				$data = array(
+					'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
+					'PROFILE_ID' => $values['PROFILE_ID'],
+					'HOSTEL_ID' => $values['HOSTEL_ID'],
+					'BLOCK_ID' => $values['BLOCK_ID'],
+					'ROOM_ID' => $values['ROOM_ID'],
+					'DATE' => $values['DATE'],
+					'REASON' => 'demo'
+				);
+				$this->db->where('id', $id);
+				$this->db->update('h_transfer', $data);
+				$sql="SELECT HOSTEL_ID,BLOCK_ID,ROOM_ID FROM h_transfer where id='$id'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$hostelId=$result[0]['HOSTEL_ID'];
+					$blockId=$result[0]['BLOCK_ID'];
+					$roomId=$result[0]['ROOM_ID'];
+					if($hostelId!=$values['HOSTEL_ID'] || $blockId!=$values['BLOCK_ID'] || $roomId!=$values['ROOM_ID']){
+						$data = array(
+							'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
+							'PROFILE_ID' => $values['PROFILE_ID'],
+							'HOSTEL_ID' => $values['HOSTEL_ID'],
+							'BLOCK_ID' => $values['BLOCK_ID'],
+							'ROOM_ID' => $values['ROOM_ID'],
+							'DATE' => $values['DATE'],
+							'REASON' => 'demo'
+						);
+						$this->db->insert('h_transfer_history', $data);
+					}
 				}
+				return true;
+			}else{
+				$data = array(
+					'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
+					'PROFILE_ID' => $values['PROFILE_ID'],
+					'HOSTEL_ID' => $values['HOSTEL_ID'],
+					'BLOCK_ID' => $values['BLOCK_ID'],
+					'ROOM_ID' => $values['ROOM_ID'],
+					'DATE' => $values['DATE'],
+					'REASON' => 'demo'
+				);
+				$this->db->insert('h_transfer', $data);
+				$data = array(
+					'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
+					'PROFILE_ID' => $values['PROFILE_ID'],
+					'HOSTEL_ID' => $values['HOSTEL_ID'],
+					'BLOCK_ID' => $values['BLOCK_ID'],
+					'ROOM_ID' => $values['ROOM_ID'],
+					'DATE' => $values['DATE'],
+					'REASON' => 'demo'
+				);
+				$this->db->insert('h_transfer_history', $data);				
+				return true;
 			}
-			return true;
 		}
 		
 		public function allocationDetails($id){
@@ -119,22 +148,25 @@
 		}
 		
 		public function TranferView(){
-			$tranfer=[];
-			$sql="SELECT MAX(ID),PROFILE_ID FROM h_transfer_history GROUP BY `PROFILE_ID` order by ID";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result){
-				foreach($result as $values){
-					$id=$values['MAX(ID)'];
-					$pro_id=$values['PROFILE_ID'];
-					$sql="SELECT MAX(ID) FROM h_transfer_history WHERE PROFILE_ID='$pro_id' AND NOT ID='$id'";
-					$res = $this->db->query($sql, $return_object = TRUE)->result_array();
-					$id1=$res[0]['MAX(ID)'];
-					$sql="SELECT ID,DATE,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=h_transfer_history.PROFILE_ID)as Name,(SELECT NAME FROM hostel where ID=h_transfer_history.HOSTEL_ID)as HostelName,(SELECT NAME FROM room where ID=h_transfer_history.ROOM_ID)as RoomName FROM h_transfer_history WHERE ID IN('$id1','$id');";
-					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-					array_push($tranfer,$result1);
-				}
-				return $tranfer;
-			}
+			$sql="SELECT ID,RESIDENT_TYPE,PROFILE_ID,DATE,HOSTEL_ID,ROOM_ID,REASON,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as Name,(SELECT MAX(ID) FROM h_transfer_history where PROFILE_ID=h_transfer.PROFILE_ID)as maxId,(SELECT MAX(ID) FROM h_transfer_history where NOT ID=maxId AND PROFILE_ID=h_transfer.PROFILE_ID)as preMaxId,(SELECT HOSTEL_ID FROM h_transfer_history where ID=preMaxId)as a_hostelId,(SELECT ROOM_ID FROM h_transfer_history where ID=preMaxId)as a_roomId,(SELECT NAME FROM hostel where ID=a_hostelId) as preHostelName,(SELECT NAME FROM room where ID=a_roomId) as preRoomName,(SELECT NAME FROM hostel where ID=HOSTEL_ID) as HostelName,(SELECT NAME FROM room where ID=ROOM_ID) as roomName,(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=h_transfer.PROFILE_ID) as batchId,(SELECT COURSE_ID FROM course_batch where ID=batchId) as courseId,(SELECT DEPT_ID FROM course where ID=courseId)as deptId from h_transfer";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			
+			// $tranfer=[];
+			// $sql="SELECT MAX(ID),PROFILE_ID FROM h_transfer_history GROUP BY `PROFILE_ID` order by ID";
+			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// if($result){
+				// foreach($result as $values){
+					// $id=$values['MAX(ID)'];
+					// $pro_id=$values['PROFILE_ID'];
+					// $sql="SELECT MAX(ID) FROM h_transfer_history WHERE PROFILE_ID='$pro_id' AND NOT ID='$id'";
+					// $res = $this->db->query($sql, $return_object = TRUE)->result_array();
+					// $id1=$res[0]['MAX(ID)'];
+					// $sql="SELECT ID,DATE,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=h_transfer_history.PROFILE_ID)as Name,(SELECT NAME FROM hostel where ID=h_transfer_history.HOSTEL_ID)as HostelName,(SELECT NAME FROM room where ID=h_transfer_history.ROOM_ID)as RoomName FROM h_transfer_history WHERE ID IN('$id1','$id');";
+					// $result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					// array_push($tranfer,$result1);
+				// }
+				// return $tranfer;
+			// }
 		}
 		
 		public function hostelStudentDetail(){
@@ -211,7 +243,8 @@
 			$data = array(
 				'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
 				'PROFILE_ID' => $values['PROFILE_ID'],
-				'DATE' => $values['DATE']
+				'DATE' => $values['DATE'],
+				'REASON' => $values['REASON']
 			);
 			$this->db->insert('h_vacate', $data);
 			$getId= $this->db->insert_id();
@@ -224,7 +257,8 @@
 			$data = array(
 				'RESIDENT_TYPE' => $values['RESIDENT_TYPE'],
 				'PROFILE_ID' => $values['PROFILE_ID'],
-				'DATE' => $values['DATE']
+				'DATE' => $values['DATE'],
+				'REASON' => $values['REASON']
 			);
 			$this->db->where('id', $Id);
 			$this->db->update('h_vacate', $data);
@@ -233,7 +267,8 @@
 		
 		public function vacateDetails($id){
 			if($id==null){
-				$sql="SELECT ID,DATE,RESIDENT_TYPE,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=h_vacate.PROFILE_ID)as Name FROM h_vacate";
+				//$sql="SELECT ID,DATE,RESIDENT_TYPE,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=h_vacate.PROFILE_ID)as Name FROM h_vacate";
+				$sql="SELECT ID,REASON,PROFILE_ID,DATE as VacateDate,RESIDENT_TYPE,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as Name,(SELECT DATE from h_allocation where PROFILE_ID=h_vacate.PROFILE_ID)as AllocateDate,(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=h_vacate.PROFILE_ID) as batchId,(SELECT COURSE_ID FROM course_batch where ID=batchId) as courseId,(SELECT DEPT_ID FROM course where ID=courseId) as deptId FROM h_vacate";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 				if($result){
 					return $result;

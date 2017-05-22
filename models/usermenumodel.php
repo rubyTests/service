@@ -13,19 +13,18 @@
 					$test[$key]=$value;
 					$menuId=$value['id'];
 					$sql="SELECT * FROM `submenu` WHERE menu_id='$menuId'";
-					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-					$result[$key]['children']=$result1;
-					$result[$key]['folder']=true;
-					$result[$key]['expanded']=($key == 1)? true:false;
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();					
 					//array_push($value2,$result);
 					//print_r($result);
 					if($result1){
-						foreach($result1 as $key => $value){
+						$result[$key]['children']=$result1;
+						$result[$key]['folder']=true;
+						$result[$key]['expanded']=($key == 1)? true:false;
+						foreach($result1 as $key1 => $value){
 							$subMenuId=$value['id'];
 							$sql="SELECT * FROM `submenu_item` WHERE submenu_id='$subMenuId'";
 							$result2 = $this->db->query($sql, $return_object = TRUE)->result_array();
-							//array_push($value1,$result);
-							$result1[$key]['children']=$result2;
+							$result[$key]['children'][$key1]['children']=$result2;
 						}
 					}
 					//array_push($value,$test);

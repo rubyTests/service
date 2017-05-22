@@ -500,7 +500,7 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
-		public function fetchAllRoomDetails($id){
+		public function fetchAllRoomDetails(){
 			$sql="SELECT * FROM room";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
