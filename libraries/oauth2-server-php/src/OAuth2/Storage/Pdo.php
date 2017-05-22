@@ -166,14 +166,35 @@ class Pdo implements
         $expires = date('Y-m-d H:i:s', $expires);
 
         // if it exists, update it.
-        if ($this->getAccessToken($access_token)) {
-            $stmt = $this->db->prepare(sprintf('UPDATE %s SET client_id=:client_id, expires=:expires, user_id=:user_id, scope=:scope where access_token=:access_token', $this->config['access_token_table']));
-        } else {
-            $stmt = $this->db->prepare(sprintf('INSERT INTO %s (access_token, client_id, expires, user_id, scope) VALUES (:access_token, :client_id, :expires, :user_id, :scope)', $this->config['access_token_table']));
-        }
+        // if ($this->getAccessToken($access_token)) {
+            // $stmt = $this->db->prepare(sprintf('UPDATE %s SET client_id=:client_id, expires=:expires, user_id=:user_id, scope=:scope where access_token=:access_token', $this->config['access_token_table']));
+        // } else {
+            // $stmt = $this->db->prepare(sprintf('INSERT INTO %s (access_token, client_id, expires, user_id, scope) VALUES (:access_token, :client_id, :expires, :user_id, :scope)', $this->config['access_token_table']));
+        // }
 
-        return $stmt->execute(compact('access_token', 'client_id', 'user_id', 'expires', 'scope'));
-    }
+        // return $stmt->execute(compact('access_token', 'client_id', 'user_id', 'expires', 'scope'));
+		
+		$stmt = $this->db->prepare(sprintf('SELECT user_id from %s where user_id=:user_id', $this->config['access_token_table']));
+        $stmt->execute(compact('user_id'));
+		$userData=$stmt->fetchAll(\PDO::FETCH_ASSOC);
+		if($userData){
+			if ($this->getAccessToken($access_token)) {
+				$stmt = $this->db->prepare(sprintf('UPDATE %s SET client_id=:client_id, expires=:expires, user_id=:user_id, scope=:scope where access_token=:access_token', $this->config['access_token_table']));
+			} else {
+				//$stmt = $this->db->prepare(sprintf('INSERT INTO %s (access_token, client_id, expires, user_id, scope) VALUES (:access_token, :client_id, :expires, :user_id, :scope)', $this->config['access_token_table']));
+				$stmt = $this->db->prepare(sprintf('UPDATE %s SET client_id=:client_id, expires=:expires, access_token=:access_token, scope=:scope where user_id=:user_id', $this->config['access_token_table']));
+			}
+		}else{
+			if ($this->getAccessToken($access_token)) {
+				$stmt = $this->db->prepare(sprintf('UPDATE %s SET client_id=:client_id, expires=:expires, user_id=:user_id, scope=:scope where access_token=:access_token', $this->config['access_token_table']));
+			} else {
+				$stmt = $this->db->prepare(sprintf('INSERT INTO %s (access_token, client_id, expires, user_id, scope) VALUES (:access_token, :client_id, :expires, :user_id, :scope)', $this->config['access_token_table']));
+			}
+		}
+        
+		return $stmt->execute(compact('access_token', 'client_id', 'user_id', 'expires', 'scope'));
+		
+	}
 
     public function unsetAccessToken($access_token)
     {
