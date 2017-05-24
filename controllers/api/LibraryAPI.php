@@ -100,7 +100,20 @@ class LibraryAPI extends REST_Controller {
 	function lBook_post(){
 		$id=$this->post('id');
 		$data['NAME']=$this->post('name');
-		$data['CODE']=$this->post('code');
+		$data['CATEGORY_ID']=$this->post('categoryId');
+		$data['DEPT_ID']=$this->post('deptId');
+		$data['SUBJECT_ID']=$this->post('subjectId');
+		$data['AUTHOR']=$this->post('author');
+		$data['REGULATION']=$this->post('regulation');
+		$data['YEAROFPUBLISHED']=$this->post('yearOfPublished');
+		$data['ISBN']=$this->post('ISBN');
+		$data['PUBLISHER']=$this->post('publisher');
+		$data['EDITION']=$this->post('edition');
+		$data['PRICE']=$this->post('price');
+		$data['RACKNO']=$this->post('rackNO');
+		$data['C_QUANTITY']=$this->post('currentQuantity');
+		$data['T_QUANTITY']=$this->post('totalQuantity');
+		$data['IMAGE']=$this->post('image');
 		if($id==null){
 			$result=$this->librarymodel->addBookDetails($data);
 			if (!empty($result)){
@@ -129,6 +142,68 @@ class LibraryAPI extends REST_Controller {
             $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
         }else{
 			$result=$this->librarymodel->deleteBookDetails($id);
+			if($result!=0){
+				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
+			}else{
+				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+	
+	function lBookIssue_get(){
+		$id=$this->get('id');
+		if($id==null){
+			$result=$this->librarymodel->getAllBookIssueDetails();
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}else{
+			$result=$this->librarymodel->getBookIssueDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}		
+	}
+	
+	function lBookIssue_post(){
+		$id=$this->post('id');
+		$data['TYPE']=$this->post('type');
+		$data['PROFILE_ID']=$this->post('profileId');
+		$data['BOOK_ID']=$this->post('bookId');
+		$data['ISSUED_DATETIME']=$this->post('issued_date');
+		$data['DUE_DATETIME']=$this->post('due_date');
+		if($id==null){
+			$result=$this->librarymodel->addBookIssueDetails($data);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>'Book Issued Successfully'], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}else{
+			$result=$this->librarymodel->editBookIssueDetails($id,$data);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>'Book Issued Detail Updated Successfully'], REST_Controller::HTTP_OK);
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+	
+	function lBookIssue_delete(){
+		$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->librarymodel->deleteBookIssueDetails($id);
 			if($result!=0){
 				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
 			}else{
