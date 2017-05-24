@@ -101,5 +101,48 @@
 			$result = $this->db->query($sql);
 	    	return $this->db->affected_rows();
 		}
+		
+		public function getAllBookIssueDetails(){
+			$sql="SELECT ID,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where ID=BOOK_ID)as bookName,(SELECT ISBN FROM l_book where ID=BOOK_ID)as ISBN FROM l_book_issue";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
+		public function getBookIssueDetails($id){
+			$sql="SELECT * FROM l_book_issue WHERE ID='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
+		public function addBookIssueDetails($values){
+			$data = array(
+				'TYPE' => $values['TYPE'],
+				'PROFILE_ID' => $values['PROFILE_ID'],
+				'BOOK_ID' => $values['BOOK_ID'],
+				'ISSUED_DATETIME' => $values['ISSUED_DATETIME'],
+				'DUE_DATETIME' => $values['DUE_DATETIME']
+			);
+			$this->db->insert('l_book_issue', $data);
+			$getId= $this->db->insert_id();
+			if($getId){
+				return $getId;
+			}
+		}
+		
+		public function editBookIssueDetails($Id,$values){
+			$data = array(
+				'TYPE' => $values['TYPE'],
+				'PROFILE_ID' => $values['PROFILE_ID'],
+				'BOOK_ID' => $values['BOOK_ID'],
+				'ISSUED_DATETIME' => $values['ISSUED_DATETIME'],
+				'DUE_DATETIME' => $values['DUE_DATETIME']
+			);
+			$this->db->where('id', $Id);
+			$this->db->update('l_book_issue', $data);
+		}
+		
+		public function deleteBookIssueDetails($id){
+			$sql="DELETE FROM l_book_issue where ID='$id'";
+			$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+		}
 	}
 ?>
