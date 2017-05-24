@@ -95,6 +95,10 @@
 			$this->db->update('user_privileges', $data);
 		}
 		
+		public function userPrivileges($values){
+			print_r($values);exit;
+		}
+		
 		public function getAllUserPrivileges(){
 			$sql="SELECT * FROM user_privileges";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();

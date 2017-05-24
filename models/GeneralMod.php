@@ -22,6 +22,14 @@
 			}
 		}
 		
+		public function checkAccessToken($token){
+			$sql="SELECT access_token FROM oauth_access_tokens where access_token='$token'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if(!empty($result)){
+				return true;
+			}
+		}
+		
 		public function addPushReg($Regid){
 			$id=1;
 			$data = array(
