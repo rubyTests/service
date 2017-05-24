@@ -14,7 +14,7 @@ function checkTokenAccess(){
                 //if($user_token!=$tokenFromUI){// if session works
                 $data=array([
                 'status' => FALSE,
-                'message' => 'Invalid User/Token  '
+                'message' => 'Invalid User Access Token'
                 ]);
                 echo json_encode($data);
                 exit;
