@@ -189,7 +189,20 @@ class HostelAPI extends REST_Controller {
 	}
 	
 	function hostelStudentDetail_get(){
-		$result=$this->hostelmodel->hostelStudentDetail();
+		$id=$this->get('batchId');
+		$result=$this->hostelmodel->hostelStudentDetail($id);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	function hostelEmployeeDetail_get(){
+		$id=$this->get('deptId');
+		$result=$this->hostelmodel->hostelEmployeeDetail($id);
 		if (!empty($result)){
 			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
 		}
