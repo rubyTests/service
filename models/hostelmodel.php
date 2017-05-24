@@ -206,8 +206,23 @@
 	    	return $this->db->affected_rows();
 		}
 		
-		public function hostelStudentDetail(){
-			$sql="SELECT PROFILE_ID FROM student_profile where STUDENT_TYPE='Hostel' AND NOT PROFILE_ID IN (SELECT PROFILE_ID FROM h_allocation)";
+		public function hostelStudentDetail($id){
+			$sql="SELECT PROFILE_ID FROM student_profile where COURSEBATCH_ID='$id' AND STUDENT_TYPE='Hostel' AND NOT PROFILE_ID IN (SELECT PROFILE_ID FROM h_allocation)";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			$stuDetails=[];
+			if($result){
+				foreach($result as $values){
+					$proId=$values['PROFILE_ID'];
+					$sql="SELECT ID,CONCAT(FIRSTNAME,' ',LASTNAME)as NAME FROM profile where ID='$proId'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					array_push($stuDetails,$result1);
+				}
+				return $stuDetails;
+			}
+		}
+		
+		public function hostelEmployeeDetail($id){
+			$sql="SELECT PROFILE_ID FROM employee_profile where DEPT_ID='$id' AND NOT PROFILE_ID IN (SELECT PROFILE_ID FROM h_allocation)";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			$stuDetails=[];
 			if($result){
