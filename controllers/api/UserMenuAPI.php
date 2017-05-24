@@ -65,31 +65,42 @@ class UserMenuAPI extends REST_Controller {
 	}
 	
 	function userPrivileges_post(){
-		$id=$this->post('id');
-		$data['user_id']=$this->post('user_id');
-		$data['submenu_id']=$this->post('submenu_id');
-		$data['add_option']=$this->post('add_option');
-		$data['edit_option']=$this->post('edit_option');
-		$data['delete_option']=$this->post('delete_option');
-		if($id==null){
-			$result=$this->usermenumodel->addUserPrivileges($data);
-			if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
-			}
-			else
-			{
-				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
-			}
-		}else{
-			$result=$this->usermenumodel->editUserPrivileges($id,$data);
-			if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'message'=>'User Privileges Updated Successfully'], REST_Controller::HTTP_OK);
-			}
-			else
-			{
-				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
-			}
+		$data=$this->post('data');
+		$result=$this->usermenumodel->userPrivileges($data);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+		
+		
+		// $id=$this->post('id');
+		// $data['user_id']=$this->post('user_id');
+		// $data['submenu_id']=$this->post('submenu_id');
+		// $data['add_option']=$this->post('add_option');
+		// $data['edit_option']=$this->post('edit_option');
+		// $data['delete_option']=$this->post('delete_option');
+		// if($id==null){
+			// $result=$this->usermenumodel->addUserPrivileges($data);
+			// if (!empty($result)){
+				// $this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			// }
+			// else
+			// {
+				// $this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			// }
+		// }else{
+			// $result=$this->usermenumodel->editUserPrivileges($id,$data);
+			// if (!empty($result)){
+				// $this->set_response(['status' =>TRUE,'message'=>'User Privileges Updated Successfully'], REST_Controller::HTTP_OK);
+			// }
+			// else
+			// {
+				// $this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			// }
+		// }
 	}
 	
 	function userPrivileges_get(){

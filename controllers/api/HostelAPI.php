@@ -173,6 +173,21 @@ class HostelAPI extends REST_Controller {
 		}
 	}
 	
+	function TranferView_delete(){
+		$id=$this->delete('id');
+    	if ($id == null)
+        {
+            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
+        }else{
+			$result=$this->hostelmodel->deleteTransferDetails($id);
+			if($result!=0){
+				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
+			}else{
+				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+	
 	function hostelStudentDetail_get(){
 		$result=$this->hostelmodel->hostelStudentDetail();
 		if (!empty($result)){

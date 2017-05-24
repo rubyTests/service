@@ -130,10 +130,7 @@ class GeneralAPI extends REST_Controller {
 		// echo "came";
 		//exit;
 		if($email==NULL){
-			$this->set_response([
-				'status' => FALSE,
-				'message' => 'Login Detail could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			$this->set_response(['status' => FALSE,'message' => 'Login Detail could not be found'], REST_Controller::HTTP_OK);
 		}else{
 			//$user=$this->GeneralMod->getLoginDetail($email,$pwd);
 			//$type='client';
@@ -198,6 +195,17 @@ class GeneralAPI extends REST_Controller {
 		}
 		else{
 			$this->set_response(['status' =>TRUE,'message'=>'Not verify'], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	function checkAccessToken_get(){
+		$token=$this->get('access_token');
+		$result=$this->GeneralMod->checkAccessToken($token);
+		if ($result==true){
+			$this->set_response(['status' =>TRUE,'message'=>'success'], REST_Controller::HTTP_OK); 
+		}
+		else{
+			$this->set_response(['status' =>FALSE,'message'=>'Invalid User Access Token'], REST_Controller::HTTP_OK);
 		}
 	}
 	
