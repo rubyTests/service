@@ -173,6 +173,18 @@ class HostelAPI extends REST_Controller {
 		}
 	}
 	
+	function Tranfer_get(){
+		$id=$this->get('profileId');
+		$result=$this->hostelmodel->hTranfer($id);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+	
 	function TranferView_delete(){
 		$id=$this->delete('id');
     	if ($id == null)
@@ -254,6 +266,7 @@ class HostelAPI extends REST_Controller {
 		$data['REASON']=$this->post('reason');
 		if($id==null){
 			$result=$this->hostelmodel->addVacateDetails($data);
+			//print_r($result);exit;
 			if (!empty($result)){
 				$this->set_response(['status' =>TRUE,'message'=>'Data inserted Successfully'], REST_Controller::HTTP_OK); 
 			}
