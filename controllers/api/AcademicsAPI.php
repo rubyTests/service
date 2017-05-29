@@ -504,7 +504,9 @@ class AcademicsAPI extends REST_Controller {
 		}
     }
     function fetchAllSubjectSyllabusData_get(){
-    	$data=$this->academics->getAllSubjectsyllabusID();
+		$roleId=$this->get('roleId');
+		$profileId=$this->get('profileId');
+    	$data=$this->academics->getAllSubjectsyllabusID($roleId,$profileId);
     	// print_r($data);exit();
 		if (!empty($data)){
 			$this->set_response(['status' =>TRUE,'data'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
