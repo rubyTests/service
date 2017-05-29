@@ -336,9 +336,15 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 	    function deleteBuildingData($id){
-	    	$sql="DELETE FROM building WHERE ID='$id'";
-	    	$result = $this->db->query($sql);
-	    	return $this->db->affected_rows();
+			$sql="SELECT * FROM hostel where BUILDING_ID ='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return 0;
+			}else{
+				$sql="DELETE FROM building WHERE ID='$id'";
+				$result = $this->db->query($sql);
+				return $this->db->affected_rows();
+			}
 	    }
 
 		// Block
@@ -376,9 +382,15 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 	    function deleteBlockData($id){
-	    	$sql="DELETE FROM block WHERE ID='$id'";
-	    	$result = $this->db->query($sql);
-	    	return $this->db->affected_rows();
+			$sql="SELECT * FROM h_allocation where BLOCK_ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return 0;
+			}else{
+				$sql="DELETE FROM block WHERE ID='$id'";
+				$result = $this->db->query($sql);
+				return $this->db->affected_rows();
+			}
 	    }
 
 
@@ -423,9 +435,15 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 	    function deleteRoomData($id){
-	    	$sql="DELETE FROM room WHERE ID='$id'";
-	    	$result = $this->db->query($sql);
-	    	return $this->db->affected_rows();
+			$sql="SELECT * FROM h_allocation where ROOM_ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return 0;
+			}else{
+				$sql="DELETE FROM room WHERE ID='$id'";
+				$result = $this->db->query($sql);
+				return $this->db->affected_rows();
+			}
 	    }
 
 	    // Common Data
@@ -473,6 +491,7 @@
 				(SELECT PHONE_NO_2 FROM PROFILE WHERE ID=institution.PROF_ID) AS PHONE_NO_2,
 				(SELECT GOOGLE_LINK FROM PROFILE WHERE ID=institution.PROF_ID) AS GOOGLE_LINK,
 				(SELECT FACEBOOK_LINK FROM PROFILE WHERE ID=institution.PROF_ID) AS FACEBOOK_LINK,
+				(SELECT LINKEDIN_LINK FROM PROFILE WHERE ID=institution.PROF_ID) AS LINKEDIN_LINK,
 				(SELECT LOCATION_ID FROM PROFILE WHERE ID=institution.PROF_ID) AS LOCATION_ID,
 				(SELECT ADDRESS FROM LOCATION WHERE ID=LOCATION_ID) AS ADDRESS,
 				(SELECT CITY FROM LOCATION WHERE ID=LOCATION_ID) AS CITY,
@@ -480,7 +499,10 @@
 				(SELECT ZIP_CODE FROM LOCATION WHERE ID=LOCATION_ID) AS ZIP_CODE,
 				(SELECT COUNTRY FROM LOCATION WHERE ID=LOCATION_ID) AS COUNTRY,
 				(SELECT ID FROM country WHERE ID=COUNTRY) AS COUNTRY_ID,
-				(SELECT NAME FROM country WHERE ID=COUNTRY) AS COUNTRY_NAME
+				(SELECT NAME FROM country WHERE ID=COUNTRY) AS COUNTRY_NAME,
+				(SELECT NAME FROM currency WHERE ID=CURRENCY) AS CURRENCY_NAME,
+				(SELECT NAME FROM time_zone WHERE ID=TIME_ZONE) AS TIME_ZONE_NAME,
+				(SELECT NAME FROM institute_type WHERE ID=TYPE) AS TYPE_NAME
 				FROM institution";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
