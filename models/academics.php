@@ -556,15 +556,34 @@
 			$sql="SELECT * FROM syllabus WHERE SUB_SYLLABUS_ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
-		public function getAllSubjectsyllabusID(){
-			$sql="SELECT subject.ID,subject.NAME,(SELECT ID FROM subject_syllabus where SUBJECT_ID=subject.ID) AS SUBJECT_ID FROM subject";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// $data['resulat']=$result;
-			foreach ($result as $key => $value) {
-				$syl_id=$value['SUBJECT_ID'];
-				$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
-				$result[$key]['syllabus'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+		public function getAllSubjectsyllabusID($roleId,$profileId){
+			if($roleId==3){
+				$sql="SELECT B.COURSE_ID FROM student_profile as SP INNER JOIN  course_batch as B ON SP.COURSEBATCH_ID=B.ID WHERE SP.PROFILE_ID='$profileId'";
+				$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($res){
+					$courseId=$res[0]['COURSE_ID'];
+					$sql="SELECT subject.ID,subject.NAME,(SELECT ID FROM subject_syllabus where SUBJECT_ID=subject.ID) AS SUBJECT_ID FROM subject WHERE subject.ID='$courseId'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					// $data['resulat']=$result;
+					foreach ($result as $key => $value) {
+						$syl_id=$value['SUBJECT_ID'];
+						$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
+						$result[$key]['syllabus'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+					}
+					return $result;
+				}
+			}else{
+				$sql="SELECT subject.ID,subject.NAME,(SELECT ID FROM subject_syllabus where SUBJECT_ID=subject.ID) AS SUBJECT_ID FROM subject";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				// $data['resulat']=$result;
+				foreach ($result as $key => $value) {
+					$syl_id=$value['SUBJECT_ID'];
+					$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
+					$result[$key]['syllabus'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+				}
+				return $result;
 			}
+			
 
 
 
@@ -578,7 +597,6 @@
 
 			//print_r($result);exit;
 			// return $data;
-			return $result;
 		}
 		public function getAllSyllabusDetail(){	
 			$sql="SELECT * FROM syllabus";
