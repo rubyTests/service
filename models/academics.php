@@ -92,10 +92,28 @@
 			return $result;
 		}
 		
+		public function checkDepartmentDetails($id){
+			// $sql="SELECT employee_profile.ID as Emp_data,course.ID as course_data FROM employee_profile,course where employee_profile.DEPT_ID='$id' or course.DEPT_ID='$id'";
+			$sql="SELECT ID,(SELECT DEPT_ID FROM employee_profile where DEPT_ID=department.ID)as Emp_data,(SELECT DEPT_ID FROM course where DEPT_ID=department.ID)as course_data FROM department where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if(isset($result[0]['course_data'])){
+				$status = array('status' => 0, 'message'=>"Department details are assigned to courses");
+				return $status;
+			}
+			else if(isset($result[0]['Emp_data'])){
+				$status = array('status' => 0, 'message'=>"Department details are assigned to employee profile");
+				return $status;
+			}
+			else{
+				$status = array('status' => 1);
+				return $status;
+			}
+		}
 		public function deleteDepartmentDetails($id){
 			$sql="DELETE FROM department where ID='$id'";
 			$result = $this->db->query($sql);
-	    	return $this->db->affected_rows();
+    		return $this->db->affected_rows();
+
 		}
 		
 		// Course Details 
@@ -178,10 +196,36 @@
 			return $result;
 		}
 		
+		public function checkCourseDetails($id){
+			$sql="SELECT ID,(SELECT COURSE_ID FROM course_batch where COURSE_ID=course.ID)as batch_data,(SELECT COURSE_ID FROM course_subject where COURSE_ID=course.ID)as subject_data,(SELECT COURSE_ID FROM subject_syllabus where COURSE_ID=course.ID)as syllabus_data FROM course where ID='$id'";
+			// $sql="SELECT ID,(SELECT COURSE_ID FROM course_batch where COURSE_ID=course.ID)as batch_data,(SELECT COURSE_ID FROM course_subject where COURSE_ID=course.ID)as subject_data,(SELECT COURSE_ID FROM subject_syllabus where COURSE_ID=course.ID)as syllabus_data,(SELECT ID FROM course_batch where COURSE_ID=course.ID)as courseBacth_data,(SELECT COURSEBATCH_ID FROM student_profile where COURSEBATCH_ID=courseBacth_data)as stud_data FROM course where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if(isset($result[0]['batch_data'])){
+				$status = array('status' => 0 ,'message' =>'Course details are assigned to batch');
+				return $status;
+			}
+			else if (isset($result[0]['subject_data'])) {
+				$status = array('status' => 0,'message' => 'Course details are assigned to Subject');
+				return $status;
+			}
+			else if (isset($result[0]['syllabus_data'])) {
+				$status = array('status' => 0,'message' => ' Course details are assigned to syllabus');
+				return $status;
+			}
+
+			else{
+				$status = array('status' => 1,'message' => 'delete');
+				return $status;
+			}
+
+		}
 		public function deleteCourseDetails($id){
 			$sql="DELETE FROM course where ID='$id'";
 			$result = $this->db->query($sql);
-	    	return $this->db->affected_rows();
+			// $status = array('status' => 1,'message' => 'delete');
+			// return $status;
+    		return $this->db->affected_rows();
+
 		}
 		
 		// Batch Details 
@@ -622,7 +666,10 @@
 		public function getParticularEmployeeList($id){
 			$sql="SELECT (SELECT ID FROM profile WHERE ID=employee_profile.PROFILE_ID) AS EMP_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile WHERE ID=employee_profile.PROFILE_ID) AS EMP_ANME
 				FROM employee_profile WHERE DEPT_ID='$id'";
-			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// $sql="SELECT * FROM h_allocation,employee_profile where h_allocation.RESIDENT_TYPE='Employee' AND h_allocation.PROFILE_ID=employee_profile.PROFILE_ID AND employee_profile.DEPT_ID='$id' ";
+			
+			// print_r($result);exit();
 		}
 
 		public function saveTeacherDetails($value){

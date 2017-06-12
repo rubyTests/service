@@ -753,7 +753,12 @@
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			return $result;
 		}
-		
+
+		public function getStudentDetailsAll($id){
+			$sql="SELECT PROFILE_ID as ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_profile.PROFILE_ID)as Name FROM student_profile WHERE STUDENT_TYPE='Day-scholar' AND student_profile.PROFILE_ID NOT IN (SELECT PROFILE_ID FROM t_routeallocation)";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			return $result;
+		}
 		public function getProfileDetails($id){
 			$sql="SELECT * FROM profile where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();

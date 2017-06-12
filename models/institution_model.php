@@ -434,17 +434,31 @@
 	    	$sql="SELECT * FROM room_view";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
-	    function deleteRoomData($id){
-			$sql="SELECT * FROM h_allocation where ROOM_ID='$id'";
+	    function checkRoom_details($id){
+	    	$sql="SELECT ID,(SELECT ROOM_ID FROM department where ROOM_ID=room.ID)as dept_data,(SELECT ROOM_ID FROM h_allocation where ROOM_ID=room.ID)as h_alloc_data FROM room where ID='$id'";
+			// $sql="SELECT * FROM h_allocation where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result){
-				return 0;
-			}else{
-				$sql="DELETE FROM room WHERE ID='$id'";
-				$result = $this->db->query($sql);
-				return $this->db->affected_rows();
+			//print_r($result);exit();
+			if(isset($result[0]['dept_data'])){
+				$status = array('status' => 0, 'message'=>"Room details are assigned to department");
+				return $status;
 			}
+			else if(isset($result[0]['h_alloc_data'])){
+				$status = array('status' => 0, 'message'=>"Room details are assigned to hostel allocation");
+				return $status;
+			}
+			else{
+				$status = array('status' => 1);
+				return $status;
+	    		
+			}
+			
 	    }
+	    function deleteRoomData($id){
+	    	$sql="DELETE FROM room WHERE ID='$id'";
+			$result = $this->db->query($sql);
+			return $this->db->affected_rows();
+		}
 
 	    // Common Data
 	    function fetchInstituteType_details(){

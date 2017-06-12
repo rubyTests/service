@@ -33,9 +33,16 @@
 		}
 		
 		public function deleteHostelDetails($id){
-			$sql="DELETE FROM hostel where ID='$id'";
-			$result = $this->db->query($sql);
-	    	return $this->db->affected_rows();
+			$sql="SELECT * FROM h_allocation where HOSTEL_ID ='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return 0;
+			}else{
+				$sql="DELETE FROM hostel where ID='$id'";
+				$result = $this->db->query($sql);
+	    		return $this->db->affected_rows();
+			}
+			
 		}
 		
 		public function hostelView(){
@@ -56,7 +63,7 @@
 				'DATE' => $values['DATE']
 			);
 			$this->db->insert('h_allocation', $data);
-			$this->db->insert('h_allocation_history', $data);
+			// $this->db->insert('h_allocation_history', $data);
 			$getId= $this->db->insert_id();
 			if($getId){
 				$data = array(
@@ -67,6 +74,7 @@
 					'ROOM_ID' => $values['ROOM_ID'],
 					'DATE' => $values['DATE']
 				);
+				// $this->db->insert('h_allocation_history', $data);
 				$this->db->insert('h_transfer_history', $data);
 				return $getId;
 			}
@@ -337,8 +345,11 @@
 					return $result;
 				}
 			}else{
-				$sql="SELECT * FROM h_vacate where id='$id'";
+				
+				$sql="SELECT ID,REASON,PROFILE_ID,DATE  as VacateDate,RESIDENT_TYPE,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=h_vacate.PROFILE_ID)as Name,(SELECT HOSTEL_ID FROM h_allocation where PROFILE_ID=h_vacate.PROFILE_ID) as hostelID,(SELECT ROOM_ID FROM h_allocation where PROFILE_ID=h_vacate.PROFILE_ID) as roomID,(SELECT NAME FROM hostel where ID=hostelID) as HostelName,(SELECT NAME FROM room where ID=roomID) as roomName,(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=h_vacate.PROFILE_ID) as batchId,(SELECT COURSE_ID FROM course_batch where ID=batchId) as courseId,(SELECT DEPT_ID FROM course where ID=courseId) as deptId FROM h_vacate where id='$id'";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				// $sql="SELECT * FROM h_vacate where id='$id'";
+				// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 				if($result){
 					return $result;
 				}
@@ -426,15 +437,16 @@
 			$sql="SELECT RESIDENT_TYPE,PROFILE_ID FROM h_transfer where PROFILE_ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
-				//if($result[0]['RESIDENT_TYPE']=='Student'){
+				if($result[0]['RESIDENT_TYPE']=='Student'){
 					$sql="SELECT RESIDENT_TYPE,PROFILE_ID,HOSTEL_ID,BLOCK_ID,ROOM_ID,DATE,REASON,(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=h_transfer.PROFILE_ID)as batchId,(SELECT COURSE_ID FROM course_batch WHERE ID=batchId)as courseId,(SELECT DEPT_ID FROM course WHERE ID=courseId)as deptId FROM h_transfer where PROFILE_ID='$id'";
 					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 					return $result;
-				// }else{
+				}else{
 					// $sql="SELECT RESIDENT_TYPE,PROFILE_ID,HOSTEL_ID,BLOCK_ID,ROOM_ID,DATE,REASON,(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=h_transfer.PROFILE_ID)as batchId,(SELECT COURSE_ID FROM course_batch WHERE ID=batchId)as courseId,(SELECT DEPT_ID FROM course WHERE ID=courseId)as deptId FROM h_transfer where PROFILE_ID='$id'";
-					// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-					// return $result;
-				// }
+					$sql="SELECT RESIDENT_TYPE,PROFILE_ID,HOSTEL_ID,BLOCK_ID,ROOM_ID,DATE,REASON,(SELECT ID FROM employee_profile WHERE PROFILE_ID =h_transfer.PROFILE_ID)AS deptId FROM h_transfer where PROFILE_ID='$id'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					return $result;
+				}
 			}else{
 				return false;
 			}

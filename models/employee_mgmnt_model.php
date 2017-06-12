@@ -511,6 +511,11 @@
 			from employee_profile where employee_profile.ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
+		function getEmployeeList(){
+			$sql="SELECT PROFILE_ID as ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=employee_profile.PROFILE_ID)as EMP_NAME FROM employee_profile";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			return $result;
+		}
 		function fetchMailingAddressDetails($id){
 			$sql="SELECT ID,ADDRESS,CITY,STATE,COUNTRY,ZIP_CODE,(select NAME from country where ID=location.COUNTRY)AS COUNTRY_NAME FROM location where ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
