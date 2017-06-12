@@ -185,10 +185,11 @@ class institutionApi extends REST_Controller {
 			}
 			else
 			{
-				$this->set_response([
-				'status' => FALSE,
-				'message' => 'Data could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+				// $this->set_response([
+				// 'status' => FALSE,
+				// 'message' => 'Data could not be found'
+				// ], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
         }else{
         	$result=$this->institution_model->getBuilding_details($id);
@@ -342,8 +343,36 @@ class institutionApi extends REST_Controller {
 			}
         }    			
 	}
-
-    function room_delete(){
+	 function checkRoom_get(){
+    	$id=$this->get('id');
+    	if ($id == null)
+        {
+        	$result=$this->institution_model->getAllRoom_details();
+        	if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }else{
+        	$result=$this->institution_model->checkRoom_details($id);
+    		if ($result['status']!=0){
+				$this->set_response(['status' =>TRUE],REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => $result['message']
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+        }    			
+	}
+	function room_delete(){
     	$id=$this->delete('id');
     	if ($id == null)
         {
@@ -365,6 +394,7 @@ class institutionApi extends REST_Controller {
 			}
 		}  
     }
+    
 
     // Comman setting
 

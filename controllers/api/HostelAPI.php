@@ -74,9 +74,17 @@ class HostelAPI extends REST_Controller {
         }else{
 			$result=$this->hostelmodel->deleteHostelDetails($id);
 			if($result!=0){
-				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
+				$message = [
+				'id' => $id,
+				'message' => 'Record Deleted Successfully'
+				];
+				$this->set_response(['status'=>TRUE,'message'=>$message], REST_Controller::HTTP_OK);
 			}else{
-				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
+				$message = [
+				'id' => $id,
+				'message' => 'There is no Record found'
+				];
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
 			}
 		} 
     }

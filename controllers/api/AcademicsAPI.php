@@ -74,9 +74,38 @@ class AcademicsAPI extends REST_Controller {
 			}
 		}
     }
-	
-	function departmentDetail_delete(){
-		$id = $this->delete('id');
+    function departmentDetailCheck_get(){
+		$id = $this->get('id');
+		if($id==NULL){
+			$users=$this->academics->getDepartmentDetailsAll();
+			if (!empty($users)){
+				$this->set_response(['status' =>TRUE,'message'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Department Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+
+		}else{
+			$users=$this->academics->checkDepartmentDetails($id);
+			//print_r($users);exit();
+			if ($users['status']!=0){
+				$this->set_response(['status' =>TRUE],REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => $users['message']
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+    function departmentDetail_delete(){
+    	$id = $this->delete('id');
 		if($id==NULL){
 				$this->set_response([
 				'status' => FALSE,
@@ -91,7 +120,7 @@ class AcademicsAPI extends REST_Controller {
 			{
 				$this->set_response([
 				'status' => FALSE,
-				'message' => 'Department Detail could not be found'
+				'message' => 'Batch Detail could not be found'
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
@@ -155,8 +184,38 @@ class AcademicsAPI extends REST_Controller {
 		}
     }
 	
-	function courseDetail_delete(){
-		$id = $this->delete('id');
+	function courseDetailCheck_get(){
+		$id = $this->get('id');
+		if($id==NULL){
+			$users=$this->academics->getCourseDetailsAll();
+			if (!empty($users)){
+				$this->set_response(['status' =>TRUE,'message'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Course Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}else{
+			$users=$this->academics->checkCourseDetails($id);
+
+			if ($users['status']!=0){
+				$this->set_response(['status' =>TRUE], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => $users['message']
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+    function courseDetail_delete(){
+
+    	$id = $this->delete('id');
 		if($id==NULL){
 				$this->set_response([
 				'status' => FALSE,
@@ -171,10 +230,13 @@ class AcademicsAPI extends REST_Controller {
 			{
 				$this->set_response([
 				'status' => FALSE,
-				'message' => 'Course Detail could not be found'
+				'message' => 'Batch Detail could not be found'
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
+
+
+		
     }
 	
 	// Batch Details 
@@ -443,10 +505,11 @@ class AcademicsAPI extends REST_Controller {
 		}
 		else
 		{
-			$this->set_response([
-			'status' => FALSE,
-			'message' => 'Department Details could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			// $this->set_response([
+			// 'status' => FALSE,
+			// 'message' => 'Department Details could not be found'
+			// ], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}
     }
     function fetchCourseData_get(){
