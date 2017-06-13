@@ -122,6 +122,22 @@
 			}
 			
 		}
+		public function checkRoutedetails($id){
+
+			$sql="SELECT ID,(SELECT ROUTE_ID FROM t_routetiming WHERE ROUTE_ID=t_route.ID)AS routeTiming_data,(SELECT ROUTE_ID FROM t_routestops WHERE ROUTE_ID=t_route.ID)AS routeStops_data FROM t_route where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			if(isset($result[0]['routeTiming_data'])){
+				$status= array('status' => 0,'message' =>'Route details are assigned to route timing');
+				return $status;
+			}else if(isset($result[0]['routeStops_data'])){
+				$status= array('status' => 0,'message' =>'Route details are assigned to route stops');
+				return $status;
+			}else{
+				$status = array('status' => 1);
+				return $status;
+			}
+		}
 		
 		public function deleteRouteDetails($id){
 			$sql="DELETE FROM t_route where ID='$id'";
@@ -227,6 +243,18 @@
 				if($result){
 					return $result;
 				}
+			}
+		}
+		public function checkRoutestopsdetails($id){
+			$sql="SELECT ROUTESTOP_ID FROM t_routeallocation WHERE ROUTESTOP_ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			//print_r($result);exit();
+			if(isset($result[0])){
+				$status= array('status' => 0,'message' =>'Route Stop details are assigned to route allocation');
+				return $status;
+			}else{
+				$status = array('status' => 1);
+				return $status;
 			}
 		}
 		public function deleteRoutrStopsDetails($id){

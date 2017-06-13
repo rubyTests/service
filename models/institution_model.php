@@ -335,6 +335,25 @@
 	    	$sql="SELECT * FROM building";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
+	    public function checkBuildingDetails($id){
+			$sql="SELECT ID,(SELECT BUILDING_ID FROM block WHERE BUILDING_ID=building.ID)AS block_data,(SELECT BUILDING_ID FROM room WHERE BUILDING_ID=building.ID)AS room_data,(SELECT BUILDING_ID FROM hostel WHERE BUILDING_ID=building.ID)AS hostel_data FROM building where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			if(isset($result[0]['block_data'])){
+				$status = array('status' => 0, 'message' =>'Building details are assigned to block');
+				return $status;
+			}else if(isset($result[0]['room_data'])){
+				$status= array('status' => 0,'message' =>'Building details are assigned to route room');
+				return $status;
+			}else if(isset($result[0]['hostel_data'])){
+				$status= array('status' => 0,'message' =>'Building details are assigned to route hostel');
+				return $status;
+			}
+			else{
+				$status = array('status' => 1);
+				return $status;
+			}
+		}
 	    function deleteBuildingData($id){
 			$sql="SELECT * FROM hostel where BUILDING_ID ='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -373,8 +392,18 @@
 			}
 	    }
 	    function getBlock_details($id){
-	    	$sql="SELECT * FROM block where ID ='$id'";
-			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	  //   	$sql="SELECT * FROM block where ID ='$id'";
+			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			$sql="SELECT BLOCK_ID FROM room WHERE BLOCK_ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			//print_r($result);exit();
+			if(isset($result[0])){
+				$status= array('status' => 0,'message' =>'Block details are assigned to room');
+				return $status;
+			}else{
+				$status = array('status' => 1);
+				return $status;
+			}
 	    }
 
 	    function getAllBlock_details(){
