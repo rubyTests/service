@@ -142,6 +142,36 @@ class TransportAPI extends REST_Controller {
 			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
 		}
 	}
+	function checkRoutedetails_get(){
+		$id=$this->get('id');
+		if($id==NULL){
+			$result=$this->transportmodel->routeDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Vehicle Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+
+		}else{
+			$result=$this->transportmodel->checkRoutedetails($id);
+			//print_r($users);exit();
+			if ($result['status']!=0){
+				$this->set_response(['status' =>TRUE],REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => $result['message']
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
 	function route_delete(){
     	$id=$this->delete('id');
     	if ($id == null)
@@ -253,6 +283,36 @@ class TransportAPI extends REST_Controller {
 			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
 		}
 	}
+	function checkRoutestopsdetails_get(){
+		$id=$this->get('id');
+		if($id==NULL){
+			$result=$this->transportmodel->routeStopsDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Vehicle Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+
+		}else{
+			$result=$this->transportmodel->checkRoutestopsdetails($id);
+			//print_r($users);exit();
+			if ($result['status']!=0){
+				$this->set_response(['status' =>TRUE],REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => $result['message']
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
 	function routeStops_delete(){
     	$id=$this->delete('id');
     	if ($id == null)
