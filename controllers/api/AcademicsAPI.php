@@ -88,7 +88,6 @@ class AcademicsAPI extends REST_Controller {
 				'message' => 'Department Details could not be found'
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
-
 		}else{
 			$users=$this->academics->checkDepartmentDetails($id);
 			//print_r($users);exit();
