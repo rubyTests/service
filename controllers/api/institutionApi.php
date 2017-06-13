@@ -205,7 +205,36 @@ class institutionApi extends REST_Controller {
 			}
         }    			
 	}
+	function checkBuildingDetails_get(){
+		$id=$this->get('id');
+		if($id==NULL){
+			$result=$this->institution_model->getAllBuilding_details();
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Building Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
 
+		}else{
+			$result=$this->institution_model->checkBuildingDetails($id);
+			//print_r($users);exit();
+			if ($result['status']!=0){
+				$this->set_response(['status' =>TRUE],REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => $result['message']
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
     function building_delete(){
     	$id=$this->delete('id');
     	if ($id == null)
@@ -261,15 +290,16 @@ class institutionApi extends REST_Controller {
 			}
         }else{
         	$result=$this->institution_model->getBlock_details($id);
-    		if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			//print_r($users);exit();
+			if ($result['status']!=0){
+				$this->set_response(['status' =>TRUE],REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 			}
 			else
 			{
 				$this->set_response([
 				'status' => FALSE,
-				'message' => 'Employee data could not be found'
-				], REST_Controller::HTTP_NOT_FOUND);
+				'message' => $result['message']
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
         }    			
 	}
