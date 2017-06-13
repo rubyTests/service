@@ -17,7 +17,7 @@ class AcademicsAPI extends REST_Controller {
 
     // Department Details 
 	
-	function departmentDetail_post(){
+	function departmentDetail_post(){ 
 		// print_r($this->post('DEPT_ID'));exit;
 		$id = $this->post('DEPT_ID');
 		$data['NAME']=$this->post('DEPT_NAME');
