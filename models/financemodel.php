@@ -1154,6 +1154,17 @@
 				$this->db->insert('fee_payment', $feepayment); 
 				$feePay_id= $this->db->insert_id();
 				if(!empty($feePay_id)){
+
+
+					$data = array(
+					   'NAME' => 'Student Fees',
+					   'DESCRIPTION' => 'Fee Payment',
+					   'AMOUNT' => $value['totalpay'],
+					   'TRANSACTION_DATE' => $value['payment_date'],
+					   'TYPE' => 'Income'
+					);
+					$this->db->insert('TRANSACTION_DETAILS', $data);
+
 					for($i=0;$i<count($value['item_data']);$i++){
 						for ($j=0; $j < count($value['item_data'][$i]['list']); $j++) {
 							if(isset($value['item_data'][$i]['list'][$j]['AMOUNT1']) && $value['item_data'][$i]['list'][$j]['AMOUNT1']!=''){
@@ -1400,5 +1411,501 @@
 			// print_r($result);exit;
 			return $result;
 		}
+
+		// Fee Report
+		function getStudentFeeReportbasedoncourse($courseId){
+			$sql="SELECT student_fee.ID,student_fee.COURSE_ID,student_fee.STUDENT_PROFILE_ID,student_fee.FEE_STRUCTURE_ID,
+				concat(profile.FIRSTNAME,' ',profile.LASTNAME) AS STUDENT_NAME,profile.ADMISSION_NO,
+				COURSE.NAME AS COURSE_NAME,
+				(SELECT NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
+				FROM 
+				student_fee 
+				INNER JOIN profile ON student_fee.STUDENT_PROFILE_ID=profile.ID
+				INNER JOIN course ON student_fee.COURSE_ID=course.ID
+				INNER JOIN student_profile ON student_fee.STUDENT_PROFILE_ID=student_profile.PROFILE_ID
+				WHERE student_fee.COURSE_ID='$courseId'  AND student_fee.STUDENT_PROFILE_ID=(SELECT PROFILE_ID FROM fee_payment WHERE PROFILE_ID=STUDENT_PROFILE_ID GROUP BY PROFILE_ID) GROUP BY student_fee.STUDENT_PROFILE_ID";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// print_r($result);exit;
+			foreach ($result as $key => $value) {
+				$PROFILEid=$value['STUDENT_PROFILE_ID'];
+				$sql1="SELECT student_fee.FEE_STRUCTURE_ID,fee_item_structure.AMOUNT,
+						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+							(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+						ELSE 
+						0
+						END AS TOTAL_PAID_AMOUNT,
+						CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
+							(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
+							ELSE
+							0
+							END AS FINE_AMOUNT,
+						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+							(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+						ELSE 
+						0
+						END AS TOTAL_PAID_FINE_AMOUNT
+						from student_fee 
+						LEFT JOIN fee_item_structure ON student_fee.FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID
+						WHERE student_fee.STUDENT_PROFILE_ID='$PROFILEid'";
+				$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+				$totalItemAmount=0;
+				$totalPaidAmount=0;
+				$totalFineAmount=0;
+				$totalPaidFineAmount=0;
+				foreach($result1 as $key1 => $value1){
+					$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
+					$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
+					$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
+					$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
+				}
+				$result[$key]['Total_Amount']=$totalItemAmount;
+				$result[$key]['Total_Paid']=$totalPaidAmount;
+				$result[$key]['Total_Fine']=$totalFineAmount;
+				$result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
+
+			}
+			// print_r($result);exit;
+			return $result;			
+		}
+
+		function getSingleStudentFeeReport($stu_id){
+			$sql="SELECT student_fee.ID,student_fee.COURSE_ID,student_fee.STUDENT_PROFILE_ID,student_fee.FEE_STRUCTURE_ID,
+				concat(profile.FIRSTNAME,' ',profile.LASTNAME) AS STUDENT_NAME,profile.ADMISSION_NO,
+				COURSE.NAME AS COURSE_NAME,
+				(SELECT NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
+				FROM 
+				student_fee 
+				INNER JOIN profile ON student_fee.STUDENT_PROFILE_ID=profile.ID
+				INNER JOIN course ON student_fee.COURSE_ID=course.ID
+				INNER JOIN student_profile ON student_fee.STUDENT_PROFILE_ID=student_profile.PROFILE_ID
+				WHERE student_fee.STUDENT_PROFILE_ID='$stu_id' AND student_fee.STUDENT_PROFILE_ID=(SELECT PROFILE_ID FROM fee_payment WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID GROUP BY PROFILE_ID) GROUP BY student_fee.STUDENT_PROFILE_ID";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// print_r($result);exit;
+			foreach ($result as $key => $value) {
+				$PROFILEid=$value['STUDENT_PROFILE_ID'];
+				$sql1="SELECT student_fee.FEE_STRUCTURE_ID,fee_item_structure.AMOUNT,
+						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+							(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+						ELSE 
+						0
+						END AS TOTAL_PAID_AMOUNT,
+						CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
+							(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
+							ELSE
+							0
+							END AS FINE_AMOUNT,
+						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+							(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+						ELSE 
+						0
+						END AS TOTAL_PAID_FINE_AMOUNT
+						from student_fee 
+						LEFT JOIN fee_item_structure ON student_fee.FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID
+						WHERE student_fee.STUDENT_PROFILE_ID='$PROFILEid'";
+				$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+				$totalItemAmount=0;
+				$totalPaidAmount=0;
+				$totalFineAmount=0;
+				$totalPaidFineAmount=0;
+				foreach($result1 as $key1 => $value1){
+					$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
+					$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
+					$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
+					$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
+				}
+				$result[$key]['Total_Amount']=$totalItemAmount;
+				$result[$key]['Total_Paid']=$totalPaidAmount;
+				$result[$key]['Total_Fine']=$totalFineAmount;
+				$result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
+
+			}
+			// print_r($result);exit;
+			return $result;	
+		}
+
+		function getStudentFeeReportbasedonbatch($id){
+			$sql="SELECT student_fee.ID,student_fee.COURSE_ID,student_fee.STUDENT_PROFILE_ID,student_fee.FEE_STRUCTURE_ID,
+				concat(profile.FIRSTNAME,' ',profile.LASTNAME) AS STUDENT_NAME,profile.ADMISSION_NO,
+				COURSE.NAME AS COURSE_NAME,
+				(SELECT NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
+				FROM 
+				student_fee 
+				INNER JOIN profile ON student_fee.STUDENT_PROFILE_ID=profile.ID
+				INNER JOIN course ON student_fee.COURSE_ID=course.ID
+				INNER JOIN student_profile ON student_fee.STUDENT_PROFILE_ID=student_profile.PROFILE_ID
+				WHERE student_fee.BATCH_ID='$id' AND student_fee.STUDENT_PROFILE_ID=(SELECT PROFILE_ID FROM fee_payment WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID GROUP BY PROFILE_ID) GROUP BY student_fee.STUDENT_PROFILE_ID";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// print_r($result);exit;
+			foreach ($result as $key => $value) {
+				$PROFILEid=$value['STUDENT_PROFILE_ID'];
+				$sql1="SELECT student_fee.FEE_STRUCTURE_ID,fee_item_structure.AMOUNT,
+						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+							(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+						ELSE 
+						0
+						END AS TOTAL_PAID_AMOUNT,
+						CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
+							(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
+							ELSE
+							0
+							END AS FINE_AMOUNT,
+						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+							(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+						ELSE 
+						0
+						END AS TOTAL_PAID_FINE_AMOUNT
+						from student_fee 
+						LEFT JOIN fee_item_structure ON student_fee.FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID
+						WHERE student_fee.STUDENT_PROFILE_ID='$PROFILEid'";
+				$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+				$totalItemAmount=0;
+				$totalPaidAmount=0;
+				$totalFineAmount=0;
+				$totalPaidFineAmount=0;
+				foreach($result1 as $key1 => $value1){
+					$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
+					$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
+					$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
+					$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
+				}
+				$result[$key]['Total_Amount']=$totalItemAmount;
+				$result[$key]['Total_Paid']=$totalPaidAmount;
+				$result[$key]['Total_Fine']=$totalFineAmount;
+				$result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
+
+			}
+			// print_r($result);exit;
+			return $result;	
+		}
+
+
+		public function addCategory($value){
+			// print_r($value);exit;
+			$name=$value['NAME'];
+			$sql="SELECT * FROM FINANCE_CATEGORY where NAME='$name'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return array('status'=>false);
+			}else {
+				$data = array(
+				   'NAME' => $value['NAME'],
+				   'DESCRIPTION' => $value['DESC']
+				);
+				$this->db->insert('FINANCE_CATEGORY', $data); 
+				$category_id= $this->db->insert_id();
+				if(!empty($category_id)){
+					return array('status'=>true, 'message'=>"Record Inserted Successfully");
+				}
+			}
+	    }	
+		
+		public function editCategory($id,$value){
+			$sql="SELECT * FROM FINANCE_CATEGORY where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
+			if($result[0]['NAME']==$value['NAME']){
+				$data = array(
+				   'NAME' => $value['NAME'],
+				   'DESCRIPTION' => $value['DESC']
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('FINANCE_CATEGORY', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully");
+			}else {
+				$name=$value['NAME'];
+				$sql="SELECT * FROM FINANCE_CATEGORY where NAME='$name'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					return array('status'=>false);
+				}else {
+					$data = array(
+					   'NAME' => $value['NAME'],
+					   'DESCRIPTION' => $value['DESC']
+					);
+					$this->db->where('ID', $id);	
+					$this->db->update('FINANCE_CATEGORY', $data); 
+					return array('status'=>true, 'message'=>"Record Updated Successfully");
+				}
+			}
+		}
+		function getfinancecategoryDetails(){
+			$sql="SELECT * FROM FINANCE_CATEGORY";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();		
+		}
+		function deleteCategory($id){
+			$sql="DELETE FROM FINANCE_CATEGORY where ID='$id'";
+			$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+		}
+		function checkCategory(){
+
+		}
+
+		// public function addIncome($value){
+		// 	// print_r($value);exit;
+		// 	$name=$value['NAME'];
+		// 	$sql="SELECT * FROM FINANCE_INCOME where NAME='$name'";
+		// 	$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		// 	if($result){
+		// 		return array('status'=>false);
+		// 	}else {
+		// 		$data = array(
+		// 		   'NAME' => $value['NAME'],
+		// 		   'DESCRIPTION' => $value['DESC'],
+		// 		   'AMOUNT' => $value['AMOUNT'],
+		// 		   'CATEGORY_ID' => $value['CATEGORY_ID'],
+		// 		   'INCOME_DATE' => $value['INCOME_DATE']
+		// 		);
+		// 		$this->db->insert('FINANCE_INCOME', $data); 
+		// 		$category_id= $this->db->insert_id();
+		// 		if(!empty($category_id)){
+		// 			return array('status'=>true, 'message'=>"Record Inserted Successfully");
+		// 		}
+		// 	}
+	 //    }	
+		
+		// public function editIncome($id,$value){
+		// 	$sql="SELECT * FROM FINANCE_INCOME where ID='$id'";
+		// 	$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
+		// 	if($result[0]['NAME']==$value['NAME']){
+		// 		$data = array(
+		// 		   'NAME' => $value['NAME'],
+		// 		   'DESCRIPTION' => $value['DESC'],
+		// 		   'AMOUNT' => $value['AMOUNT'],
+		// 		   'CATEGORY_ID' => $value['CATEGORY_ID'],
+		// 		   'INCOME_DATE' => $value['INCOME_DATE']
+		// 		);
+		// 		$this->db->where('ID', $id);
+		// 		$this->db->update('FINANCE_INCOME', $data); 
+		// 		return array('status'=>true, 'message'=>"Record Updated Successfully");
+		// 	}else {
+		// 		$name=$value['NAME'];
+		// 		$sql="SELECT * FROM FINANCE_INCOME where NAME='$name'";
+		// 		$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		// 		if($result){
+		// 			return array('status'=>false);
+		// 		}else {
+		// 			$data = array(
+		// 			   'NAME' => $value['NAME'],
+		// 			   'DESCRIPTION' => $value['DESC'],
+		// 			   'AMOUNT' => $value['AMOUNT'],
+		// 			   'CATEGORY_ID' => $value['CATEGORY_ID'],
+		// 			   'INCOME_DATE' => $value['INCOME_DATE']
+		// 			);
+		// 			$this->db->where('ID', $id);	
+		// 			$this->db->update('FINANCE_INCOME', $data); 
+		// 			return array('status'=>true, 'message'=>"Record Updated Successfully");
+		// 		}
+		// 	}
+		// }
+		// function getfeeIncomeDetails(){
+		// 	$sql="SELECT ID,NAME,DESCRIPTION,AMOUNT,INCOME_DATE,CATEGORY_ID,(SELECT NAME FROM FINANCE_CATEGORY WHERE ID=CATEGORY_ID) AS CATEGORY_NAME FROM FINANCE_INCOME";
+		// 	return $result = $this->db->query($sql, $return_object = TRUE)->result_array();		
+		// }
+		// function deleteIncomeDetails($id){
+		// 	$sql="DELETE FROM FINANCE_INCOME where ID='$id'";
+		// 	$result = $this->db->query($sql);
+	 //    	return $this->db->affected_rows();
+		// }
+
+		// public function addExpense($value){
+		// 	// print_r($value);exit;
+		// 	$name=$value['NAME'];
+		// 	$sql="SELECT * FROM FINANCE_EXPENSE where NAME='$name'";
+		// 	$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		// 	if($result){
+		// 		return array('status'=>false);
+		// 	}else {
+		// 		$data = array(
+		// 		   'NAME' => $value['NAME'],
+		// 		   'DESCRIPTION' => $value['DESC'],
+		// 		   'AMOUNT' => $value['AMOUNT'],
+		// 		   'CATEGORY_ID' => $value['CATEGORY_ID'],
+		// 		   'EXPENSE_DATE' => $value['EXPENSE_DATE']
+		// 		);
+		// 		$this->db->insert('FINANCE_EXPENSE', $data); 
+		// 		$category_id= $this->db->insert_id();
+		// 		if(!empty($category_id)){
+		// 			return array('status'=>true, 'message'=>"Record Inserted Successfully");
+		// 		}
+		// 	}
+	 //    }	
+		
+		// public function editExpense($id,$value){
+		// 	$sql="SELECT * FROM FINANCE_EXPENSE where ID='$id'";
+		// 	$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
+		// 	if($result[0]['NAME']==$value['NAME']){
+		// 		$data = array(
+		// 		   'NAME' => $value['NAME'],
+		// 		   'DESCRIPTION' => $value['DESC'],
+		// 		   'AMOUNT' => $value['AMOUNT'],
+		// 		   'CATEGORY_ID' => $value['CATEGORY_ID'],
+		// 		   'EXPENSE_DATE' => $value['EXPENSE_DATE']
+		// 		);
+		// 		$this->db->where('ID', $id);
+		// 		$this->db->update('FINANCE_EXPENSE', $data); 
+		// 		return array('status'=>true, 'message'=>"Record Updated Successfully");
+		// 	}else {
+		// 		$name=$value['NAME'];
+		// 		$sql="SELECT * FROM FINANCE_EXPENSE where NAME='$name'";
+		// 		$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		// 		if($result){
+		// 			return array('status'=>false);
+		// 		}else {
+		// 			$data = array(
+		// 			   'NAME' => $value['NAME'],
+		// 			   'DESCRIPTION' => $value['DESC'],
+		// 			   'AMOUNT' => $value['AMOUNT'],
+		// 			   'CATEGORY_ID' => $value['CATEGORY_ID'],
+		// 			   'EXPENSE_DATE' => $value['EXPENSE_DATE']
+		// 			);
+		// 			$this->db->where('ID', $id);	
+		// 			$this->db->update('FINANCE_EXPENSE', $data); 
+		// 			return array('status'=>true, 'message'=>"Record Updated Successfully");
+		// 		}
+		// 	}
+		// }
+		// function getfeeExpenseDetails(){
+		// 	$sql="SELECT ID,NAME,DESCRIPTION,AMOUNT,EXPENSE_DATE,CATEGORY_ID,(SELECT NAME FROM FINANCE_CATEGORY WHERE ID=CATEGORY_ID) AS CATEGORY_NAME FROM FINANCE_EXPENSE ";
+		// 	return $result = $this->db->query($sql, $return_object = TRUE)->result_array();		
+		// }
+		// function deleteExpenseDetails($id){
+		// 	$sql="DELETE FROM FINANCE_EXPENSE where ID='$id'";
+		// 	$result = $this->db->query($sql);
+	 //    	return $this->db->affected_rows();
+		// }
+		function fetchTransactionReportDetails($fromdate,$uptodate){
+			if($fromdate!=null && $uptodate!=null){
+				$sql="SELECT ID,CATEGORY_ID,NAME,(SELECT NAME FROM FINANCE_CATEGORY WHERE ID=CATEGORY_ID) AS CATEGORY_NAME,AMOUNT,TYPE FROM TRANSACTION_DETAILS WHERE TRANSACTION_DATE BETWEEN '$fromdate' AND '$uptodate'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}else if($fromdate!=null && $uptodate==null){
+				$sql="SELECT ID,CATEGORY_ID,NAME,(SELECT NAME FROM FINANCE_CATEGORY WHERE ID=CATEGORY_ID) AS CATEGORY_NAME,AMOUNT,TYPE FROM TRANSACTION_DETAILS WHERE TRANSACTION_DATE >= '$fromdate'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}else if($fromdate==null && $uptodate!=null){
+				$sql="SELECT ID,CATEGORY_ID,NAME,(SELECT NAME FROM FINANCE_CATEGORY WHERE ID=CATEGORY_ID) AS CATEGORY_NAME,AMOUNT,TYPE FROM TRANSACTION_DETAILS WHERE TRANSACTION_DATE <= '$uptodate'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}else {
+				$sql="SELECT ID,CATEGORY_ID,NAME,(SELECT NAME FROM FINANCE_CATEGORY WHERE ID=CATEGORY_ID) AS CATEGORY_NAME,AMOUNT,TYPE FROM TRANSACTION_DETAILS";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}
+			return $result;
+		}
+
+
+		public function addTransaction($value){
+			// print_r($value);exit;
+			$name=$value['NAME'];
+			$sql="SELECT * FROM TRANSACTION_DETAILS where NAME='$name'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return array('status'=>false);
+			}else {
+				$data = array(
+				   'NAME' => $value['NAME'],
+				   'DESCRIPTION' => $value['DESC'],
+				   'AMOUNT' => $value['AMOUNT'],
+				   'CATEGORY_ID' => $value['CATEGORY_ID'],
+				   'TRANSACTION_DATE' => $value['TRANSACTION_DATE'],
+				   'TYPE' => $value['TRANSACTION_TYPE']
+				);
+				$this->db->insert('TRANSACTION_DETAILS', $data); 
+				$category_id= $this->db->insert_id();
+				if(!empty($category_id)){
+					return array('status'=>true, 'message'=>"Record Inserted Successfully");
+				}
+			}
+	    }	
+		
+		public function editTransaction($id,$value){
+			$sql="SELECT * FROM TRANSACTION_DETAILS where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
+			if($result[0]['NAME']==$value['NAME']){
+				$data = array(
+				   'NAME' => $value['NAME'],
+				   'DESCRIPTION' => $value['DESC'],
+				   'AMOUNT' => $value['AMOUNT'],
+				   'CATEGORY_ID' => $value['CATEGORY_ID'],
+				   'TRANSACTION_DATE' => $value['TRANSACTION_DATE'],
+				   'TYPE' => $value['TRANSACTION_TYPE']
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('TRANSACTION_DETAILS', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully");
+			}else {
+				$name=$value['NAME'];
+				$sql="SELECT * FROM TRANSACTION_DETAILS where NAME='$name'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					return array('status'=>false);
+				}else {
+					$data = array(
+					   'NAME' => $value['NAME'],
+					   'DESCRIPTION' => $value['DESC'],
+					   'AMOUNT' => $value['AMOUNT'],
+					   'CATEGORY_ID' => $value['CATEGORY_ID'],
+					   'TRANSACTION_DATE' => $value['TRANSACTION_DATE'],
+					   'TYPE' => $value['TRANSACTION_TYPE']
+					);
+					$this->db->where('ID', $id);	
+					$this->db->update('TRANSACTION_DETAILS', $data); 
+					return array('status'=>true, 'message'=>"Record Updated Successfully");
+				}
+			}
+		}
+		function getTransactionDetails($type){
+			$sql="SELECT ID,NAME,DESCRIPTION,AMOUNT,TRANSACTION_DATE,CATEGORY_ID,(SELECT NAME FROM FINANCE_CATEGORY WHERE ID=CATEGORY_ID) AS CATEGORY_NAME FROM TRANSACTION_DETAILS WHERE TYPE='$type'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();		
+		}
+		function deleteTransactionDetails($id){
+			$sql="DELETE FROM TRANSACTION_DETAILS where ID='$id'";
+			$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+		}
+		function fetchFeeDefaulterBasedonCourse($couseid){
+			// $sql="SELECT student_fee.ID,student_fee.COURSE_ID,student_fee.STUDENT_PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_fee.STUDENT_PROFILE_ID) as STUDENT_NAME,(SELECT ADMISSION_NO FROM profile where ID=student_fee.STUDENT_PROFILE_ID) as ADMISSION_NO,
+			// (SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=student_fee.STUDENT_PROFILE_ID) as batchId,(SELECT NAME FROM course_batch where ID=batchId) as BATCH_NAME,(SELECT NAME FROM course where ID=student_fee.COURSE_ID) as COURSE_NAME
+			// 	from student_fee where student_fee.COURSE_ID='$couseid' GROUP BY student_fee.STUDENT_PROFILE_ID;";
+			// $result=$this->db->query($sql, $return_object = TRUE)->result_array();
+			// // print_r($result);exit();
+			// foreach ($result as $key => $value) {
+			// 	$profile=$value['STUDENT_PROFILE_ID'];
+			// 	$sql1="SELECT SUM(fee_item_structure.AMOUNT) as amount from student_fee RIGHT JOIN fee_item_structure ON fee_item_structure.FEE_STRUCTURE_ID=student_fee.FEE_STRUCTURE_ID  WHERE student_fee.STUDENT_PROFILE_ID='$profile' AND student_fee.COURSE_ID=30 AND (NOW())> fee_item_structure.DUE_DATE";
+			// 	$result1=$this->db->query($sql1, $return_object = TRUE)->result_array();
+			// 	$result[$key]['feeDefault_amount']=$result1[0]['amount'];
+			// }
+			// print_r($result);exit();
+			// return $result;
+			// exit;
+
+
+
+			// Single Query
+
+			$sql="SELECT DISTINCT sf.STUDENT_PROFILE_ID as profileId,sf.COURSE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=sf.STUDENT_PROFILE_ID)as profileName,(SELECT ADMISSION_NO FROM profile where ID=sf.STUDENT_PROFILE_ID)as AdmissionNo,(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=sf.STUDENT_PROFILE_ID)as batchId,(SELECT NAME FROM course_batch where ID=batchId)as batchName,(SELECT NAME FROM course where ID='$couseid')as courseName,
+				CASE WHEN (SELECT SUM(feeistu.AMOUNT) FROM student_fee as stufee RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee.FEE_STRUCTURE_ID WHERE stufee.STUDENT_PROFILE_ID=profileId AND stufee.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) THEN (SELECT SUM(feeistu.AMOUNT) FROM student_fee as stufee RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee.FEE_STRUCTURE_ID WHERE stufee.STUDENT_PROFILE_ID=profileId AND stufee.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) ELSE 0 END as amount, CASE WHEN (SELECT SUM(PAID_AMOUNT) FROM student_fee as stufee1 RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee1.FEE_STRUCTURE_ID INNER JOIN student_fee_status as sfs ON sfs.FEE_STRUCTURE_ID=feeistu.FEE_STRUCTURE_ID AND sfs.FEE_ITEM_ID=feeistu.FEE_ITEM_ID WHERE stufee1.STUDENT_PROFILE_ID=sf.STUDENT_PROFILE_ID AND stufee1.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) THEN (SELECT SUM(PAID_AMOUNT) FROM student_fee as stufee1 RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee1.FEE_STRUCTURE_ID INNER JOIN student_fee_status as sfs ON sfs.FEE_STRUCTURE_ID=feeistu.FEE_STRUCTURE_ID AND sfs.FEE_ITEM_ID=feeistu.FEE_ITEM_ID WHERE stufee1.STUDENT_PROFILE_ID=sf.STUDENT_PROFILE_ID AND stufee1.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) ELSE 0 END as PaidAmount
+				FROM student_fee as sf RIGHT JOIN fee_item_structure as fis ON fis.FEE_STRUCTURE_ID=sf.FEE_STRUCTURE_ID WHERE sf.COURSE_ID='$couseid'";
+			$result=$this->db->query($sql, $return_object = TRUE)->result_array();
+			//print_r($result);exit;
+			return $result;
+		}
+
+		function fetchFeeDefaulterBasedonBatch($batch_id){
+			$sql="SELECT DISTINCT sf.STUDENT_PROFILE_ID as profileId,sf.COURSE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=sf.STUDENT_PROFILE_ID)as profileName,(SELECT ADMISSION_NO FROM profile where ID=sf.STUDENT_PROFILE_ID)as AdmissionNo,(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=sf.STUDENT_PROFILE_ID)as batchId,(SELECT NAME FROM course_batch where ID=batchId)as batchName,(SELECT NAME FROM course where ID=sf.COURSE_ID)as courseName,
+				CASE WHEN (SELECT SUM(feeistu.AMOUNT) FROM student_fee as stufee RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee.FEE_STRUCTURE_ID WHERE stufee.STUDENT_PROFILE_ID=profileId AND stufee.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) THEN (SELECT SUM(feeistu.AMOUNT) FROM student_fee as stufee RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee.FEE_STRUCTURE_ID WHERE stufee.STUDENT_PROFILE_ID=profileId AND stufee.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) ELSE 0 END as amount, CASE WHEN (SELECT SUM(PAID_AMOUNT) FROM student_fee as stufee1 RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee1.FEE_STRUCTURE_ID INNER JOIN student_fee_status as sfs ON sfs.FEE_STRUCTURE_ID=feeistu.FEE_STRUCTURE_ID AND sfs.FEE_ITEM_ID=feeistu.FEE_ITEM_ID WHERE stufee1.STUDENT_PROFILE_ID=sf.STUDENT_PROFILE_ID AND stufee1.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) THEN (SELECT SUM(PAID_AMOUNT) FROM student_fee as stufee1 RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee1.FEE_STRUCTURE_ID INNER JOIN student_fee_status as sfs ON sfs.FEE_STRUCTURE_ID=feeistu.FEE_STRUCTURE_ID AND sfs.FEE_ITEM_ID=feeistu.FEE_ITEM_ID WHERE stufee1.STUDENT_PROFILE_ID=sf.STUDENT_PROFILE_ID AND stufee1.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) ELSE 0 END as PaidAmount
+				FROM student_fee as sf RIGHT JOIN fee_item_structure as fis ON fis.FEE_STRUCTURE_ID=sf.FEE_STRUCTURE_ID WHERE sf.BATCH_ID='$batch_id'";
+			$result=$this->db->query($sql, $return_object = TRUE)->result_array();
+			//print_r($result);exit;
+			return $result;
+		}
+		function fetchFeeDefaulterBasedonProfile($student_id){
+			$sql="SELECT DISTINCT sf.STUDENT_PROFILE_ID as profileId,sf.COURSE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=sf.STUDENT_PROFILE_ID)as profileName,(SELECT ADMISSION_NO FROM profile where ID=sf.STUDENT_PROFILE_ID)as AdmissionNo,(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=sf.STUDENT_PROFILE_ID)as batchId,(SELECT NAME FROM course_batch where ID=batchId)as batchName,(SELECT NAME FROM course where ID=sf.COURSE_ID)as courseName,
+				CASE WHEN (SELECT SUM(feeistu.AMOUNT) FROM student_fee as stufee RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee.FEE_STRUCTURE_ID WHERE stufee.STUDENT_PROFILE_ID=profileId AND stufee.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) THEN (SELECT SUM(feeistu.AMOUNT) FROM student_fee as stufee RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee.FEE_STRUCTURE_ID WHERE stufee.STUDENT_PROFILE_ID=profileId AND stufee.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) ELSE 0 END as amount, CASE WHEN (SELECT SUM(PAID_AMOUNT) FROM student_fee as stufee1 RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee1.FEE_STRUCTURE_ID INNER JOIN student_fee_status as sfs ON sfs.FEE_STRUCTURE_ID=feeistu.FEE_STRUCTURE_ID AND sfs.FEE_ITEM_ID=feeistu.FEE_ITEM_ID WHERE stufee1.STUDENT_PROFILE_ID=sf.STUDENT_PROFILE_ID AND stufee1.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) THEN (SELECT SUM(PAID_AMOUNT) FROM student_fee as stufee1 RIGHT JOIN fee_item_structure as feeistu ON feeistu.FEE_STRUCTURE_ID=stufee1.FEE_STRUCTURE_ID INNER JOIN student_fee_status as sfs ON sfs.FEE_STRUCTURE_ID=feeistu.FEE_STRUCTURE_ID AND sfs.FEE_ITEM_ID=feeistu.FEE_ITEM_ID WHERE stufee1.STUDENT_PROFILE_ID=sf.STUDENT_PROFILE_ID AND stufee1.COURSE_ID=sf.COURSE_ID AND (NOW())> feeistu.DUE_DATE) ELSE 0 END as PaidAmount
+				FROM student_fee as sf RIGHT JOIN fee_item_structure as fis ON fis.FEE_STRUCTURE_ID=sf.FEE_STRUCTURE_ID WHERE sf.STUDENT_PROFILE_ID='$student_id'";
+			$result=$this->db->query($sql, $return_object = TRUE)->result_array();
+			return $result;
+		}
 	}
 ?>
+
+
+
+

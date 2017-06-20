@@ -586,6 +586,56 @@ class FinanceAPI extends REST_Controller {
 		// 	}
 		// }
     }
+
+    function getStudentFeeReport_get(){
+    	$id = $this->get('batch_id');
+    	$stu_id = $this->get('student_id');
+    	$course_id = $this->get('course_id');
+    	if($id){
+    		$result=$this->financemodel->getStudentFeeReportbasedonbatch($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+    	}else if($stu_id){
+    		$result=$this->financemodel->getSingleStudentFeeReport($stu_id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+    	}
+    	else if($course_id){
+    		$result=$this->financemodel->getStudentFeeReportbasedoncourse($course_id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+    	}else {
+    		$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+    	}
+    }
+
     function fetchStudentList_get(){
     	$id = $this->get('batch_id');
     	$course_id = $this->get('course_id');
@@ -973,4 +1023,396 @@ class FinanceAPI extends REST_Controller {
       	$html=$this->load->view('studentfeedetails',$data,true);
       	pdf_create($html,"data",$stream=TRUE,'portrait','1.0');
 	}
+
+	function categoryDetail_post(){
+		// print_r($this->post());exit;
+		$id = $this->post('CATEGORY_ID');
+		$data['NAME']=$this->post('CATEGORY_NAME');
+		$data['DESC']=$this->post('DESCRIPTION');
+		if($id==NULL){
+			$result=$this->financemodel->addCategory($data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}else{
+			$result=$this->financemodel->editCategory($id,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+	}
+	function categoryDetail_get(){
+		$id = $this->get('id');
+		if($id==NULL){
+			$result=$this->financemodel->getfinancecategoryDetails();
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+
+		}else{
+			$result=$this->financemodel->getParticularFeeItem($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+	}
+	function categoryDetailCheck_get(){
+		$id = $this->get('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+
+		}else{
+			$result=$this->financemodel->checkCategory($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+	}
+	function categoryDetail_delete(){
+		$id = $this->delete('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$result=$this->financemodel->deleteCategory($id);
+			if ($result!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+
+ //    function income_post(){
+	// 	// print_r($this->post());exit;
+	// 	$id = $this->post('INCOME_ID');
+	// 	$data['NAME']=$this->post('INCOME_NAME');
+	// 	$data['DESC']=$this->post('DESCRIPTION');
+	// 	$data['AMOUNT']=$this->post('AMOUNT');
+	// 	$data['INCOME_DATE']=$this->post('INCOME_DATE');
+	// 	$data['CATEGORY_ID']=$this->post('CATEGORY_ID');
+	// 	if($id==NULL){
+	// 		$result=$this->financemodel->addIncome($data);
+	// 		if($result['status']==true){
+	// 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+	// 		}else{
+	// 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+	// 		}
+	// 	}else{
+	// 		$result=$this->financemodel->editIncome($id,$data);
+	// 		if($result['status']==true){
+	// 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+	// 		}else{
+	// 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+	// 		}
+	// 	}
+	// }
+
+	// function income_get(){
+	// 	$id = $this->get('id');
+	// 	if($id==NULL){
+	// 		$result=$this->financemodel->getfeeIncomeDetails();
+	// 		if (!empty($result)){
+	// 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+	// 		}
+	// 		else
+	// 		{
+	// 			$this->set_response([
+	// 			'status' => FALSE,
+	// 			'message' => 'Record could not be found'
+	// 			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+	// 		}
+
+	// 	}else{
+	// 		// $result=$this->financemodel->checkCategory($id);
+	// 		// if (!empty($result)){
+	// 		// 	$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+	// 		// }
+	// 		// else
+	// 		// {
+	// 			$this->set_response([
+	// 			'status' => FALSE,
+	// 			'message' => 'Record could not be found'
+	// 			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+	// 		// }
+	// 	}
+	// }
+
+	// function income_delete(){
+	// 	$id = $this->delete('id');
+	// 	if($id==NULL){
+	// 			$this->set_response([
+	// 			'status' => FALSE,
+	// 			'message' => 'Record could not be found'
+	// 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+	// 	}else{
+	// 		$result=$this->financemodel->deleteIncomeDetails($id);
+	// 		if ($result!=0){
+	// 			$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+	// 		}
+	// 		else
+	// 		{
+	// 			$this->set_response([
+	// 			'status' => FALSE,
+	// 			'message' => 'Record could not be found'
+	// 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+	// 		}
+	// 	}
+ //    }
+
+ //    function expense_post(){
+	// 	// print_r($this->post());exit;
+	// 	$id = $this->post('INCOME_ID');
+	// 	$data['NAME']=$this->post('INCOME_NAME');
+	// 	$data['DESC']=$this->post('DESCRIPTION');
+	// 	$data['AMOUNT']=$this->post('AMOUNT');
+	// 	$data['EXPENSE_DATE']=$this->post('EXPENSE_DATE');
+	// 	$data['CATEGORY_ID']=$this->post('CATEGORY_ID');
+	// 	if($id==NULL){
+	// 		$result=$this->financemodel->addExpense($data);
+	// 		if($result['status']==true){
+	// 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+	// 		}else{
+	// 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+	// 		}
+	// 	}else{
+	// 		$result=$this->financemodel->editExpense($id,$data);
+	// 		if($result['status']==true){
+	// 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+	// 		}else{
+	// 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+	// 		}
+	// 	}
+	// }
+
+	// function expense_get(){
+	// 	$id = $this->get('id');
+	// 	if($id==NULL){
+	// 		$result=$this->financemodel->getfeeExpenseDetails();
+	// 		if (!empty($result)){
+	// 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+	// 		}
+	// 		else
+	// 		{
+	// 			$this->set_response([
+	// 			'status' => FALSE,
+	// 			'message' => 'Record could not be found'
+	// 			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+	// 		}
+
+	// 	}else{
+	// 		// $result=$this->financemodel->checkCategory($id);
+	// 		// if (!empty($result)){
+	// 		// 	$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+	// 		// }
+	// 		// else
+	// 		// {
+	// 			$this->set_response([
+	// 			'status' => FALSE,
+	// 			'message' => 'Record could not be found'
+	// 			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+	// 		// }
+	// 	}
+	// }
+
+	// function expense_delete(){
+	// 	$id = $this->delete('id');
+	// 	if($id==NULL){
+	// 			$this->set_response([
+	// 			'status' => FALSE,
+	// 			'message' => 'Record could not be found'
+	// 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+	// 	}else{
+	// 		$result=$this->financemodel->deleteExpenseDetails($id);
+	// 		if ($result!=0){
+	// 			$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+	// 		}
+	// 		else
+	// 		{
+	// 			$this->set_response([
+	// 			'status' => FALSE,
+	// 			'message' => 'Record could not be found'
+	// 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+	// 		}
+	// 	}
+ //    }
+
+
+    function transactionDetails_post(){
+		// print_r($this->post());exit;
+		$id = $this->post('TRANSACTION_ID');
+		$data['NAME']=$this->post('TRANSACTION_NAME');
+		$data['DESC']=$this->post('DESCRIPTION');
+		$data['AMOUNT']=$this->post('AMOUNT');
+		$data['TRANSACTION_DATE']=$this->post('TRANSACTION_DATE');
+		$data['CATEGORY_ID']=$this->post('CATEGORY_ID');
+		$data['TRANSACTION_TYPE']=$this->post('TRANSACTION_TYPE');
+		if($id==NULL){
+			$result=$this->financemodel->addTransaction($data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}else{
+			$result=$this->financemodel->editTransaction($id,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+	}
+
+	function transactionDetails_get(){
+		$id = $this->get('id');
+		$type = $this->get('type');
+		if($id==NULL){
+			$result=$this->financemodel->getTransactionDetails($type);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+
+		}else{
+			// $result=$this->financemodel->checkCategory($id);
+			// if (!empty($result)){
+			// 	$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			// }
+			// else
+			// {
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			// }
+		}
+	}
+
+	function transactionDetails_delete(){
+		$id = $this->delete('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$result=$this->financemodel->deleteTransactionDetails($id);
+			if ($result!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+
+    function transactionReport_get(){
+    	$fromdate = $this->get('fromdate');
+    	$uptodate = $this->get('uptodate');
+		$result=$this->financemodel->fetchTransactionReportDetails($fromdate,$uptodate);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Record could not be found'
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}
+    }
+    function fetchFeeDefaulterDetails_get(){
+    	$course_id = $this->get('course_id');
+    	$batch_id = $this->get('batch_id');
+		$student_id = $this->get('student_id');
+    	if($course_id){
+			$result=$this->financemodel->fetchFeeDefaulterBasedonCourse($course_id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}else if($batch_id){
+			$result=$this->financemodel->fetchFeeDefaulterBasedonBatch($batch_id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+		else if($student_id){
+			$result=$this->financemodel->fetchFeeDefaulterBasedonProfile($student_id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}else {
+			$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}
+    }
 }
