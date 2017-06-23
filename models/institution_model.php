@@ -303,10 +303,46 @@
 
 		// Building
 		public function addbuildingDetails($value){
-			$id=$value['id'];
-	    	$sql="SELECT count(NAME) FROM building WHERE ID='$id'";
+			$name=$value['name'];
+	    	$sql="SELECT * FROM building WHERE NAME='$name'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result[0]['count(NAME)']!=0){
+			//print_r($result);exit;
+			if($result){
+				return array('status' => false);
+			}else{
+				$data = array(
+				   'NAME' => $value['name'],
+				   'NUMBER' => $value['number'],
+				   'LANDMARK' => $value['landmark']
+				);
+				$this->db->insert('building', $data);
+				$build_id=$this->db->insert_id();
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+			}
+			// if($result[0]['count(NAME)']!=0){
+			// 	$data = array(
+			// 	   'NAME' => $value['name'],
+			// 	   'NUMBER' => $value['number'],
+			// 	   'LANDMARK' => $value['landmark']
+			// 	);
+			// 	$this->db->where('ID', $id);
+			// 	$this->db->update('building', $data); 
+			// 	return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+			// }else {
+			// 	$data = array(
+			// 	   'NAME' => $value['name'],
+			// 	   'NUMBER' => $value['number'],
+			// 	   'LANDMARK' => $value['landmark']				
+			// 	);
+			// 	$this->db->insert('building', $data);
+			// 	$build_id=$this->db->insert_id();
+			// 	return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+			// }
+	    }
+	    public function editbuildingDetails($id,$value){
+			$sql="SELECT * FROM building where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
+			if($result[0]['NAME']==$value['name']){
 				$data = array(
 				   'NAME' => $value['name'],
 				   'NUMBER' => $value['number'],
@@ -314,18 +350,25 @@
 				);
 				$this->db->where('ID', $id);
 				$this->db->update('building', $data); 
-				return array('status'=>true, 'message'=>"Record Updated Successfully",'BUILDING_ID'=>$id);
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'DEPT_ID'=>$id);
 			}else {
-				$data = array(
+				$name=$value['name'];
+				$sql="SELECT * FROM building where NAME='$name'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					return array('status'=>false);
+				}else {
+					$data = array(
 				   'NAME' => $value['name'],
 				   'NUMBER' => $value['number'],
-				   'LANDMARK' => $value['landmark']				
+				   'LANDMARK' => $value['landmark']
 				);
-				$this->db->insert('building', $data);
-				$build_id=$this->db->insert_id();
-				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+					$this->db->where('ID', $id);
+					$this->db->update('building', $data); 
+					return array('status'=>true, 'message'=>"Record Updated Successfully",'DEPT_ID'=>$id);
+				}
 			}
-	    }
+		}
 	    function getBuilding_details($id){
 	    	$sql="SELECT * FROM building where ID ='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -336,7 +379,7 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 	    public function checkBuildingDetails($id){
-			$sql="SELECT ID,(SELECT BUILDING_ID FROM block WHERE BUILDING_ID=building.ID)AS block_data,(SELECT BUILDING_ID FROM room WHERE BUILDING_ID=building.ID)AS room_data,(SELECT BUILDING_ID FROM hostel WHERE BUILDING_ID=building.ID)AS hostel_data FROM building where ID='$id'";
+			$sql="SELECT ID,(SELECT BUILDING_ID FROM block WHERE BUILDING_ID=building.ID GROUP BY BUILDING_ID)AS block_data,(SELECT BUILDING_ID FROM room WHERE BUILDING_ID=building.ID GROUP BY BUILDING_ID)AS room_data,(SELECT BUILDING_ID FROM hostel WHERE BUILDING_ID=building.ID GROUP BY BUILDING_ID)AS hostel_data FROM building where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
 			if(isset($result[0]['block_data'])){
@@ -368,10 +411,45 @@
 
 		// Block
 	    public function addBlockDetails($value){
-			$id=$value['id'];
-	    	$sql="SELECT count(NAME) FROM block WHERE ID='$id'";
+			$name=$value['name'];
+	    	$sql="SELECT * FROM block WHERE NAME='$name'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result[0]['count(NAME)']!=0){
+			if($result){
+				return array('status' =>false );
+			}else{
+				$data = array(
+				   'NAME' => $value['name'],
+				   'NUMBER' => $value['number'],
+				   'BUILDING_ID' => $value['building_id']				
+				);
+				$this->db->insert('block',$data);
+				$block_id=$this->db->insert_id();
+				return array('status' => true,'message' =>"Record Inserted Successfully",'BLOCK_ID'=>$block_id);
+			}
+			// if($result[0]['count(NAME)']!=0){
+			// 	$data = array(
+			// 	   'NAME' => $value['name'],
+			// 	   'NUMBER' => $value['number'],
+			// 	   'BUILDING_ID' => $value['building_id']				
+			// 	);
+			// 	$this->db->where('ID', $id);
+			// 	$this->db->update('block', $data); 
+			// 	return array('status'=>true, 'message'=>"Record Updated Successfully",'BLOCK_ID'=>$id);
+			// }else {
+			// 	$data = array(
+			// 	   'NAME' => $value['name'],
+			// 	   'NUMBER' => $value['number'],
+			// 	   'BUILDING_ID' => $value['building_id']				
+			// 	);
+			// 	$this->db->insert('block', $data);
+			// 	$block_id=$this->db->insert_id();
+			// 	return array('status'=>true, 'message'=>"Record Inserted Successfully",'BLOCK_ID'=>$block_id);
+			// }
+	    }
+	    function editBlockDetails($id,$value){
+			$sql="SELECT * FROM block where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
+			if($result[0]['NAME']==$value['name']){
 				$data = array(
 				   'NAME' => $value['name'],
 				   'NUMBER' => $value['number'],
@@ -381,19 +459,31 @@
 				$this->db->update('block', $data); 
 				return array('status'=>true, 'message'=>"Record Updated Successfully",'BLOCK_ID'=>$id);
 			}else {
-				$data = array(
+				$name=$value['name'];
+				$sql="SELECT * FROM block where NAME='$name'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					return array('status'=>false);
+				}else {
+					$data = array(
 				   'NAME' => $value['name'],
 				   'NUMBER' => $value['number'],
 				   'BUILDING_ID' => $value['building_id']				
 				);
-				$this->db->insert('block', $data);
-				$block_id=$this->db->insert_id();
-				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BLOCK_ID'=>$block_id);
+					$this->db->where('ID', $id);
+					$this->db->update('block', $data); 
+					return array('status'=>true, 'message'=>"Record Updated Successfully",'BLOCK_ID'=>$id);
+				}
 			}
-	    }
+		}
 	    function getBlock_details($id){
-	  //   	$sql="SELECT * FROM block where ID ='$id'";
-			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    	//print_r($id);exit();
+	    	$sql="SELECT * FROM block where BUILDING_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			
+	    }
+	    function checkBlockDetails($id){
+	    	
 			$sql="SELECT BLOCK_ID FROM room WHERE BLOCK_ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			//print_r($result);exit();
@@ -425,25 +515,15 @@
 
 	    // Room
 	    public function addRoomDetails($value){
-			$id=$value['id'];
-	    	$sql="SELECT count(NAME) FROM room WHERE ID='$id'";
+			$name=$value['name'];
+	    	$sql="SELECT * FROM room WHERE NAME='$name'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result[0]['count(NAME)']!=0){
+			if($result){
+				return array('status' =>false );
+			}else{
 				$data = array(
 				   'NAME' => $value['name'],
-				   'NUMBER' => $value['number'],
-				   'FLOOR' => $value['floor'],
-				   'BLOCK_ID' => $value['block_id'],
-				   'BUILDING_ID' => $value['building_id'],			
-				   'INFO' => $value['info'],
-				);
-				$this->db->where('ID', $id);
-				$this->db->update('room', $data); 
-				return array('status'=>true, 'message'=>"Record Updated Successfully",'ROOM_ID'=>$id);
-			}else {
-				$data = array(
-				   'NAME' => $value['name'],
-				   'NUMBER' => $value['number'],
+				   // 'NUMBER' => $value['number'],
 				   'FLOOR' => $value['floor'],
 				   'BLOCK_ID' => $value['block_id'],
 				   'BUILDING_ID' => $value['building_id'],			
@@ -453,7 +533,68 @@
 				$room_id=$this->db->insert_id();
 				return array('status'=>true, 'message'=>"Record Inserted Successfully",'ROOM_ID'=>$room_id);
 			}
+			// if($result[0]['count(NAME)']!=0){
+			// 	$data = array(
+			// 	   'NAME' => $value['name'],
+			// 	   'NUMBER' => $value['number'],
+			// 	   'FLOOR' => $value['floor'],
+			// 	   'BLOCK_ID' => $value['block_id'],
+			// 	   'BUILDING_ID' => $value['building_id'],			
+			// 	   'INFO' => $value['info'],
+			// 	);
+			// 	$this->db->where('ID', $id);
+			// 	$this->db->update('room', $data); 
+			// 	return array('status'=>true, 'message'=>"Record Updated Successfully",'ROOM_ID'=>$id);
+			// }else {
+			// 	$data = array(
+			// 	   'NAME' => $value['name'],
+			// 	   'NUMBER' => $value['number'],
+			// 	   'FLOOR' => $value['floor'],
+			// 	   'BLOCK_ID' => $value['block_id'],
+			// 	   'BUILDING_ID' => $value['building_id'],			
+			// 	   'INFO' => $value['info'],
+			// 	);
+			// 	$this->db->insert('room', $data);
+			// 	$room_id=$this->db->insert_id();
+			// 	return array('status'=>true, 'message'=>"Record Inserted Successfully",'ROOM_ID'=>$room_id);
+			// }
 	    }
+	    function editRoomDetailss($id,$value){
+			$sql="SELECT * FROM room where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['NAME']==$value['name']){
+				$data = array(
+				   'NAME' => $value['name'],
+				   // 'NUMBER' => $value['number'],
+				   'FLOOR' => $value['floor'],
+				   'BLOCK_ID' => $value['block_id'],
+				   'BUILDING_ID' => $value['building_id'],			
+				   'INFO' => $value['info'],
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('room', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'ROOM_ID'=>$id);
+			}else {
+				$name=$value['name'];
+				$sql="SELECT * FROM room where NAME='$name'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					return array('status'=>false);
+				}else {
+					$data = array(
+				   'NAME' => $value['name'],
+				   // 'NUMBER' => $value['number'],
+				   'FLOOR' => $value['floor'],
+				   'BLOCK_ID' => $value['block_id'],
+				   'BUILDING_ID' => $value['building_id'],			
+				   'INFO' => $value['info'],
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('room', $data); 
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'ROOM_ID'=>$id);
+				}
+			}
+		}
 	    function getRoom_details($id){
 	    	$sql="SELECT * FROM room where ID ='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -464,7 +605,7 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 	    function checkRoom_details($id){
-	    	$sql="SELECT ID,(SELECT ROOM_ID FROM department where ROOM_ID=room.ID)as dept_data,(SELECT ROOM_ID FROM h_allocation where ROOM_ID=room.ID)as h_alloc_data FROM room where ID='$id'";
+	    	$sql="SELECT ID,(SELECT ROOM_ID FROM department where ROOM_ID=room.ID GROUP BY ROOM_ID)as dept_data,(SELECT ROOM_ID FROM h_allocation where ROOM_ID=room.ID GROUP BY ROOM_ID)as h_alloc_data FROM room where ID='$id'";
 			// $sql="SELECT * FROM h_allocation where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			//print_r($result);exit();
@@ -549,6 +690,32 @@
 				FROM institution";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
+	    public function checkInstitutionName($no){
+			// if($id){
+			// 	$sql="SELECT FIRSTNAME FROM institution where FIRSTNAME='$no'";
+			// 	$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// 	if($result){
+			// 		$sql="SELECT FIRSTNAME FROM institution where ID='$id'";
+			// 		$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// 		$admNo=$result[0]['FIRSTNAME'];
+			// 		if($admNo==$no){
+			// 			return false;
+			// 		}else{
+			// 			return true;
+			// 		}
+			// 	}else{
+			// 		return false;
+			// 	}
+			// }else{
+			// 	$sql="SELECT FIRSTNAME FROM institution where FIRSTNAME='$no'";
+			// 	$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// 	if($result){
+			// 		return true;
+			// 	}else{
+			// 		return false;
+			// 	}
+			// }
+		}
 		
 		public function fetchBlockDetails($id){
 			$sql="SELECT * FROM block where BUILDING_ID ='$id'";

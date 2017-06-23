@@ -94,8 +94,8 @@
 		
 		public function checkDepartmentDetails($id){
 			// $sql="SELECT employee_profile.ID as Emp_data,course.ID as course_data FROM employee_profile,course where employee_profile.DEPT_ID='$id' or course.DEPT_ID='$id'";
-			$sql="SELECT ID,(SELECT DEPT_ID FROM employee_profile where DEPT_ID=department.ID)as Emp_data,(SELECT DEPT_ID FROM course where DEPT_ID=department.ID)as course_data FROM department where ID='$id'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			$sql="SELECT ID,(SELECT DEPT_ID FROM employee_profile where DEPT_ID=department.ID GROUP BY DEPT_ID)as Emp_data,(SELECT DEPT_ID FROM course where DEPT_ID=department.ID GROUP BY DEPT_ID)as course_data FROM department where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();	
 			if(isset($result[0]['course_data'])){
 				$status = array('status' => 0, 'message'=>"Department details are assigned to courses");
 				return $status;
@@ -197,7 +197,7 @@
 		}
 		
 		public function checkCourseDetails($id){
-			$sql="SELECT ID,(SELECT COURSE_ID FROM course_batch where COURSE_ID=course.ID)as batch_data,(SELECT COURSE_ID FROM course_subject where COURSE_ID=course.ID)as subject_data,(SELECT COURSE_ID FROM subject_syllabus where COURSE_ID=course.ID)as syllabus_data FROM course where ID='$id'";
+			$sql="SELECT ID,(SELECT COURSE_ID FROM course_batch where COURSE_ID=course.ID GROUP BY COURSE_ID)as batch_data,(SELECT COURSE_ID FROM course_subject where COURSE_ID=course.ID GROUP BY COURSE_ID)as subject_data,(SELECT COURSE_ID FROM subject_syllabus where COURSE_ID=course.ID GROUP BY COURSE_ID)as syllabus_data FROM course where ID='$id'";
 			// $sql="SELECT ID,(SELECT COURSE_ID FROM course_batch where COURSE_ID=course.ID)as batch_data,(SELECT COURSE_ID FROM course_subject where COURSE_ID=course.ID)as subject_data,(SELECT COURSE_ID FROM subject_syllabus where COURSE_ID=course.ID)as syllabus_data,(SELECT ID FROM course_batch where COURSE_ID=course.ID)as courseBacth_data,(SELECT COURSEBATCH_ID FROM student_profile where COURSEBATCH_ID=courseBacth_data)as stud_data FROM course where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if(isset($result[0]['batch_data'])){
@@ -329,9 +329,9 @@
 				$data = array(
 				   'NAME' => $value['NAME'],
 				   'CODE' => $value['CODE'],
-				   'TYPE' => $value['TYPE'],
+				   // 'TYPE' => $value['TYPE'],
 				   'TOTAL_HOURS' => $value['TOTAL_HOURS'],
-				   'CREDIT_HOURS' => $value['CREDIT_HOURS'],
+				   // 'CREDIT_HOURS' => $value['CREDIT_HOURS'],
 				   'CRT_USER_ID' => $value['CRT_USER_ID']
 				);
 				$this->db->insert('subject', $data); 
@@ -357,9 +357,9 @@
 				$data = array(
 				   'NAME' => $value['NAME'],
 				   'CODE' => $value['CODE'],
-				   'TYPE' => $value['TYPE'],
+				   // 'TYPE' => $value['TYPE'],
 				   'TOTAL_HOURS' => $value['TOTAL_HOURS'],
-				   'CREDIT_HOURS' => $value['CREDIT_HOURS'],
+				   // 'CREDIT_HOURS' => $value['CREDIT_HOURS'],
 				   'UPD_USER_ID' => $value['UPD_USER_ID']
 				);
 				$this->db->where('ID', $value['SUBID']);
@@ -418,6 +418,13 @@
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			return $result;
 		}
+		public function getSubjectFilterData($id){
+			$sql="SELECT SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)AS SUBJECT_NAME FROM course_subject where COURSE_ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// echo "<pre>";print_r($result);exit();
+			return $result;
+		}
+
 		
 		public function deleteSubjectDetails($id,$subID){
 			$sql="DELETE FROM subject where ID='$subID'";
@@ -617,15 +624,39 @@
 					return $result;
 				}
 			}else{
-				$sql="SELECT subject.ID,subject.NAME,(SELECT ID FROM subject_syllabus where SUBJECT_ID=subject.ID) AS SUBJECT_ID FROM subject";
+				// $sql="SELECT subject.ID,subject.NAME,(SELECT ID FROM subject_syllabus where SUBJECT_ID=subject.ID) AS SUBJECT_ID FROM subject";
+				// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				// // $data['resulat']=$result;
+				// foreach ($result as $key => $value) {
+				// 	$syl_id=$value['SUBJECT_ID'];
+				// 	$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
+				// 	$result[$key]['syllabus'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+				// }
+				// return $result;
+
+				//modified
+				// $sql="SELECT SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)AS SUBJECT_NAME FROM subject_syllabus";
+				// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				// // $data['resulat']=$result;
+				// foreach ($result as $key => $value) {
+				// 	$syl_id=$value['SUBJECT_ID'];
+				// 	//print_r($syl_id);exit();
+				// 	$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
+				// 	$result[$key]['syllabus'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+				// }
+				// return $result;
+
+
+				$sql="SELECT ID,SUBJECT_ID,(SELECT NAME FROM SUBJECT WHERE ID=SUBJECT_ID) AS SUBJECT_NAME FROM subject_syllabus";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-				// $data['resulat']=$result;
 				foreach ($result as $key => $value) {
-					$syl_id=$value['SUBJECT_ID'];
-					$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
+					$sub_syl_id=$value['ID'];
+					$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$sub_syl_id'";
 					$result[$key]['syllabus'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
 				}
+				//print_r($result);exit();
 				return $result;
+
 			}
 			
 
