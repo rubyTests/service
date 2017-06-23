@@ -325,9 +325,9 @@ class AcademicsAPI extends REST_Controller {
 		$data['SUBID'] = $this->post('sub_id');
 		$data['NAME']=$this->post('subject_name');
 		$data['CODE']=$this->post('sub_code');
-		$data['TYPE']=$this->post('sub_type');
+		// $data['TYPE']=$this->post('sub_type');
 		$data['TOTAL_HOURS']=$this->post('total_hours');
-		$data['CREDIT_HOURS']=$this->post('credit_hours');
+		// $data['CREDIT_HOURS']=$this->post('credit_hours');
 		$data['COURSE_ID']=$this->post('course_id');
 		$data['CRT_USER_ID']=$this->post('SUB_CRT_USER_ID');
 		$data['UPD_USER_ID']=$this->post('SUB_UPD_USER_ID');
@@ -375,6 +375,20 @@ class AcademicsAPI extends REST_Controller {
 				'message' => 'Subject Detail could not be found'
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
+		}
+    }
+    function getSubjectData_get(){
+		$id = $this->get('courseId');
+		$users=$this->academics->getSubjectFilterData($id);
+		if (!empty($users)){
+			$this->set_response(['status' =>TRUE,'message'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Subject Detail could not be found'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}
     }
 	
@@ -521,7 +535,7 @@ class AcademicsAPI extends REST_Controller {
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Course Details could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}
     }
     function fetchSubjectData_get(){

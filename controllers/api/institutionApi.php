@@ -164,16 +164,34 @@ class institutionApi extends REST_Controller {
 	//-------------------------------------  Building ---------------------------------------------------
     function building_post()
     {
-    	$data['id']=$this->post('build_id');
+    	$id=$this->post('build_id');
     	$data['name']=$this->post('build_name');
     	$data['number']=$this->post('bulid_no');
     	$data['landmark']=$this->post('landmark');
-    	$result=$this->institution_model->addbuildingDetails($data);
-    	if($result['status']==true){
-			$this->set_response(['status' =>TRUE,'message'=>$result['message'],'BUILDING_ID'=>$result['BUILDING_ID']], REST_Controller::HTTP_CREATED);
-		}else{
-			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
-		}
+    	
+    	if($id==NULL){
+    		$result=$this->institution_model->addbuildingDetails($data);
+    		if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Building Name Alredy Exists"], REST_Controller::HTTP_CREATED);
+			}
+    	}else{
+    		$result=$this->institution_model->editbuildingDetails($id,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Building Name Alredy Exists"], REST_Controller::HTTP_CREATED);
+			}
+
+    	}
+
+
+  //   	if($result['status']==true){
+		// 	$this->set_response(['status' =>TRUE,'message'=>$result['message'],'BUILDING_ID'=>$result['BUILDING_ID']], REST_Controller::HTTP_CREATED);
+		// }else{
+		// 	$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		// }
     }
     function building_get(){
     	$id=$this->get('id');
@@ -217,7 +235,7 @@ class institutionApi extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Building Details could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
 
 		}else{
@@ -231,7 +249,7 @@ class institutionApi extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => $result['message']
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
     }
@@ -262,16 +280,25 @@ class institutionApi extends REST_Controller {
     function block_post()
     {
     	// print_r($this->post());exit;
-    	$data['id']=$this->post('block_id');
+    	$id=$this->post('block_id');
     	$data['name']=$this->post('block_name');
     	$data['number']=$this->post('block_no');
     	$data['building_id']=$this->post('building_id');
-    	$result=$this->institution_model->addBlockDetails($data);
-    	if($result['status']==true){
-			$this->set_response(['status' =>TRUE,'message'=>$result['message'],'BLOCK_ID'=>$result['BLOCK_ID']], REST_Controller::HTTP_CREATED);
-		}else{
-			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
-		}
+    	if($id == NULL){
+    		$result=$this->institution_model->addBlockDetails($data);
+    		if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Block Name Alredy Exists"], REST_Controller::HTTP_CREATED);
+			}
+    	}else{
+    		$result=$this->institution_model->editBlockDetails($id,$data);
+    		if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Building Name Alredy Exists"], REST_Controller::HTTP_CREATED);
+			}
+    	}
     }
     function block_get(){
     	$id=$this->get('id');
@@ -290,6 +317,35 @@ class institutionApi extends REST_Controller {
 			}
         }else{
         	$result=$this->institution_model->getBlock_details($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Block data could not be found'
+				], REST_Controller::HTTP_NOT_FOUND);
+			}
+        }    			
+	}
+	function checkBlockDetails_get(){
+		$id=$this->get('id');
+		if($id==NULL){
+			$result=$this->institution_model->getAllBlock_details();
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Building Details could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+
+		}else{
+			$result=$this->institution_model->checkBlockDetails($id);
 			//print_r($users);exit();
 			if ($result['status']!=0){
 				$this->set_response(['status' =>TRUE],REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
@@ -299,11 +355,10 @@ class institutionApi extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => $result['message']
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
-        }    			
-	}
-
+		}
+    }
     function block_delete(){
     	$id=$this->delete('id');
     	if ($id == null)
@@ -330,19 +385,34 @@ class institutionApi extends REST_Controller {
     //-------------------------------------  Room ---------------------------------------------------
     function room_post()
     {
-    	$data['id']=$this->post('room_id');
+    	$id=$this->post('room_id');
     	$data['name']=$this->post('room_name');
-    	$data['number']=$this->post('room_no');
+    	// $data['number']=$this->post('room_no');
     	$data['floor']=$this->post('floor');
     	$data['block_id']=$this->post('block_id');
     	$data['building_id']=$this->post('building_id');
     	$data['info']=$this->post('info');
-    	$result=$this->institution_model->addRoomDetails($data);
-    	if($result['status']==true){
-			$this->set_response(['status' =>TRUE,'message'=>$result['message'],'ROOM_ID'=>$result['ROOM_ID']], REST_Controller::HTTP_CREATED);
-		}else{
-			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
-		}
+    	if($id == NULL){
+    		$result=$this->institution_model->addRoomDetails($data);
+    		if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Room Name Alredy Exists"], REST_Controller::HTTP_CREATED);
+			}
+    	}else{
+    		$result=$this->institution_model->editRoomDetailss($id,$data);
+    		if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Room Name Alredy Exists"], REST_Controller::HTTP_CREATED);
+			}
+    	}
+  //   	$result=$this->institution_model->addRoomDetails($data);
+  //   	if($result['status']==true){
+		// 	$this->set_response(['status' =>TRUE,'message'=>$result['message'],'ROOM_ID'=>$result['ROOM_ID']], REST_Controller::HTTP_CREATED);
+		// }else{
+		// 	$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		// }
     }
     function room_get(){
     	$id=$this->get('id');
@@ -386,7 +456,7 @@ class institutionApi extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Data could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
         }else{
         	$result=$this->institution_model->checkRoom_details($id);
@@ -398,7 +468,7 @@ class institutionApi extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => $result['message']
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
         }    			
 	}
@@ -533,6 +603,19 @@ class institutionApi extends REST_Controller {
 			'message' => 'Data could not be found'
 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}  	
+	}
+	function institutionId_get(){
+    	$no=$this->get('institutionName');
+    	$id=$this->get('institutionID');
+    	// print_r($id);exit();
+		$result=$this->institution_model->checkInstitution($no,$id);
+		if ($result==true){
+			$this->set_response(['status' =>FALSE,'message'=>'Admission number already exist'], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>TRUE,'message'=>'Success'], REST_Controller::HTTP_OK);
+		} 			
 	}
 	
 	function blockDetails_get(){
