@@ -133,7 +133,7 @@ class AcademicsAPI extends REST_Controller {
 		$data['DEPT_ID']=$this->post('COURSE_DEPT_ID');
 		$data['ATTENDANCE_TYPE']=$this->post('COURSE_ATTENDANCE_TYPE');
 		$data['PERCENTAGE']=$this->post('COURSE_PERCENTAGE');
-		$data['GARDE_TYPE']=$this->post('COURSE_GARDE_TYPE');
+		// $data['GARDE_TYPE']=$this->post('COURSE_GARDE_TYPE');
 		$data['CRT_USER_ID']=$this->post('COURSE_CRT_USER_ID');
 		$data['UPD_USER_ID']=$this->post('COURSE_UPD_USER_ID');
 		if($id==NULL){
