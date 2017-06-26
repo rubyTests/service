@@ -16,16 +16,24 @@
 				   'CODE' => $value['CODE'],
 				   'HOD' => $value['HOD'],
 				   'PHONE' => $value['PHONE'],
-				   'ROOM_ID' =>$value['ROOM_ID'],
+				   // 'ROOM_ID' =>$value['ROOM_ID'],
 				   'IMAGE' => $value['IMAGE'],
 				   'CRT_USER_ID' => $value['CRT_USER_ID']
 				);
 				$this->db->insert('department', $data); 
 				$dept_id= $this->db->insert_id();
-				if(!empty($dept_id)){
+				$sql1="SELECT NAME,ID FROM department where ID='$dept_id'";
+				$result = $this->db->query($sql1, $resturn_object =TRUE)->result_array();
+				//print_r($result[0]['NAME']);exit();
+				// $result = return array('status'=>true, 'message'=>"Record Inserted Successfully",'DEPT_ID'=>$dept_id);
+				if(!empty($result)){
 					// return true;
-					return array('status'=>true, 'message'=>"Record Inserted Successfully",'DEPT_ID'=>$dept_id);
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'DEPT_NAME'=>$result[0]['NAME'],'DEPT_ID'=>$result[0]['ID']);
 				}
+				// if(!empty($sql1)){
+				// 	// return true;
+				// 	return array('status'=>true, 'message'=>"Record Inserted Successfully",'DEPT_ID'=>$dept_id);
+				// }
 			}
 	    }
 		
@@ -130,14 +138,20 @@
 				   'DEPT_ID' => $value['DEPT_ID'],
 				   'ATTENDANCE_TYPE' => $value['ATTENDANCE_TYPE'],
 				   'PERCENTAGE' => $value['PERCENTAGE'],
-				   'GARDE_TYPE' => $value['GARDE_TYPE'],
+				   // 'GARDE_TYPE' => $value['GARDE_TYPE'],
 				   'CRT_USER_ID' => $value['CRT_USER_ID']
 				);
+				//print_r($data['DEPT_ID']);exit();
 				$this->db->insert('course', $data); 
 				$course_id= $this->db->insert_id();
-				if(!empty($course_id)){
-					return array('status'=>true, 'message'=>"Record Inserted Successfully",'COURSE_ID'=>$course_id);
+				$sql1="SELECT NAME,ID FROM course WHERE ID='$course_id'";
+				$result=$this->db->query($sql1, $return_object = TRUE)->result_array();
+				if(!empty($result)){
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'COURSE_NAME'=>$result[0]['NAME'],'COURSE_ID'=>$result[0]['ID']);
 				}
+				// if(!empty($course_id)){
+				// 	return array('status'=>true, 'message'=>"Record Inserted Successfully",'COURSE_ID'=>$course_id);
+				// }
 			}
 	    }
 		
@@ -151,7 +165,7 @@
 				   'DEPT_ID' => $value['DEPT_ID'],
 				   'ATTENDANCE_TYPE' => $value['ATTENDANCE_TYPE'],
 				   'PERCENTAGE' => $value['PERCENTAGE'],
-				   'GARDE_TYPE' => $value['GARDE_TYPE'],
+				   // 'GARDE_TYPE' => $value['GARDE_TYPE'],
 				   'UPD_USER_ID' => $value['UPD_USER_ID']
 				);
 				$this->db->where('ID', $id);
@@ -169,7 +183,7 @@
 					   'DEPT_ID' => $value['DEPT_ID'],
 					   'ATTENDANCE_TYPE' => $value['ATTENDANCE_TYPE'],
 					   'PERCENTAGE' => $value['PERCENTAGE'],
-					   'GARDE_TYPE' => $value['GARDE_TYPE'],
+					   // 'GARDE_TYPE' => $value['GARDE_TYPE'],
 					   'UPD_USER_ID' => $value['UPD_USER_ID']
 					);
 					$this->db->where('ID', $id);

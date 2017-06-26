@@ -317,7 +317,12 @@
 				);
 				$this->db->insert('building', $data);
 				$build_id=$this->db->insert_id();
-				return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
+				$sql1="SELECT NAME,ID FROM building WHERE ID='$build_id'";
+				$result=$this->db->query($sql1, $return_object = TRUE)->result_array();
+				if(!empty($result)){
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_NAME'=>$result[0]['NAME'],'BUILDING_ID'=>$result[0]['ID']);
+				}
+				// return array('status'=>true, 'message'=>"Record Inserted Successfully",'BUILDING_ID'=>$build_id);
 			}
 			// if($result[0]['count(NAME)']!=0){
 			// 	$data = array(
