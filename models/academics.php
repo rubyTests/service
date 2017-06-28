@@ -672,10 +672,6 @@
 				return $result;
 
 			}
-			
-
-
-
 			// for($i=0;$i<count($result);$i++) {
 			// 	$syl_id=$result[$i]['SUBJECT_ID'];
 			// 	$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
@@ -686,6 +682,16 @@
 
 			//print_r($result);exit;
 			// return $data;
+		}
+		public function getSubjectandSyllabusDetails($courseid){
+			$sql="SELECT ID,SUBJECT_ID,(SELECT NAME FROM SUBJECT WHERE ID=SUBJECT_ID) AS SUBJECT_NAME FROM subject_syllabus WHERE COURSE_ID='$courseid'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			foreach ($result as $key => $value) {
+				$sub_syl_id=$value['ID'];
+				$sql1="SELECT * FROM syllabus where SUB_SYLLABUS_ID='$sub_syl_id'";
+				$result[$key]['syllabus'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			}
+			return $result;
 		}
 		public function getAllSyllabusDetail(){	
 			$sql="SELECT * FROM syllabus";

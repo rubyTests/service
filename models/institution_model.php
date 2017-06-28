@@ -134,6 +134,7 @@
 					   'COUNTRY' => $value['country'],
 					   'ZIP_CODE' => $value['pincode'],
 					);
+					//print_r($location);exit();
 					$this->db->insert('location', $location);
 					$locat_id=$this->db->insert_id();
 					if($locat_id){
