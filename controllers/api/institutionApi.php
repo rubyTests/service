@@ -325,7 +325,7 @@ class institutionApi extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Block data could not be found'
-				], REST_Controller::HTTP_NOT_FOUND);
+				], REST_Controller::HTTP_OK);
 			}
         }    			
 	}

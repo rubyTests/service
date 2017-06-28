@@ -772,4 +772,21 @@ class AcademicsAPI extends REST_Controller {
 			}
 		}
     }
+
+    // Written by Gnanamani on 27-06-17    -  fetch subject and syllabus details
+    function fetchSyllabusListbasedonCourse_get(){
+		$courseid=$this->get('courseid');
+    	$data=$this->academics->getSubjectandSyllabusDetails($courseid);
+    	// print_r($data);exit();
+		if (!empty($data)){
+			$this->set_response(['status' =>TRUE,'data'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Subject Details could not be found'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
+    }
 }
