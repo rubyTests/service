@@ -430,7 +430,12 @@
 				);
 				$this->db->insert('block',$data);
 				$block_id=$this->db->insert_id();
-				return array('status' => true,'message' =>"Record Inserted Successfully",'BLOCK_ID'=>$block_id);
+				$sql1="SELECT NAME,ID FROM block WHERE ID='$block_id'";
+				$result=$this->db->query($sql1, $return_object = TRUE)->result_array();
+				if(!empty($result)){
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'BLOCK_NAME'=>$result[0]['NAME'],'BLOCK_ID'=>$result[0]['ID']);
+				}
+				//return array('status' => true,'message' =>"Record Inserted Successfully",'BLOCK_ID'=>$block_id);
 			}
 			// if($result[0]['count(NAME)']!=0){
 			// 	$data = array(

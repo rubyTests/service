@@ -350,6 +350,11 @@
 				);
 				$this->db->insert('subject', $data); 
 				$subjectID= $this->db->insert_id();
+				$sql1="SELECT NAME,ID FROM subject WHERE ID='$subjectID'";
+					$result=$this->db->query($sql1, $return_object = TRUE)->result_array();
+					if(!empty($result)){
+						return array('status'=>true, 'message'=>"Record Inserted Successfully",'SUBJECT_NAME'=>$result[0]['NAME'],'SUBJECT_ID'=>$result[0]['ID']);
+					}
 				if(!empty($subjectID)){
 					$data = array(
 					   'COURSE_ID' => $value['COURSE_ID'],
@@ -433,9 +438,9 @@
 			return $result;
 		}
 		public function getSubjectFilterData($id){
-			$sql="SELECT SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)AS SUBJECT_NAME FROM course_subject where COURSE_ID='$id'";
+			$sql="SELECT SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)AS NAME FROM course_subject where COURSE_ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// echo "<pre>";print_r($result);exit();
+		   // echo "<pre>";print_r($result);exit();
 			return $result;
 		}
 
