@@ -828,5 +828,10 @@
 			$result1 = $this->db->query($sql1);
 	    	return $this->db->affected_rows();
 		}
+
+		function getEmployeeListBasedonDept($deptid){
+			$sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS EMPLOYEE_NAME FROM EMPLOYEE_PROFILE WHERE DEPT_ID='$deptid'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
 	}
 ?>

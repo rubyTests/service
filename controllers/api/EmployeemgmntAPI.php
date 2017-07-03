@@ -485,4 +485,25 @@ class EmployeemgmntAPI extends REST_Controller {
 			}
 		}
     }
+    function employeeBasicDetails_get(){
+    	$id = $this->get('DEPT_ID');
+		if (!empty($id)){
+			$users=$this->employee_mgmnt_model->getEmployeeListBasedonDept($id);
+			if (!empty($users)){
+				$this->set_response(['status' =>TRUE,'data'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Institute Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}else {
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Institute Detail could not be found'
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}
+    }
 }
