@@ -1957,6 +1957,18 @@
 				return $result1;
 			}
 		}
+
+		public function checkbirthDayList(){
+			$sql="SELECT ID, FIRSTNAME, LASTNAME, IMAGE1, DOB FROM profile WHERE DOB = DATE_FORMAT(CURDATE(), '%m.%d.%Y')";
+			return $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+
+		public function checktodayBirthDayList(){
+			// $sql="SELECT ID, FIRSTNAME, LASTNAME, IMAGE1, DOB, EMAIL, (SELECT NAME FROM course where ID = profile.ID) as courseName, (SELECT NAME FROM course_batch where ID = profile.ID) as batchName FROM profile WHERE DOB = DATE_FORMAT(CURDATE(), '%m.%d.%Y')";
+
+			$sql="SELECT ID, FIRSTNAME, LASTNAME, IMAGE1, DOB, EMAIL, (SELECT NAME FROM course where ID = profile.ID) as courseName, (SELECT NAME FROM course_batch where ID = profile.ID) as batchName FROM profile";
+			return $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
 		
 	}
 ?>

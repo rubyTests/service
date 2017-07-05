@@ -1,10 +1,35 @@
 <?php
 	defined('BASEPATH') OR exit('No direct script access allowed');
-	class librarymodel extends CI_Model {
+	class messagemodel extends CI_Model {
 		
-		public function getAllCategoryDetails(){
-			$sql="SELECT * FROM l_category";
+		public function getProfileDataDetails(){
+			$sql="SELECT ID,FIRSTNAME,LASTNAME,EMAIL FROM profile";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+
+		public function addComposeMsgDetails($values){
+			$data = array(
+				'FROM_ID' => $values['from_id'],
+				'TO_ID' => $values['profile_id'],
+				'PROFILE_ID' => $values['profile_id'],
+				'SUBJECT' => $values['subject'],
+				'MESSAGE' => $values['message'],
+			);
+			$this->db->insert('message', $data);
+			$getId= $this->db->insert_id();
+			if($getId){
+				return $getId;
+			}
+		}
+
+		public function getMessageHeaderList($profileId){
+			$sql="SELECT ID,FROM_ID,TO_ID,SUBJECT,MESSAGE, (SELECT FIRSTNAME FROM profile WHERE ID = TO_ID) AS FNAME, (SELECT LASTNAME FROM profile WHERE ID = TO_ID) AS LNAME FROM message WHERE TO_ID = '$profileId'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+
+		public function getMessageDetailById($Id){
+			$sql="SELECT ID,FROM_ID,TO_ID,SUBJECT,MESSAGE,CRT_DATE, (SELECT FIRSTNAME FROM profile WHERE ID = FROM_ID) AS FNAME, (SELECT LASTNAME FROM profile WHERE ID = FROM_ID) AS LNAME FROM message WHERE ID = '$Id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();	
 		}
 		
 		public function getCategoryDetails($id){

@@ -360,7 +360,7 @@
 					for($i=0;$i<count($value['itemData']);$i++){
 						$data1 = array(
 						   'MATERIAL_REQ_ID' => $req_id,
-						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_name'],
+						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_id'],
 						   'QUANTITY' => $value['itemData'][$i]['item_quantity']
 						);
 						$this->db->insert('material_request_items', $data1);
@@ -436,7 +436,7 @@
 					for($i=0;$i<count($value['itemData']);$i++){
 						$data1 = array(
 						   'PO_ID' => $po_id,
-						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_name'],
+						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_id'],
 						   'QUANTITY' => $value['itemData'][$i]['quantity'],
 						   'PRICE' => $value['itemData'][$i]['unitprice']
 						);
@@ -508,7 +508,7 @@
 					for($i=0;$i<count($value['itemData']);$i++){
 						$data1 = array(
 						   'BILLING_ID' => $invoice_id,
-						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_name'],
+						   'STORE_ITEM_ID' => $value['itemData'][$i]['item_id'],
 						   'QUANTITY' => $value['itemData'][$i]['quantity'],
 						   'PRICE' => $value['itemData'][$i]['unitprice']
 						);
@@ -556,6 +556,197 @@
 			$sql="DELETE FROM billing_items where PO_ID='$id'";
 			$result = $this->db->query($sql);
 	    	return $this->db->affected_rows();
+	    }
+
+	    // GRN Details
+
+	    public function grnPostData($value){
+			$grn_num=$value['grn_number'];
+	    	$sql="SELECT * FROM grn WHERE GRN_NUMBER ='$grn_num'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return array('status'=>false);
+			}else {
+				$data = array(
+				   'GRN_NUMBER' => $value['grn_number'],
+				   'GRN_DATE' => $value['grn_date'],
+				   'PURCHASE_ORDER_ID' => $value['po_id'],
+				   'INVOICE_NO' => $value['invoice_no'],
+				   'INVOICE_DATE' => $value['invoice_date'],
+				   'AMOUNT' => $value['total_amount']
+				);
+				$this->db->insert('grn', $data);
+				$grn_id=$this->db->insert_id();
+				if(!empty($grn_id)){
+
+					for($i=0;$i<count($value['itemData']);$i++){
+						$data1 = array(
+						   'GRN_ID' => $grn_id,
+						   'STORE_ITEM_ID' => $value['itemData'][$i]['STORE_ITEM_ID'],
+						   'QUANTITY' => $value['itemData'][$i]['QUANTITY'],
+						   'PRICE' => $value['itemData'][$i]['PRICE']
+						);
+						$this->db->insert('grn_items', $data1);
+					}
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'GRN_ID'=>$grn_id);
+				}
+			}
+	    }
+
+	    function grnUpdatePostData($id,$value){
+	    	//print_r($value);exit;
+	    	$data = array(
+				   'GRN_NUMBER' => $value['grn_number'],
+				   'GRN_DATE' => $value['grn_date'],
+				   'PURCHASE_ORDER_ID' => $value['po_id'],
+				   'INVOICE_NO' => $value['invoice_no'],
+				   'INVOICE_DATE' => $value['invoice_date'],
+				   'AMOUNT' => $value['total_amount']
+				);
+	    		$this->db->where('ID', $id);
+				$this->db->update('grn', $data);
+				
+				for($i=0;$i<count($value['itemData']);$i++){
+					$data1 = array(
+					   'GRN_ID' => $id,
+					   'STORE_ITEM_ID' => $value['itemData'][$i]['STORE_ITEM_ID'],
+					   'QUANTITY' => $value['itemData'][$i]['QUANTITY'],
+					   'PRICE' => $value['itemData'][$i]['PRICE']
+					);
+					$this->db->where('ID', $value['itemData'][$i]['ID']);
+					$this->db->update('grn_items', $data1);
+				}
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'GRN_ID'=>$id);
+	    }
+
+	    function getAllGRN_details(){
+			 $sql="SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE, 
+			 (SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER, 
+			 (SELECT SUPPLIER_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS SUPP_ID,
+			 (SELECT NAME FROM supplier WHERE ID=SUPP_ID) AS SUPP_NAME, 
+			 (SELECT STORE_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS STORE_ID,
+			 (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM grn";
+			 return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getAllGRNData($id){
+			$sql="SELECT ID,INVOICE_NUMBER,INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM grn where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			foreach ($result as $key => $value) {
+				$billing_id=$value['ID'];
+				$sql1="SELECT ID,BILLING_ID,STORE_ITEM_ID,QUANTITY,PRICE,
+					(select ITEM_ID from store_item where ID=STORE_ITEM_ID) as ITEM_ID,
+					(select NAME from item where ID=ITEM_ID) as ITEM_NAME,
+					(select CODE from item where ID=ITEM_ID) as ITEM_CODE
+					FROM billing_items where BILLING_ID='$billing_id'";
+				$result[$key]['grn_items'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			}
+
+			return $result;
+		}
+
+	    function getGRN_details($id){
+	  		// $sql="SELECT * FROM grn where ID ='$id'";
+			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			$sql="SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE,AMOUNT,
+			(SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER 
+			FROM grn where ID='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			foreach ($result as $key => $value) {
+				$grn_id=$value['ID'];
+				$sql1="SELECT ID,GRN_ID,STORE_ITEM_ID,QUANTITY,PRICE,
+				(select ITEM_ID from store_item where ID=STORE_ITEM_ID) as ITEM_ID,
+				(select NAME from item where ID=ITEM_ID) as ITEM_NAME 
+				 FROM grn_items where GRN_ID='$grn_id'";
+				$result[$key]['grn_items'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			}
+
+			return $result;
+
+	    }
+
+	    function getPurchaseOrderIdItems($id){
+	    	$sql="SELECT ID,PO_ID,STORE_ITEM_ID,QUANTITY,PRICE,
+					(select ITEM_ID from store_item where ID=STORE_ITEM_ID) as ITEM_ID,
+					(select NAME from item where ID=ITEM_ID) as ITEM_NAME 
+					FROM purchase_order_items where PO_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getPurchaseOrderIdUpdateItems($id){
+	    	$sql="SELECT ID,GRN_ID,STORE_ITEM_ID,QUANTITY,PRICE,
+					(select ITEM_ID from store_item where ID=STORE_ITEM_ID) as ITEM_ID,
+					(select NAME from item where ID=ITEM_ID) as ITEM_NAME 
+					FROM grn_items where GRN_ID ='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function deleteGRNData($id){
+	    	// $sql="DELETE FROM supplier WHERE ID='$id'";
+	    	// $result = $this->db->query($sql);
+	    	// return $this->db->affected_rows();
+	    	$sql2="DELETE FROM grn where ID='$id'";
+			$result2 = $this->db->query($sql2);
+
+			$sql="DELETE FROM grn_items where GRN_ID='$id'";
+			$result = $this->db->query($sql);
+	    	return $this->db->affected_rows();
+	    }
+
+	    //Inventory report
+
+	    function getMaterialReport_details($id,$fromDate,$toDate){
+	    	$sql="SELECT ID,REQ_NUMBER,REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request where REQ_DATE BETWEEN '$fromDate' AND '$toDate'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getMaterialReportAll_details($id,$fromDate,$toDate){
+	    	$sql="SELECT ID,REQ_NUMBER,REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getPurchaseOrderReport_details($id,$fromDate,$toDate){
+	    	$sql="SELECT ID,PO_NUMBER,PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order where PO_DATE BETWEEN '$fromDate' AND '$toDate'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    	
+	    }
+
+	    function getPurchaseOrderReportAll_details($id,$fromDate,$toDate){
+	    	$sql="SELECT ID,PO_NUMBER,PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    	
+	    }
+
+	    function getGRNReport_details($id,$fromDate,$toDate){
+
+	   //  	SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE, 
+			 // (SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER, 
+			 // (SELECT SUPPLIER_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS SUPP_ID,
+			 // (SELECT NAME FROM supplier WHERE ID=SUPP_ID) AS SUPP_NAME, 
+			 // (SELECT STORE_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS STORE_ID,
+			 // (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM grn
+
+	    	$sql="SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE, 
+			 (SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER, 
+			 (SELECT SUPPLIER_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS SUPP_ID,
+			 (SELECT NAME FROM supplier WHERE ID=SUPP_ID) AS SUPP_NAME, 
+			 (SELECT STORE_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS STORE_ID,
+			 (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME
+			  FROM grn where GRN_DATE BETWEEN '$fromDate' AND '$toDate'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+
+	    function getGRNReportAll_details($id,$fromDate,$toDate){
+	    	$sql="SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE, 
+			 (SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER, 
+			 (SELECT SUPPLIER_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS SUPP_ID,
+			 (SELECT NAME FROM supplier WHERE ID=SUPP_ID) AS SUPP_NAME, 
+			 (SELECT STORE_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS STORE_ID,
+			 (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM grn";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
 		

@@ -1,23 +1,23 @@
 <?php
 	defined('BASEPATH') OR exit('No direct script access allowed');
-	class librarymodel extends CI_Model {
+	class repositorymodel extends CI_Model {
 		
 		public function getAllCategoryDetails(){
-			$sql="SELECT * FROM l_category";
+			$sql="SELECT * FROM repository_category";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
 		public function getCategoryDetails($id){
-			$sql="SELECT * FROM l_category WHERE ID='$id'";
+			$sql="SELECT * FROM repository_category WHERE ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
 		public function addCategoryDetails($values){
 			$data = array(
 				'NAME' => $values['NAME'],
-				'CODE' => $values['CODE']
+				'DESC' => $values['DESC']
 			);
-			$this->db->insert('l_category', $data);
+			$this->db->insert('repository_category', $data);
 			$getId= $this->db->insert_id();
 			if($getId){
 				return $getId;
@@ -27,27 +27,27 @@
 		public function editCategoryDetails($Id,$values){
 			$data = array(
 				'NAME' => $values['NAME'],
-				'CODE' => $values['CODE']
+				'DESC' => $values['DESC']
 			);
 			$this->db->where('id', $Id);
-			$this->db->update('l_category', $data);
-			return array('status'=>true, 'message'=>"Category Updated Successfully",'BOOK_CAT_ID'=>$Id);
+			$this->db->update('repository_category', $data);
+			return array('status'=>true, 'message'=>"Category Updated Successfully",'REP_CAT_ID'=>$Id);
 		}
 		
 		public function deleteCategoryDetails($id){
-			$sql="DELETE FROM l_category where ID='$id'";
+			$sql="DELETE FROM repository_category where ID='$id'";
 			$result = $this->db->query($sql);
 	    	return $this->db->affected_rows();
 		}
 		
-		public function getAllBookDetails(){
-			$sql="SELECT ID,NAME,CODE,CATEGORY_ID,AUTHOR,ISBN,T_QUANTITY,C_QUANTITY,IMAGE,STATUS, (SELECT NAME FROM l_category WHERE CATEGORY_ID = ID) AS CATEGORY_NAME FROM l_book";
+		public function getAllRepPostDetails(){
+			$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CRT_DT, (SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME FROM repository_post";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
-		public function getBookDetails($id){
+		public function getRepPostDetails($id){
 			// $sql="SELECT ID,NAME,CATEGORY_ID,DEPT_ID,SUBJECT_ID,AUTHOR,	REGULATION,YEAROFPUBLISHED,ISBN,PUBLISHER,EDITION,PRICE,RACKNO,	C_QUANTITY,IMAGE, FROM l_book WHERE ID='$id'";
-			$sql="SELECT * FROM l_book WHERE ID='$id'";
+			$sql="SELECT ID,TITLE,REP_CATEGORY_ID,COURSE_ID,CONTENT,CRT_DT,UPLOAD_FILE, (SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME FROM repository_post WHERE ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 
@@ -60,61 +60,46 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
-		public function addBookDetails($values){
-			for($i=0;$i<$values['T_QUANTITY'];$i++){ 	 	
+		public function addRepPostDetails($values){
+			$filename = $this->fileupload($values['UPLOAD_FILE']['file']);
 				$data = array(
-					'NAME' => $values['NAME'],
-					'CODE' => $values['CODE'] + $i,
-					'CATEGORY_ID' => $values['CATEGORY_ID'],
-					'DEPT_ID' => $values['DEPT_ID'],
-					'SUBJECT_ID' => $values['SUBJECT_ID'],
-					'AUTHOR' => $values['AUTHOR'],
-					'REGULATION' => $values['REGULATION'],
-					'YEAROFPUBLISHED' => $values['YEAROFPUBLISHED'],
-					'ISBN' => $values['ISBN'],
-					'PUBLISHER' => $values['PUBLISHER'],
-					'EDITION' => $values['EDITION'],
-					'PRICE' => $values['PRICE'],
-					'RACKNO' => $values['RACKNO'],
-					'T_QUANTITY' => $values['T_QUANTITY'],
-					'C_QUANTITY' => $values['T_QUANTITY'],
-					'IMAGE' => $values['IMAGE'],
-					'STATUS' => 'Available'
+					'TITLE' => $values['TITLE'],
+					'UPLOAD_FILE' => $filename,
+					'CONTENT' => $values['CONTENT'],
+					'COURSE_ID' => $values['COURSE_ID'],
+					'REP_CATEGORY_ID' => $values['REP_CATEGORY_ID']
 				);
-				$this->db->insert('l_book', $data);
-			}
-			$getId= $this->db->insert_id();
-			if($getId){
-				return $getId;
-			}
+				$this->db->insert('repository_post', $data);
+				$getId= $this->db->insert_id();
+				if($getId){
+					return $getId;
+				}
+		}
+
+		public function fileupload($file){
+				$uploaddir = '../RubyCampus/assets/uploads/';
+				$uploadfile = $uploaddir . basename($file['name']);
+				if (move_uploaded_file($file['tmp_name'], $uploadfile)) {
+				    return $file['name'];
+				}
 		}
 		
-		public function editBookDetails($Id,$values){
+		public function editRepPostDetails($Id,$values){
+			$filename = $this->fileupload($values['UPLOAD_FILE']['file']);
 			$data = array(
-				'NAME' => $values['NAME'],
-				'CODE' => $values['CODE'],
-				'CATEGORY_ID' => $values['CATEGORY_ID'],
-				'DEPT_ID' => $values['DEPT_ID'],
-				'SUBJECT_ID' => $values['SUBJECT_ID'],
-				'AUTHOR' => $values['AUTHOR'],
-				'REGULATION' => $values['REGULATION'],
-				'YEAROFPUBLISHED' => $values['YEAROFPUBLISHED'],
-				'ISBN' => $values['ISBN'],
-				'PUBLISHER' => $values['PUBLISHER'],
-				'EDITION' => $values['EDITION'],
-				'PRICE' => $values['PRICE'],
-				'RACKNO' => $values['RACKNO'],
-				'C_QUANTITY' => $values['T_QUANTITY'],
-				'T_QUANTITY' => $values['T_QUANTITY'],
-				'IMAGE' => $values['IMAGE']
+				'TITLE' => $values['TITLE'],
+				'UPLOAD_FILE' => $filename,
+				'CONTENT' => $values['CONTENT'],
+				'COURSE_ID' => $values['COURSE_ID'],
+				'REP_CATEGORY_ID' => $values['REP_CATEGORY_ID']
 			);
 			$this->db->where('id', $Id);
-			$this->db->update('l_book', $data);
+			$this->db->update('repository_post', $data);
 			return array('status'=>true, 'message'=>"Book Details Updated Successfully",'BOOK_ID'=>$Id);
 		}
 		
-		public function deleteBookDetails($id){
-			$sql="DELETE FROM l_book where ID='$id'";
+		public function deleteRepPostDetails($id){
+			$sql="DELETE FROM repository_post where ID='$id'";
 			$result = $this->db->query($sql);
 	    	return $this->db->affected_rows();
 		}
@@ -206,7 +191,6 @@
 					$currentQty = $result[0]['C_QUANTITY'];
 					$data = array(
 						'C_QUANTITY' => $currentQty - 1,
-						'STATUS' => 'Issued',
 					);
 					$this->db->where('CODE', $bookId);
 					$this->db->update('l_book', $data);
