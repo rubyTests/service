@@ -143,10 +143,15 @@ class GeneralAPI extends REST_Controller {
 			$users=$this->tokenGen($type,$email,$pwd,$client_id);
 			if($users[0]['message']=='Success'){
 				if($type=='phone'){
-					$result=$this->GeneralMod->getPhoneLoginDetail($email,$pwd);
+					// $result=$this->GeneralMod->getPhoneLoginDetail($email,$pwd);					
 				}else{
 					$result=$this->GeneralMod->getEmailLoginDetail($email,$pwd);
 				}
+				// written on 30-06-17
+					// if(isset($result[0]['USER_ID'])){
+						// $privilege=$this->GeneralMod->getPrevilegeDetails($result[0]['USER_ID']);
+						// $result[0]['user_privileges']=$privilege;
+					// }
 				$this->setSessionData($result);
 				$this->set_response(['status' =>TRUE,'access_token'=> $users[0]['token'],'message'=>$result], REST_Controller::HTTP_OK);
 			}else{

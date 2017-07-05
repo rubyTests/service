@@ -2,8 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
 require APPPATH . '/helpers/checktoken_helper.php';
-class institutionApi extends REST_Controller {    
-    function institutionApi()
+class InstitutionAPI extends REST_Controller {    
+    function InstitutionAPI()
     {
 		parent::__construct();
 		header("Access-Control-Allow-Origin: *");

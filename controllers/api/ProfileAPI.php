@@ -420,9 +420,11 @@ class ProfileAPI extends REST_Controller {
 	
 	function studentProfileDetails_get(){
     	$id=$this->get('id');
+    	$roleId=$this->get('roleId');
+    	$profileId=$this->get('profileId');
     	if ($id == null)
         {
-        	$result=$this->profilemodel->getStudentProfileDetailsAll();
+        	$result=$this->profilemodel->getStudentProfileDetailsAll($roleId,$profileId);
         	if (!empty($result)){
 				$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 			}
@@ -512,6 +514,24 @@ class ProfileAPI extends REST_Controller {
 		else
 		{
 			$this->set_response(['status' =>TRUE,'message'=>'Success'], REST_Controller::HTTP_OK);
+		} 			
+	}
+	
+	// Mobile app API for student detail filter with batchId
+	
+	function mStudentDetails_get(){
+    	$batchId=$this->get('batchId');   	
+    	$profileId=$this->get('profileId');   	
+		$result=$this->profilemodel->mGetStudentDetails($batchId,$profileId);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Student Sibling data could not be found'
+			], REST_Controller::HTTP_NOT_FOUND);
 		} 			
 	}
 
