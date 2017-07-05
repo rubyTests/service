@@ -11,7 +11,7 @@
 			$sql="SELECT * FROM l_category WHERE ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
-		
+		 
 		public function addCategoryDetails($values){
 			$data = array(
 				'NAME' => $values['NAME'],
