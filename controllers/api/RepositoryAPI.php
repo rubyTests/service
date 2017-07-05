@@ -19,7 +19,7 @@ class RepositoryAPI extends REST_Controller {
 		checkAccess();
     }
     
-	function rCategory_get(){
+	function Rep_Category_get(){
 		$id=$this->get('id');
 		if($id==null){
 			$result=$this->repositorymodel->getAllCategoryDetails();
@@ -38,10 +38,10 @@ class RepositoryAPI extends REST_Controller {
 		}		
 	}
 	
-	function rCategory_post(){
-		$id=$this->post('id');
-		$data['NAME']=$this->post('name');
-		$data['DESCRIPTION']=$this->post('description');
+	function Rep_Category_post(){
+		$id=$this->post('rep_cat_id');
+		$data['NAME']=$this->post('rep_cat_name');
+		$data['DESC']=$this->post('rep_cat_desc');
 		if($id==null){
 			$result=$this->repositorymodel->addCategoryDetails($data);
 			if (!empty($result)){
@@ -63,7 +63,7 @@ class RepositoryAPI extends REST_Controller {
 		}
 	}
 	
-	function rCategory_delete(){
+	function Rep_Category_delete(){
 		$id=$this->delete('id');
     	if ($id == null)
         {
@@ -71,24 +71,24 @@ class RepositoryAPI extends REST_Controller {
         }else{
 			$result=$this->repositorymodel->deleteCategoryDetails($id);
 			if($result!=0){
-				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
+				$this->set_response(['status'=>TRUE,'message'=>'Category Deleted Successfully'], REST_Controller::HTTP_OK);
 			}else{
 				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
 			}
 		}
 	}
 	
-	function Repository_get(){
+	function Rep_Post_get(){ 
 		$id=$this->get('id');
 		if($id==null){
-			$result=$this->repositorymodel->getAllRepositoryDetails();
+			$result=$this->repositorymodel->getAllRepPostDetails();
 			if (!empty($result)){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 			}else{
 				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
 			}
 		}else{
-			$result=$this->repositorymodel->getRepositoryDetails($id);
+			$result=$this->repositorymodel->getRepPostDetails($id);
 			if (!empty($result)){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 			}else{
@@ -97,36 +97,28 @@ class RepositoryAPI extends REST_Controller {
 		}		
 	}
 	
-	function Repository_post(){
-		$id=$this->post('id');
+	function Rep_Post_post(){
+
+		$id=$this->post('rep_id');
+		$data['TITLE']=$this->post('rep_title');
+		$data['UPLOAD_FILE']=$_FILES;
+		$data['CONTENT']=$this->post('rep_content');
 		$data['COURSE_ID']=$this->post('courseId');
-		$data['CATEGORY_ID']=$this->post('categoryId');
-		$data['DEPT_ID']=$this->post('deptId');
-		$data['SUBJECT_ID']=$this->post('subjectId');
-		$data['AUTHOR']=$this->post('author');
-		$data['REGULATION']=$this->post('regulation');
-		$data['YEAROFPUBLISHED']=$this->post('yearOfPublished');
-		$data['ISBN']=$this->post('ISBN');
-		$data['PUBLISHER']=$this->post('publisher');
-		$data['EDITION']=$this->post('edition');
-		$data['PRICE']=$this->post('price');
-		$data['RACKNO']=$this->post('rackNO');
-		$data['C_QUANTITY']=$this->post('currentQuantity');
-		$data['T_QUANTITY']=$this->post('totalQuantity');
-		$data['IMAGE']=$this->post('image');
+		$data['REP_CATEGORY_ID']=$this->post('categoryId');
+		
 		if($id==null){
-			$result=$this->repositorymodel->addRepositoryDetails($data);
+			$result=$this->repositorymodel->addRepPostDetails($data);
 			if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'message'=>'Book Detail Inserted Successfully'], REST_Controller::HTTP_OK); 
+				$this->set_response(['status' =>TRUE,'message'=>'Repository Post Detail Inserted Successfully'], REST_Controller::HTTP_OK); 
 			}
 			else
 			{
 				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
 			}
 		}else{
-			$result=$this->repositorymodel->editRepositoryDetails($id,$data);
+			$result=$this->repositorymodel->editRepPostDetails($id,$data);
 			if (!empty($result)){
-				$this->set_response(['status' =>TRUE,'message'=>'Book Detail Updated Successfully'], REST_Controller::HTTP_OK);
+				$this->set_response(['status' =>TRUE,'message'=>'Repository Post Detail Updated Successfully'], REST_Controller::HTTP_OK);
 			}
 			else
 			{
@@ -135,13 +127,13 @@ class RepositoryAPI extends REST_Controller {
 		}
 	}
 	
-	function Repository_delete(){
+	function Rep_Post_delete(){
 		$id=$this->delete('id');
     	if ($id == null)
         {
             $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
         }else{
-			$result=$this->repositorymodel->deleteRepositoryDetails($id);
+			$result=$this->repositorymodel->deleteRepPostDetails($id);
 			if($result!=0){
 				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
 			}else{
