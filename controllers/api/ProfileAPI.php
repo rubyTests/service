@@ -514,6 +514,36 @@ class ProfileAPI extends REST_Controller {
 			$this->set_response(['status' =>TRUE,'message'=>'Success'], REST_Controller::HTTP_OK);
 		} 			
 	}
+
+	function birthDayList_get(){
+		$result=$this->profilemodel->checkbirthDayList();
+		
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Student Sibling data could not be found'
+			], REST_Controller::HTTP_NOT_FOUND);
+		} 			
+	}
+
+	function todayBirthDayList_get(){
+		$result=$this->profilemodel->checktodayBirthDayList();
+		
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Student Sibling data could not be found'
+			], REST_Controller::HTTP_NOT_FOUND);
+		} 			
+	}
  
 }
 ?>

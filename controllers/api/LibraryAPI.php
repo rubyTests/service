@@ -39,9 +39,9 @@ class LibraryAPI extends REST_Controller {
 	}
 	
 	function lCategory_post(){
-		$id=$this->post('id');
-		$data['NAME']=$this->post('name');
-		$data['CODE']=$this->post('code');
+		$id=$this->post('book_cat_id');
+		$data['NAME']=$this->post('book_cat_name');
+		$data['CODE']=$this->post('book_cat_code');
 		if($id==null){
 			$result=$this->librarymodel->addCategoryDetails($data);
 			if (!empty($result)){
@@ -71,7 +71,7 @@ class LibraryAPI extends REST_Controller {
         }else{
 			$result=$this->librarymodel->deleteCategoryDetails($id);
 			if($result!=0){
-				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
+				$this->set_response(['status'=>TRUE,'message'=>'Category Deleted Successfully'], REST_Controller::HTTP_OK);
 			}else{
 				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
 			}
@@ -98,8 +98,9 @@ class LibraryAPI extends REST_Controller {
 	}
 	
 	function lBook_post(){
-		$id=$this->post('id');
+		$id=$this->post('book_id');
 		$data['NAME']=$this->post('name');
+		$data['CODE']=$this->post('code');
 		$data['CATEGORY_ID']=$this->post('categoryId');
 		$data['DEPT_ID']=$this->post('deptId');
 		$data['SUBJECT_ID']=$this->post('subjectId');
@@ -111,8 +112,8 @@ class LibraryAPI extends REST_Controller {
 		$data['EDITION']=$this->post('edition');
 		$data['PRICE']=$this->post('price');
 		$data['RACKNO']=$this->post('rackNO');
-		$data['C_QUANTITY']=$this->post('currentQuantity');
 		$data['T_QUANTITY']=$this->post('totalQuantity');
+		// $data['T_QUANTITY']=$this->post('totalQuantity');
 		$data['IMAGE']=$this->post('image');
 		if($id==null){
 			$result=$this->librarymodel->addBookDetails($data);
@@ -149,6 +150,20 @@ class LibraryAPI extends REST_Controller {
 			}
 		}
 	}
+
+	function fetchBookIdViewData_get(){
+		$id=$this->get('id');
+		if($id==null){
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}else{
+			$result=$this->librarymodel->fetchBookIdDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
 	
 	function lBookIssue_get(){
 		$id=$this->get('id');
@@ -170,10 +185,10 @@ class LibraryAPI extends REST_Controller {
 	}
 	
 	function lBookIssue_post(){
-		$id=$this->post('id');
+		$id=$this->post('book_issue_id');
+		$data['BOOK_ID']=$this->post('code');
 		$data['TYPE']=$this->post('type');
 		$data['PROFILE_ID']=$this->post('profileId');
-		$data['BOOK_ID']=$this->post('bookId');
 		$data['ISSUED_DATETIME']=$this->post('issued_date');
 		$data['DUE_DATETIME']=$this->post('due_date');
 		if($id==null){
@@ -196,6 +211,25 @@ class LibraryAPI extends REST_Controller {
 			}
 		}
 	}
+
+	function libraryStudentDetail_get(){
+		$id=$this->get('batchId');
+		if($id==null){
+			$result=$this->librarymodel->getAllBookIssueDetails();
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}else{
+			$result=$this->librarymodel->getBatchStudentDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
 	
 	function lBookIssue_delete(){
 		$id=$this->delete('id');
@@ -210,6 +244,185 @@ class LibraryAPI extends REST_Controller {
 				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
 			}
 		}
+	}
+
+	function fetchBookIssueData_get(){
+		$id=$this->get('id');
+		if($id==null){
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}else{
+			$result=$this->librarymodel->getBookIssueIdData($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}	
+	}
+
+	function lBookReturn_post(){
+		$id=$this->post('book_return_id');
+		$data['BOOK_ISSUE_ID']=$this->post('book_issue_id');
+		$data['RETURN_DATE']=$this->post('return_date');
+		$data['REMARK']=$this->post('remark');
+		$data['BOOK_ID']=$this->post('book_code');
+		if($id==null){
+			$result=$this->librarymodel->addBookReturnDetails($data);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>'Book Returned Successfully'], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}else{
+			$result=$this->librarymodel->editBookIssueDetails($id,$data);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>'Book Issued Detail Updated Successfully'], REST_Controller::HTTP_OK);
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+
+	function lBookReturn_get(){
+		$id=$this->get('id');
+		if($id==null){
+			$result=$this->librarymodel->getAllBookReturnDetails();
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}else{
+			$result=$this->librarymodel->getBookReturnDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}		
+	}
+
+	function fetchBookReturnIdViewData_get(){
+		$id=$this->get('id');
+		if($id==null){
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}else{
+			$result=$this->librarymodel->getBookReturnIdViewData($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}	
+	}
+
+	// Library Report
+
+	function IssuedBookReport_get(){
+		$id=$this->get('id');
+    	$fromDate=$this->get('fromDate');
+    	$toDate=$this->get('toDate');
+    	if ($id != null)
+        {
+        	
+        	if( $fromDate != NULL && $toDate !=NULL ){
+        		$result=$this->librarymodel->getIssuedBookReport_details($fromDate,$toDate);
+        	}else{
+        		$result=$this->librarymodel->getIssuedBookReportAll_details();
+        	}
+
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Book Issued data could not be found'
+				], REST_Controller::HTTP_OK);
+			}
+        }
+	}
+
+	function StudentBookReport_get(){
+		$id=$this->get('id');
+    	$type=$this->get('type');
+    	if ($id != null)
+        {
+        	
+        	if( $type == "Issued Report" ){
+        		$result=$this->librarymodel->getStudentIssuedBookReport_details($id);
+        	}else if( $type == "Returned Report" ){
+        		$result=$this->librarymodel->getStudentReturnedBookReport_details($id);
+        	}
+
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Book Issued data could not be found'
+				], REST_Controller::HTTP_OK);
+			}
+        }
+	}
+
+	function stuReportAutocomplete_get(){
+		$result=$this->librarymodel->getStuReportAutocompleteData();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+
+	function autoGenBookCode_get(){
+		$result=$this->librarymodel->getAutoGenBookCode();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+
+	function empReportAutocomplete_get(){
+		$result=$this->librarymodel->getEmpReportAutocompleteData();
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+
+	function EmployeeBookReport_get(){
+		$id=$this->get('id');
+    	$type=$this->get('type');
+    	if ($id != null)
+        {
+        	
+        	if( $type == "Issued Report" ){
+        		$result=$this->librarymodel->getEmployeeIssuedBookReport_details($id);
+        	}else if( $type == "Returned Report" ){
+        		$result=$this->librarymodel->getEmployeeReturnedBookReport_details($id);
+        	}
+
+    		if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Book Issued data could not be found'
+				], REST_Controller::HTTP_OK);
+			}
+        }
 	}
 	
 }
