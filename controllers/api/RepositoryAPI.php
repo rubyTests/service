@@ -149,5 +149,19 @@ class RepositoryAPI extends REST_Controller {
 			}
 		}
 	}
+ 
+	function fetchBookIdViewData_get(){
+		$id=$this->get('id');
+		if($id==null){
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}else{
+			$result=$this->repositorymodel->fetchBookIdDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
 }
 ?>
