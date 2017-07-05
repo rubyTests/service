@@ -4,7 +4,7 @@ function checkTokenAccess(){
     $ci =& get_instance();
     //$user_token=$ci->session->userdata('user_token');//// if session works
         $headers = apache_request_headers();
-
+// print_r($headers);exit;
         if(array_key_exists('access_token', $headers) ){
                 $tokenFromUI = $headers['access_token'];
                 $sql="SELECT count(1) 'count',user_id FROM oauth_access_tokens where access_token='$tokenFromUI'";
@@ -58,8 +58,8 @@ function checkAccess(){
 		$resultofApi = $ci->db->query($sql, $return_object = TRUE)->result_array();
         $accessA[]=$resultofApi[0]['USER_READ'];
         $accessA[]=$resultofApi[0]['USER_WRITE'];
-        $accessA[]=$resultofApi[0]['USER_EDIT'];
         $accessA[]=$resultofApi[0]['USER_DELETE'];
+		$accessA[]=$resultofApi[0]['USER_EDIT'];
         $roleID=$resultofApi[0]['USER_DELETE'];
 
         if(!count($resultofApi)>0){
@@ -86,6 +86,7 @@ function checkAccess(){
         foreach ($result as $key => $value) {
             if($value['api_end_points']==$href){
                 $checkM=checkMethod($methodtype,$accessA);
+				//print_r($checkM);exit;
                 if($checkM)
                     $access=true;
                 else
@@ -104,7 +105,7 @@ function checkAccess(){
 
 }
 function checkMethod($methodtype,$accessA){
-    if($methodtype=="GET" && $accessA[0]=='Y'){
+	if($methodtype=="GET" && $accessA[0]=='Y'){
         return true;
     }else if($methodtype=="POST" && $accessA[1]=='Y'){
         return true;
