@@ -386,8 +386,10 @@
 			
 			if($values['father']['relationId']!=0){
 				$frel_id=$values['father']['relationId'];
+				//print_r($frel_id);exit;
 				$sql="SELECT PROF_ID FROM student_relation where ID='$frel_id'";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				//print_r($result);exit;
 				if($result){
 					$proId=$result[0]['PROF_ID'];
 					$sql="SELECT EMAIL,PHONE_NO_1,EMAIL_VERIFIED,PHONE_NO_1_VERIFIED,EMAIL_STATUS,PHONE_STATUS,LOCATION_ID FROM profile where ID='$proId'";
@@ -426,7 +428,7 @@
 					);
 					$this->db->where('ID', $proId);
 					$this->db->update('profile', $data1);
-					
+					// print_r($data1);exit;
 					if($values['father']['p_email']==$email){
 						$data1 = array(
 							'EMAIL' => $values['father']['p_email'],
@@ -743,8 +745,6 @@
 						$grel_id='';
 				}
 			}
-			
-
 			return array(['frelation_id' => $frel_id,'mrelation_id'=> $mrel_id,'grelation_id' => $grel_id]);
 		}
 	
@@ -1057,70 +1057,118 @@
 			
 			$sql="SELECT * FROM student_profile where PROFILE_ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			$data['batchId']=$result[0]['COURSEBATCH_ID'];
-			$data['selectize_cat']=$result[0]['STUDENTCATEGORY_ID'];
-			$data['selectize_styType']=$result[0]['STUDENT_TYPE'];
-			$data['student_lives']=$result[0]['STUDENT_LIVES'];
-			$data['roll_no']=$result[0]['ROLL_NO'];
-			$data['stuPro_id']=$result[0]['ID'];
-			$data['maillingAddressId']=$result[0]['MAILLING_ADDRESS_ID'];
-			$maillingAddressId=$result[0]['MAILLING_ADDRESS_ID'];
-			$pre_eduId=$result[0]['PREVIOUSEDUCATION_ID'];
-			$stu_proId=$result[0]['ID'];
-			$batchId=$result[0]['COURSEBATCH_ID'];
-			//print_r($stu_proId);exit;
-			
-			// Course Batch Details
-			
-			$sql="SELECT NAME,COURSE_ID,PERIOD_FROM,PERIOD_TO,(SELECT NAME FROM course where ID=course_batch.COURSE_ID)as courseName,(SELECT DEPT_ID FROM course where ID=course_batch.COURSE_ID)as deptId,(SELECT NAME FROM department where ID=deptId)as deptName FROM course_batch where ID='$batchId'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			$data['batch_name']=$result[0]['NAME'];
-			$data['course_id']=$result[0]['COURSE_ID'];
-			$data['course_name']=$result[0]['courseName'];
-			$data['dept_id']=$result[0]['deptId'];
-			$data['dept_name']=$result[0]['deptName'];
-			$data['batch_from']=$result[0]['PERIOD_FROM'];
-			$data['batch_to']=$result[0]['PERIOD_TO'];
-			
-			//Sibling Details
-			
-			$sql="SELECT * FROM student_relation WHERE RELATION_TYPE='Sibling' AND STU_PROF_ID='$stu_proId'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
-				$data['sibling_id']=$result[0]['PROF_ID'];
-				$sibling_id=$result[0]['PROF_ID'];
-				$sql="SELECT FIRSTNAME,LASTNAME FROM profile WHERE ID='$sibling_id'";
-				$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($result1){
-					$data['sibling_name']=$result1[0]['FIRSTNAME'];
+				$data['batchId']=$result[0]['COURSEBATCH_ID'];
+				$data['selectize_cat']=$result[0]['STUDENTCATEGORY_ID'];
+				$data['selectize_styType']=$result[0]['STUDENT_TYPE'];
+				$data['student_lives']=$result[0]['STUDENT_LIVES'];
+				$data['roll_no']=$result[0]['ROLL_NO'];
+				$data['stuPro_id']=$result[0]['ID'];
+				$data['maillingAddressId']=$result[0]['MAILLING_ADDRESS_ID'];
+				$maillingAddressId=$result[0]['MAILLING_ADDRESS_ID'];
+				$pre_eduId=$result[0]['PREVIOUSEDUCATION_ID'];
+				$stu_proId=$result[0]['ID'];
+				$batchId=$result[0]['COURSEBATCH_ID'];
+				
+				// Course Batch Details
+			
+				$sql="SELECT NAME,COURSE_ID,PERIOD_FROM,PERIOD_TO,(SELECT NAME FROM course where ID=course_batch.COURSE_ID)as courseName,(SELECT DEPT_ID FROM course where ID=course_batch.COURSE_ID)as deptId,(SELECT NAME FROM department where ID=deptId)as deptName FROM course_batch where ID='$batchId'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$data['batch_name']=$result[0]['NAME'];
+					$data['course_id']=$result[0]['COURSE_ID'];
+					$data['course_name']=$result[0]['courseName'];
+					$data['dept_id']=$result[0]['deptId'];
+					$data['dept_name']=$result[0]['deptName'];
+					$data['batch_from']=$result[0]['PERIOD_FROM'];
+					$data['batch_to']=$result[0]['PERIOD_TO'];
 				}
-				$sql="SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID='$sibling_id'";
-				$result2 = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($result2){
-					$sibling_batchId=$result2[0]['COURSEBATCH_ID'];
-					$sql="SELECT ID,NAME,COURSE_ID,(SELECT NAME FROM course where ID=course_batch.COURSE_ID)as courseName FROM course_batch where ID='$sibling_batchId'";
-					$result3 = $this->db->query($sql, $return_object = TRUE)->result_array();
-					$data['sibling_batchId']=$result3[0]['ID'];
-					$data['sibling_batchName']=$result3[0]['NAME'];
-					$data['sibling_courseId']=$result3[0]['COURSE_ID'];
-					$data['sibling_courseName']=$result3[0]['courseName'];
+				
+				//Sibling Details
+				
+				$sql="SELECT * FROM student_relation WHERE RELATION_TYPE='Sibling' AND STU_PROF_ID='$stu_proId'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$data['sibling_id']=$result[0]['PROF_ID'];
+					$sibling_id=$result[0]['PROF_ID'];
+					$sql="SELECT FIRSTNAME,LASTNAME FROM profile WHERE ID='$sibling_id'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result1){
+						$data['sibling_name']=$result1[0]['FIRSTNAME'];
+					}
+					$sql="SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID='$sibling_id'";
+					$result2 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result2){
+						$sibling_batchId=$result2[0]['COURSEBATCH_ID'];
+						$sql="SELECT ID,NAME,COURSE_ID,(SELECT NAME FROM course where ID=course_batch.COURSE_ID)as courseName FROM course_batch where ID='$sibling_batchId'";
+						$result3 = $this->db->query($sql, $return_object = TRUE)->result_array();
+						$data['sibling_batchId']=$result3[0]['ID'];
+						$data['sibling_batchName']=$result3[0]['NAME'];
+						$data['sibling_courseId']=$result3[0]['COURSE_ID'];
+						$data['sibling_courseName']=$result3[0]['courseName'];
+					}
 				}
+				
+				// Location Details
+				$sql="SELECT * FROM location where ID='$maillingAddressId'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$data['mail_address']=$result[0]['ADDRESS'];
+					$data['mail_city']=$result[0]['CITY'];
+					$data['mail_state']=$result[0]['STATE'];
+					$data['mail_country']=$result[0]['COUNTRY'];
+					$data['mail_pincode']=$result[0]['ZIP_CODE'];
+					$countryId=$result[0]['COUNTRY'];
+					$sql="SELECT NAME FROM country where ID='$countryId'";
+					$country = $this->db->query($sql, $return_object = TRUE)->result_array();
+					$data['mail_country_name']=$country[0]['NAME'];
+				}
+				
+				// Parents Details
+				$sql="SELECT *,p.ID as parent_ProId,px.ID as proEx_ID,re.ID as relationId FROM profile p,student_relation re,location l,profile_extra px where re.PROF_ID=p.ID AND p.LOCATION_ID=l.ID AND px.PROFILE_ID=p.ID AND STU_PROF_ID='$stu_proId'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					foreach($result as $key => $value){
+						$data1[$key]['pRel_id']=$value['relationId'];
+						$data1[$key]['pPro_id']=$value['parent_ProId'];
+						$data1[$key]['pProEx_id']=$value['proEx_ID'];
+						$data1[$key]['p_first_name']=$value['FIRSTNAME'];
+						$data1[$key]['p_last_name']=$value['LASTNAME'];
+						$data1[$key]['p_relation']=$value['RELATION_TYPE'];
+						$data1[$key]['availabe']=$value['AVAILABLE'];
+						$data1[$key]['p_dob']=$value['DOB'];
+						$data1[$key]['p_education']=$value['EDUCATION'];
+						$data1[$key]['occupation']=$value['OCCUPATION'];
+						$data1[$key]['p_income']=$value['INCOME'];
+						$data1[$key]['pr_address']=$value['ADDRESS'];
+						$data1[$key]['pr_city']=$value['CITY'];
+						$data1[$key]['pr_state']=$value['STATE'];
+						$data1[$key]['pr_pincode']=$value['ZIP_CODE'];
+						$data1[$key]['pr_country']=$value['COUNTRY'];
+						$data1[$key]['p_phone']=$value['PHONE_NO_1'];
+						$data1[$key]['p_mobile_no']=$value['PHONE_NO_2'];
+						$data1[$key]['p_email']=$value['EMAIL'];
+						$data1[$key]['locationId']=$value['LOCATION_ID'];
+						$data1[$key]['student_profile_id']=$value['STU_PROF_ID'];
+						$data1[$key]['p_facebook']=$value['FACEBOOK_LINK'];
+						$data1[$key]['p_google']=$value['GOOGLE_LINK'];
+						$data1[$key]['p_linkedin']=$value['LINKEDIN_LINK'];
+						$data1[$key]['profileId']=$id;
+						$countryId=$value['COUNTRY'];
+						$sql="SELECT NAME FROM country where ID='$countryId'";
+						$country = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($country){
+							$data1[$key]['country_name']=$country[0]['NAME'];
+						}
+					}
+				}else{
+					$data1="";
+				}
+				
+			}else{
+				$data1="";
 			}
 			
-			
-			$sql="SELECT * FROM location where ID='$maillingAddressId'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result){
-				$data['mail_address']=$result[0]['ADDRESS'];
-				$data['mail_city']=$result[0]['CITY'];
-				$data['mail_state']=$result[0]['STATE'];
-				$data['mail_country']=$result[0]['COUNTRY'];
-				$data['mail_pincode']=$result[0]['ZIP_CODE'];
-				$countryId=$result[0]['COUNTRY'];
-				$sql="SELECT NAME FROM country where ID='$countryId'";
-				$country = $this->db->query($sql, $return_object = TRUE)->result_array();
-				$data['mail_country_name']=$country[0]['NAME'];
-			}
 			
 			$sql="SELECT ID,INSTITUTE,LEVEL,YEAR_COMPLETION,TOTAL_GRADE FROM previous_education where PROFILE_ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -1136,61 +1184,7 @@
 				$data2="";
 			}
 			
-			//$sql="SELECT * FROM profile p,student_relation re,location l,profile_extra px where re.PROF_ID=p.ID AND p.LOCATION_ID=l.ID AND px.PROFILE_ID=p.ID AND STU_PROF_ID='$stu_proId'";
-			$sql="SELECT *,p.ID as parent_ProId,px.ID as proEx_ID FROM profile p,student_relation re,location l,profile_extra px where re.PROF_ID=p.ID AND p.LOCATION_ID=l.ID AND px.PROFILE_ID=p.ID AND STU_PROF_ID='$stu_proId'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result){
-				foreach($result as $key => $value){
-					$data1[$key]['pPro_id']=$value['parent_ProId'];
-					$data1[$key]['pProEx_id']=$value['proEx_ID'];
-					$data1[$key]['p_first_name']=$value['FIRSTNAME'];
-					$data1[$key]['p_last_name']=$value['LASTNAME'];
-					$data1[$key]['p_relation']=$value['RELATION_TYPE'];
-					$data1[$key]['availabe']=$value['AVAILABLE'];
-					$data1[$key]['p_dob']=$value['DOB'];
-					$data1[$key]['p_education']=$value['EDUCATION'];
-					$data1[$key]['occupation']=$value['OCCUPATION'];
-					$data1[$key]['p_income']=$value['INCOME'];
-					$data1[$key]['pr_address']=$value['ADDRESS'];
-					$data1[$key]['pr_city']=$value['CITY'];
-					$data1[$key]['pr_state']=$value['STATE'];
-					$data1[$key]['pr_pincode']=$value['ZIP_CODE'];
-					$data1[$key]['pr_country']=$value['COUNTRY'];
-					$data1[$key]['p_phone']=$value['PHONE_NO_1'];
-					$data1[$key]['p_mobile_no']=$value['PHONE_NO_2'];
-					$data1[$key]['p_email']=$value['EMAIL'];
-					$data1[$key]['locationId']=$value['LOCATION_ID'];
-					$data1[$key]['student_profile_id']=$value['STU_PROF_ID'];
-					$data1[$key]['p_facebook']=$value['FACEBOOK_LINK'];
-					$data1[$key]['p_google']=$value['GOOGLE_LINK'];
-					$data1[$key]['p_linkedin']=$value['LINKEDIN_LINK'];
-					$data1[$key]['profileId']=$id;
-					$countryId=$value['COUNTRY'];
-					$sql="SELECT NAME FROM country where ID='$countryId'";
-					$country = $this->db->query($sql, $return_object = TRUE)->result_array();
-					if($country){
-						$data1[$key]['country_name']=$country[0]['NAME'];
-					}
-				}
-			}else{
-				$data1="";
-			}
-			
-			
-			
-			// $sql="SELECT * FROM location";
-			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// foreach($result as $key => $value){
-				// $data[$key]['address']=$value['ADDRESS'];
-				// $data[$key]['stu_city']=$value['CITY'];
-				// $data[$key]['stu_state']=$value['STATE'];
-				// $data[$key]['country']=$value['COUNTRY'];
-				// $data[$key]['pincode']=$value['ZIP_CODE'];
-				// //print_r($data);
-			// }
-			
-			//exit;
-			 return array(['user_detail' => $data,'user_parents'=> $data1,'pre_edu'=> $data2]);
+			return array(['user_detail' => $data,'user_parents'=> $data1,'pre_edu'=> $data2]);
 		}
 		
 		public function profileEdit($values){
@@ -1314,35 +1308,71 @@
 		
 		// Get Student Profile
 		
-		public function getStudentProfileDetailsAll(){
-			$sql="SELECT * FROM student_profile";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			foreach($result as $key => $value){
-				$data[$key]['profileId']=$value['PROFILE_ID'];
-				$pId=$value['PROFILE_ID'];
-				$cbId=$value['COURSEBATCH_ID'];
-				$sql="SELECT ADMISSION_NO,FIRSTNAME,LASTNAME,IMAGE1,EMAIL,PHONE_NO_1 FROM profile where ID='$pId'";
-				$proDetail = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($proDetail){
-					$data[$key]['adm_no']=$proDetail[0]['ADMISSION_NO'];
-				$data[$key]['fname']=$proDetail[0]['FIRSTNAME'];
-				$data[$key]['lname']=$proDetail[0]['LASTNAME'];
-				$data[$key]['image']=$proDetail[0]['IMAGE1'];
-				$data[$key]['email']=$proDetail[0]['EMAIL'];
-				$data[$key]['phone']=$proDetail[0]['PHONE_NO_1'];
+		public function getStudentProfileDetailsAll($roleId,$profileId){
+			if($roleId==4){
+				$sql="SELECT STU_PROF_ID FROM student_relation WHERE PROF_ID='$profileId'";
+				$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($res){
+					$pId=$res[0]['STU_PROF_ID'];
+					$sql="SELECT * FROM student_profile WHERE ID='$pId'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					foreach($result as $key => $value){
+						$data[$key]['profileId']=$value['PROFILE_ID'];
+						$pId=$value['PROFILE_ID'];
+						$cbId=$value['COURSEBATCH_ID'];
+						$sql="SELECT ADMISSION_NO,FIRSTNAME,LASTNAME,IMAGE1,EMAIL,PHONE_NO_1 FROM profile where ID='$pId'";
+						$proDetail = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($proDetail){
+							$data[$key]['adm_no']=$proDetail[0]['ADMISSION_NO'];
+						$data[$key]['fname']=$proDetail[0]['FIRSTNAME'];
+						$data[$key]['lname']=$proDetail[0]['LASTNAME'];
+						$data[$key]['image']=$proDetail[0]['IMAGE1'];
+						$data[$key]['email']=$proDetail[0]['EMAIL'];
+						$data[$key]['phone']=$proDetail[0]['PHONE_NO_1'];
+						}
+						
+						$sql="SELECT NAME,COURSE_ID,(SELECT NAME FROM course where ID=course_batch.COURSE_ID)as courseName,(SELECT DEPT_ID FROM course where ID=course_batch.COURSE_ID)as deptId,(SELECT NAME FROM department where ID=deptId)as deptName FROM course_batch where ID='$cbId'";
+						$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($result){
+							$data[$key]['batch_name']=$result[0]['NAME'];
+						$data[$key]['course_id']=$result[0]['COURSE_ID'];
+						$data[$key]['course_name']=$result[0]['courseName'];
+						$data[$key]['dept_id']=$result[0]['deptId'];
+						$data[$key]['dept_name']=$result[0]['deptName'];
+						}
+					}
+					return $data;
 				}
-				
-				$sql="SELECT NAME,COURSE_ID,(SELECT NAME FROM course where ID=course_batch.COURSE_ID)as courseName,(SELECT DEPT_ID FROM course where ID=course_batch.COURSE_ID)as deptId,(SELECT NAME FROM department where ID=deptId)as deptName FROM course_batch where ID='$cbId'";
+			}else{
+				$sql="SELECT * FROM student_profile";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($result){
-					$data[$key]['batch_name']=$result[0]['NAME'];
-				$data[$key]['course_id']=$result[0]['COURSE_ID'];
-				$data[$key]['course_name']=$result[0]['courseName'];
-				$data[$key]['dept_id']=$result[0]['deptId'];
-				$data[$key]['dept_name']=$result[0]['deptName'];
+				foreach($result as $key => $value){
+					$data[$key]['profileId']=$value['PROFILE_ID'];
+					$pId=$value['PROFILE_ID'];
+					$cbId=$value['COURSEBATCH_ID'];
+					$sql="SELECT ADMISSION_NO,FIRSTNAME,LASTNAME,IMAGE1,EMAIL,PHONE_NO_1 FROM profile where ID='$pId'";
+					$proDetail = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($proDetail){
+						$data[$key]['adm_no']=$proDetail[0]['ADMISSION_NO'];
+					$data[$key]['fname']=$proDetail[0]['FIRSTNAME'];
+					$data[$key]['lname']=$proDetail[0]['LASTNAME'];
+					$data[$key]['image']=$proDetail[0]['IMAGE1'];
+					$data[$key]['email']=$proDetail[0]['EMAIL'];
+					$data[$key]['phone']=$proDetail[0]['PHONE_NO_1'];
+					}
+					
+					$sql="SELECT NAME,COURSE_ID,(SELECT NAME FROM course where ID=course_batch.COURSE_ID)as courseName,(SELECT DEPT_ID FROM course where ID=course_batch.COURSE_ID)as deptId,(SELECT NAME FROM department where ID=deptId)as deptName FROM course_batch where ID='$cbId'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						$data[$key]['batch_name']=$result[0]['NAME'];
+					$data[$key]['course_id']=$result[0]['COURSE_ID'];
+					$data[$key]['course_name']=$result[0]['courseName'];
+					$data[$key]['dept_id']=$result[0]['deptId'];
+					$data[$key]['dept_name']=$result[0]['deptName'];
+					}
 				}
+				return $data;
 			}
-			return $data;
 		}
 		
 		public function getStudentProfileDetails($id){
@@ -1968,6 +1998,15 @@
 
 			$sql="SELECT ID, FIRSTNAME, LASTNAME, IMAGE1, DOB, EMAIL, (SELECT NAME FROM course where ID = profile.ID) as courseName, (SELECT NAME FROM course_batch where ID = profile.ID) as batchName FROM profile";
 			return $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
+		// Mobile app API for student detail filter with batchId
+		
+		public function mGetStudentDetails($batchId,$profileId){
+			$sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as PROFILE_NAME,(SELECT ADMISSION_NO FROM profile where ID=PROFILE_ID)as ADMISSION_NO FROM student_profile WHERE COURSEBATCH_ID='$batchId'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			return $result;
+			
 		}
 		
 	}

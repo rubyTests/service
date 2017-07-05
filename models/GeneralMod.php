@@ -269,5 +269,12 @@
 				return $result;
 			}
 		}
+		public function getPrevilegeDetails($id){
+			$sql="SELECT * FROM user_privileges where user_id='$id'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				return $result;
+			}
+		}
 	}
 ?>
