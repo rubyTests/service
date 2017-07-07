@@ -152,6 +152,7 @@
 			$empID=$value['employee_id'];
 			$val = $value['total_leave'];
 			$res=explode("-",$val);
+			// print_r($res);exit;
 			$totaleLeave=$res[1];
 			$data = array(
 			   'LEAVE_TYPE_ID' => $value['leave_typeID'],
@@ -163,7 +164,8 @@
 			   'STATUS' => 'Pending',
 			);
 			$this->db->insert('employee_leave', $data);
-			return array('status'=>true, 'message'=>"Record Inserted Successfully"); 		
+			$apply_id= $this->db->insert_id();
+			return array('status'=>true, 'message'=>"Record Inserted Successfully",'APPLY_ID'=>$apply_id); 		
 	    }
 
 	    function getViewdataforApplyLeave($id){
@@ -196,6 +198,10 @@
 	    	$sql="DELETE FROM employee_leave where ID='$id'";
 			$result = $this->db->query($sql);
 			return $this->db->affected_rows();
+	    }
+	    function checkandgetEmployeeEmail($empid){
+	    	$sql="SELECT PROFILE_ID,(SELECT EMAIL FROM PROFILE WHERE ID=PROFILE_ID) AS EMAIL_ID FROM employee_profile WHERE ID='$empid'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 	}
 ?>

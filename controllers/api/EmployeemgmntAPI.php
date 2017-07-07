@@ -13,6 +13,18 @@ class EmployeemgmntAPI extends REST_Controller {
 		$userIDByToken="";
 		checkTokenAccess();
 		checkAccess();
+		$config = Array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'ssl://smtp.googlemail.com',
+			'smtp_port' => 465,
+			'smtp_user' => 'manisrikan@gmail.com', // change it to yours
+			'smtp_pass' => 'mani16121993', // change it to yours
+			'mailtype' => 'html',
+			'charset' => 'iso-8859-1',
+			'wordwrap' => TRUE
+		);
+		// $this->load->library('email');
+		$this->load->library('email', $config);
     }
 
     // Employee category
@@ -196,6 +208,7 @@ class EmployeemgmntAPI extends REST_Controller {
 		$data['mobile_no']=$this->post('mobile_no');
 		$data['email']=$this->post('email');
 		$data['ProfileID']=$this->post('ProfileID');
+		$data['report_to']=$this->post('report_to');
 		if($id==NULL){
 			$result=$this->employee_mgmnt_model->addEmployeeAdmissionDetails($data);
 			if($result['status']==true){
@@ -292,7 +305,7 @@ class EmployeemgmntAPI extends REST_Controller {
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Details could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}
 	}
 	function getEmployeeList_get(){
@@ -505,5 +518,60 @@ class EmployeemgmntAPI extends REST_Controller {
 			'message' => 'Record could not be found'
 			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}
+    }
+
+    // Employee Search
+
+  //   function employeeSearch_get(){
+  //   	$search = $this->get('searchField');
+		// if (!empty($search)){
+		// 	$users=$this->employee_mgmnt_model->getEmployeeSearchDetails($search);
+		// 	if (!empty($users)){
+		// 		$this->set_response(['status' =>TRUE,'data'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		// 	}
+		// 	else
+		// 	{
+		// 		$this->set_response([
+		// 		'status' => FALSE,
+		// 		'message' => 'Record could not be found'
+		// 		], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		// 	}
+		// }else {
+		// 	$this->set_response([
+		// 	'status' => FALSE,
+		// 	'message' => 'Record could not be found'
+		// 	], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		// }
+  //   }
+
+    // Send Email
+    function sendEmail_post(){
+    	$empid=$this->post('emp_prof_Id');
+    	$result=$this->employee_mgmnt_model->checkEmail($empid);
+    	
+    	if(isset($result[0]['MAIL_ID'])){
+    		$data=$this->employee_mgmnt_model->addMailDetails($result[0]['MAIL_ID']);
+    		// print_r($data['EMAIL_LOG_ID']);exit;
+    		if($data){
+    			$message='Hi '.$result[0]['EMPLOYEE_NAME'];
+				$this->email->set_newline("\r\n");
+				$this->email->from('rvijayaraj24@gmail.com'); // change it to yours
+				$this->email->to($result[0]['MAIL_ID']);
+				$this->email->subject('Rubycampus');
+				$this->email->message($message);
+				if (!$this->email->send())
+				{
+					show_error($this->email->print_debugger());
+				}
+				else{
+					// echo 'Mail Sended Successfully';
+					$this->employee_mgmnt_model->updateMailDetails($data['EMAIL_LOG_ID']);
+					echo 'Mail Sended Successfully';
+				}
+				$this->email->clear(TRUE);
+    		}
+    	}else {
+    		echo 'Mail Not available';
+    	}
     }
 }

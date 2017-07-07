@@ -722,7 +722,7 @@
 		public function getParticularEmployeeList($id){
 			$sql="SELECT (SELECT ID FROM profile WHERE ID=employee_profile.PROFILE_ID) AS EMP_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile WHERE ID=employee_profile.PROFILE_ID) AS EMP_ANME
 				FROM employee_profile WHERE DEPT_ID='$id'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			// $sql="SELECT * FROM h_allocation,employee_profile where h_allocation.RESIDENT_TYPE='Employee' AND h_allocation.PROFILE_ID=employee_profile.PROFILE_ID AND employee_profile.DEPT_ID='$id' ";
 			
 			// print_r($result);exit();
@@ -762,6 +762,10 @@
 			$sql="DELETE FROM employee_subject where ID='$id'";
 			$result = $this->db->query($sql);
 			return $this->db->affected_rows();
+		}
+		function getDepartmentBasedonEmployee($emp_id){
+			$sql="SELECT * FROM EMPLOYEE_PROFILE where ID='$emp_id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 	}
 ?>

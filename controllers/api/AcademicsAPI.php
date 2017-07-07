@@ -726,4 +726,18 @@ class AcademicsAPI extends REST_Controller {
 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}
     }
+    function fecthDepartmentData_get(){
+    	$employeeId=$this->get('empID');
+    	$data=$this->academics->getDepartmentBasedonEmployee($employeeId);
+		if (!empty($data)){
+			$this->set_response(['status' =>TRUE,'data'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Subject Details could not be found'
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}
+    }
 }

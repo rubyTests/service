@@ -7,6 +7,7 @@ class PayrollPayslipAPI extends REST_Controller {
     {
 		parent::__construct();
 		$this->load->model('payroll_payslip');
+		$this->load->model('employee_mgmnt_model');
 		$this->load->helper('dompdf_helper');
 		header("Access-Control-Allow-Origin: *");
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
@@ -14,6 +15,18 @@ class PayrollPayslipAPI extends REST_Controller {
 		$userIDByToken="";
 		checkTokenAccess();
 		checkAccess();
+
+		$config = Array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'ssl://smtp.googlemail.com',
+			'smtp_port' => 465,
+			'smtp_user' => 'manisrikan@gmail.com', // change it to yours
+			'smtp_pass' => 'mani16121993', // change it to yours
+			'mailtype' => 'html',
+			'charset' => 'iso-8859-1',
+			'wordwrap' => TRUE
+		);
+		$this->load->library('email', $config);
     }
 
     // Payitem Details 	
@@ -625,6 +638,74 @@ class PayrollPayslipAPI extends REST_Controller {
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
 			}else{
 				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+	}
+	function mailSendAfterGeneration_post(){
+		$this->email->set_newline("\r\n");
+		$this->email->from('rvijayaraj24@gmail.com'); // change it to yours
+		$this->email->to('vijayaraj@appnlogic.com');
+		$this->email->subject('Rubycampus');
+		$this->email->message('Payslip Generation');
+		if (!$this->email->send())
+		{
+			show_error($this->email->print_debugger());
+		}
+		else{
+			echo 'Mail Sended Successfully';
+		}
+		$this->email->clear(TRUE);
+	}
+	function sendStatusEmail_post(){
+		$payslipID = $this->post('payslipID');
+		$status = $this->post('status');
+		// $result=$this->payroll_payslip->fetchEmployeeDetailforEmailSending($payslipID);
+		// $stack = array($result[0]['MAILID']);
+		// array_push($stack, 'karthik@appnlogic.com');
+		// print_r($stack);exit();
+
+		if($status=='Approved'){
+			$result=$this->payroll_payslip->fetchEmployeeDetailforEmailSending($payslipID);
+			if(isset($result[0]['MAILID'])){
+				$stack = array($result[0]['MAILID']);
+				array_push($stack, 'karthik@appnlogic.com');
+				for ($i=0; $i < count($stack); $i++) { 
+					if(isset($stack[$i])){
+						$data=$this->employee_mgmnt_model->addMailDetails($stack[$i]);
+						if($data){
+							$this->email->set_newline("\r\n");
+							$this->email->from('rvijayaraj24@gmail.com'); // change it to yours
+							$this->email->to($stack[$i]);
+							$this->email->subject('Rubycampus');
+							$this->email->message('Approved Payslip');
+							if (!$this->email->send())
+							{
+								show_error($this->email->print_debugger());
+							}else{
+								$this->employee_mgmnt_model->updateMailDetails($data['EMAIL_LOG_ID']);
+							}
+							$this->email->clear(TRUE);	
+						}
+					}
+				}
+			}
+		}else {
+			$adminEmail='vijayaraj@appnlogic.com';
+			$data=$this->employee_mgmnt_model->addMailDetails($adminEmail);
+			if($data){
+				$this->email->set_newline("\r\n");
+				$this->email->from('rvijayaraj24@gmail.com'); // change it to yours
+				$this->email->to($adminEmail);
+				$this->email->subject('Rubycampus');
+				$this->email->message('Reject Payslip');
+				if (!$this->email->send())
+				{
+					show_error($this->email->print_debugger());
+				}else{
+					$this->employee_mgmnt_model->updateMailDetails($data['EMAIL_LOG_ID']);
+					echo 'Mail send successfully';
+				}
+				$this->email->clear(TRUE);	
 			}
 		}
 	}

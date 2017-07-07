@@ -7,12 +7,24 @@ class LeavemgmntAPI extends REST_Controller {
     {
 		parent::__construct();
 		$this->load->model('leave_mgmnt_model');
+		$this->load->model('employee_mgmnt_model');
 		header("Access-Control-Allow-Origin: *");
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
 		$userIDByToken="";
 		checkTokenAccess();
 		checkAccess();
+		$config = Array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'ssl://smtp.googlemail.com',
+			'smtp_port' => 465,
+			'smtp_user' => 'manisrikan@gmail.com', // change it to yours
+			'smtp_pass' => 'mani16121993', // change it to yours
+			'mailtype' => 'html',
+			'charset' => 'iso-8859-1',
+			'wordwrap' => TRUE
+		);
+		$this->load->library('email', $config);
     }
 
     // Leave Type
@@ -336,5 +348,32 @@ class LeavemgmntAPI extends REST_Controller {
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
+    }
+
+    function sendApproveEmail_post(){
+    	$empid = $this->post('emp_prof_Id');
+    	$result=$this->leave_mgmnt_model->checkandgetEmployeeEmail($empid);
+    	if(isset($result[0]['EMAIL_ID'])){
+
+    		$data=$this->employee_mgmnt_model->addMailDetails($result[0]['EMAIL_ID']);
+    		if ($data) {
+    			$this->email->set_newline("\r\n");
+				$this->email->from('rvijayaraj24@gmail.com'); // change it to yours
+				$this->email->to($result[0]['EMAIL_ID']);
+				$this->email->subject('Rubycampus');
+				$this->email->message('Leave Approved');
+				if (!$this->email->send())
+				{
+					show_error($this->email->print_debugger());
+				}
+				else{
+					$this->employee_mgmnt_model->updateMailDetails($data['EMAIL_LOG_ID']);
+					echo 'Mail Sended Successfully';
+				}
+				$this->email->clear(TRUE);
+    		}else {
+    			echo 'Mail Not available';
+    		}
+    	}
     }
 }

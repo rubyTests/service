@@ -126,7 +126,8 @@
 					   'QUALIFICATION' =>$value['qualification'],
 					   'DEPT_ID' => $value['department'],
 					   'EMP_CATEGORY_ID' => $value['category'],
-					   'EMP_POSTION_ID' => $value['position']
+					   'EMP_POSTION_ID' => $value['position'],
+					   'MANAGER_PROFILE_ID' => $value['report_to'],
 					);
 					$this->db->insert('employee_profile', $emp_profile); 
 					$emp_profile_id= $this->db->insert_id();
@@ -181,7 +182,8 @@
 				   'QUALIFICATION' =>$value['qualification'],
 				   'DEPT_ID' => $value['department'],
 				   'EMP_CATEGORY_ID' => $value['category'],
-				   'EMP_POSTION_ID' => $value['position']
+				   'EMP_POSTION_ID' => $value['position'],
+				   'MANAGER_PROFILE_ID' => $value['report_to'],
 				);
 				$this->db->where('ID', $id);
 				$this->db->update('employee_profile', $emp_profile);
@@ -212,7 +214,8 @@
 					   'QUALIFICATION' =>$value['qualification'],
 					   'DEPT_ID' => $value['department'],
 					   'EMP_CATEGORY_ID' => $value['category'],
-					   'EMP_POSTION_ID' => $value['position']
+					   'EMP_POSTION_ID' => $value['position'],
+					   'MANAGER_PROFILE_ID' => $value['report_to'],
 					);
 					$this->db->where('ID', $id);
 					$this->db->update('employee_profile', $emp_profile);
@@ -833,6 +836,35 @@
 			// $sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS EMPLOYEE_NAME FROM EMPLOYEE_PROFILE WHERE DEPT_ID='$deptid'";
 			$sql="SELECT PROFILE.* FROM EMPLOYEE_PROFILE INNER JOIN PROFILE ON EMPLOYEE_PROFILE.PROFILE_ID=PROFILE.ID WHERE DEPT_ID='$deptid'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+
+		function getEmployeeSearchDetails($search){
+			$sql="SELECT EMPLOYEE_PROFILE.ID,EMPLOYEE_PROFILE.PROFILE_ID,CONCAT(PROFILE.FIRSTNAME,' ',PROFILE.LASTNAME) AS EMPLOYEE_NAME,PROFILE.ADMISSION_NO FROM EMPLOYEE_PROFILE LEFT JOIN PROFILE ON EMPLOYEE_PROFILE.PROFILE_ID=PROFILE.ID WHERE PROFILE.FIRSTNAME LIKE '%$search%' OR PROFILE.LASTNAME LIKE '%$search%'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		function checkEmail($empid){
+			$sql="SELECT MANAGER_PROFILE_ID AS MNGRP_ID,(SELECT PROFILE_ID FROM EMPLOYEE_PROFILE WHERE ID=MNGRP_ID) AS E_ID,(SELECT EMAIL FROM PROFILE WHERE ID=E_ID) AS MAIL_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=E_ID) AS EMPLOYEE_NAME FROM EMPLOYEE_PROFILE WHERE ID='$empid'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		function addMailDetails($email){
+			$data = array(
+			   'MAIL_TO' => $email,
+			   'STATUS' => 'N'
+			);
+			$this->db->insert('EMAIL_LOG', $data); 
+			$Elog_id= $this->db->insert_id();
+			if(!empty($Elog_id)){
+				// return true;
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'EMAIL_LOG_ID'=>$Elog_id);
+			}
+		}
+		function updateMailDetails($emaillog_Id){
+			$data = array(
+			   'STATUS' => 'Y'
+			);
+			$this->db->where('ID', $emaillog_Id);
+			$this->db->update('EMAIL_LOG', $data); 
+			return array('status'=>true, 'message'=>"Record Updated Successfully",'EMAIL_LOG_ID'=>$emaillog_Id);
 		}
 	}
 ?>

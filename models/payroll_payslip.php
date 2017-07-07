@@ -631,5 +631,9 @@
 				return array('status'=>true, 'message'=>"Payslip Generated Successfully");
 	  		}
 	  	}
+	  	function fetchEmployeeDetailforEmailSending($payslipID){
+	  		$sql="SELECT (SELECT EMAIL FROM PROFILE WHERE ID=EMPLOYEE_PROFILE.PROFILE_ID) AS MAILID FROM employee_payslip LEFT JOIN EMPLOYEE_PROFILE ON employee_payslip.EMP_PROFILE_ID=EMPLOYEE_PROFILE.ID WHERE employee_payslip.ID='$payslipID'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	  	}
 	}
 ?>
