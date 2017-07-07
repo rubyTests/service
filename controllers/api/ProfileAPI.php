@@ -15,11 +15,23 @@ class ProfileAPI extends REST_Controller {
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
 		$this->load->model('profilemodel');
+		$this->load->model('employee_mgmnt_model');
 		$this->load->model('GeneralMod');
 		$this->load->library('Curl');
 		$userIDByToken="";
 		checkTokenAccess();
 		checkAccess();
+		$config = Array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'ssl://smtp.googlemail.com',
+			'smtp_port' => 465,
+			'smtp_user' => 'rvijayaraj24@gmail.com', // change it to yours
+			'smtp_pass' => 'cpivijay94', // change it to yours
+			'mailtype' => 'html',
+			'charset' => 'iso-8859-1',
+			'wordwrap' => TRUE
+		);
+		$this->load->library('email', $config);
     }
     
 	//-------------------------------------  Profile Add/Update ---------------------------------------------------
@@ -78,7 +90,37 @@ class ProfileAPI extends REST_Controller {
 	}
 	
 	// Contact Details
-	
+	function emailSendingtoStudent_post(){
+		$id=$this->post('profileId');
+		$type='Student';
+		$mailStatus=$this->profilemodel->checkVerification($id,$type);
+			// print_r($mailStatus);exit;
+		if($mailStatus){
+			$to=$mailStatus[0]['email'];
+			$token=$mailStatus[0]['token'];
+			$phone=$mailStatus[0]['phone'];
+			$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.139/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
+			if(isset($to)){
+				$data=$this->employee_mgmnt_model->addMailDetails($to);
+				if($data){
+					$this->email->set_newline("\r\n");
+					$this->email->from('rvijayaraj24@gmail.com','Administrator'); // change it to yours
+					$this->email->to($to);
+					$this->email->subject('Rubycampus');
+					$this->email->message($msg);
+					if (!$this->email->send())
+					{
+						show_error($this->email->print_debugger());
+					}
+					else{
+						$this->employee_mgmnt_model->updateMailDetails($data['EMAIL_LOG_ID']);
+						echo 'Mail Sended Successfully';
+					}
+					$this->email->clear(TRUE);
+				}
+			}
+		}
+	}
 	function contactDetails_post(){
 		//print_r($this->post());exit;
 		$id=$this->post('profileId');
@@ -122,9 +164,9 @@ class ProfileAPI extends REST_Controller {
 				$sms="Welcome to Rubycampus application. Please click the link: http://192.168.1.137/Projects/campus/#/verification/$token";
 				
 				//$result=mailVerification($to,$msg);
-				if($to){
-					$res=mailVerify($to,$msg);
-				}
+				// if($to){
+				// 	$res=mailVerify($to,$msg);
+				// }
 				//print_r($result);exit;
 				if($phone){
 					$data=$this->GeneralMod->mobileCheck($id,$phone);
@@ -156,6 +198,40 @@ class ProfileAPI extends REST_Controller {
 		// }
 	// }
 	
+	// Email Sending
+
+	function sendEmailtoParents_post(){
+		$father=$this->post('father');
+		$mother=$this->post('mother');
+		$guardian=$this->post('guardian');
+		if($father['p_email']!=''){
+			$this->parentsEmail($father['p_email']);
+		}if($mother['p_email']!=''){
+			$this->parentsEmail($mother['p_email']);
+		}if($guardian['p_email']!=''){
+			$this->parentsEmail($guardian['p_email']);
+		}
+	}
+
+	function parentsEmail($emailId){
+		$data=$this->employee_mgmnt_model->addMailDetails($emailId);
+		if($data){
+			$this->email->set_newline("\r\n");
+			$this->email->from('rvijayaraj24@gmail.com','Administrator'); // change it to yours
+			$this->email->to($emailId);
+			$this->email->subject('Rubycampus');
+			$this->email->message('Runycampus');
+			if (!$this->email->send())
+			{
+				show_error($this->email->print_debugger());
+			}
+			else{
+				$this->employee_mgmnt_model->updateMailDetails($data['EMAIL_LOG_ID']);
+				echo 'Mail Sended Successfully';
+			}
+			$this->email->clear(TRUE);
+		}
+	}
 	function parentsProfile_post(){
 		// print_r($this->post());
 		// exit;
