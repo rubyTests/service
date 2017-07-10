@@ -1432,6 +1432,42 @@
 			}
 		}
 		
+		// Student Email check 
+		
+		public function checkStudentEmail($email,$id){
+			// if($id){
+				// $sql="SELECT EMAIL FROM profile where ID='$id'";
+				// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				// if($result){
+					// $sql="SELECT EMAIL FROM profile where ID='$id'";
+					// $result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					// $emailDB=$result1[0]['EMAIL'];
+					// if($emailDB==$email){
+						// return 'false';
+					// }else{
+						// return 'true';
+					// }
+				// }else{
+					// return 'false';
+				// }
+			// }else{
+				$sql="SELECT EMAIL FROM profile where EMAIL='$email'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$sql="SELECT EMAIL FROM profile where ID='$id'";
+					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+					$emailDB=$result1[0]['EMAIL'];
+					if($emailDB==$email){
+						return 'false';
+					}else{
+						return 'true';
+					}
+				}else{
+					return 'false';
+				}
+			//}
+		}
+		
 		// set password details
 		
 		public function getPasswordDetail($token){
@@ -1849,7 +1885,7 @@
 					$this->load->helper('string');
 					$token=random_string('alnum',25);
 					
-					if($mailVerify=='N'){
+					if($mailStatus=='N'){
 						$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
 						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
 						if($result1){
@@ -1898,7 +1934,7 @@
 					}else{
 						$to='';
 					}
-					if($phoneVerify=='N'){
+					if($phoneStatus=='N'){
 						$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
 						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
 						if($result1){
