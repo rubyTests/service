@@ -593,6 +593,21 @@ class ProfileAPI extends REST_Controller {
 		} 			
 	}
 	
+	// Student email check 
+	
+	function studentEmailCheck_get(){
+    	$email=$this->get('email');
+    	$id=$this->get('profileId');
+		$result=$this->profilemodel->checkStudentEmail($email,$id);
+		if ($result=='true'){
+			$this->set_response(['status' =>FALSE,'message'=>'Email already exist'], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>TRUE,'message'=>'Success'], REST_Controller::HTTP_OK);
+		} 			
+	}
+	
 	// Mobile app API for student detail filter with batchId
 	
 	function mStudentDetails_get(){
