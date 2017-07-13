@@ -520,45 +520,22 @@ class EmployeemgmntAPI extends REST_Controller {
 		}
     }
 
-    // Employee Search
-
-  //   function employeeSearch_get(){
-  //   	$search = $this->get('searchField');
-		// if (!empty($search)){
-		// 	$users=$this->employee_mgmnt_model->getEmployeeSearchDetails($search);
-		// 	if (!empty($users)){
-		// 		$this->set_response(['status' =>TRUE,'data'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
-		// 	}
-		// 	else
-		// 	{
-		// 		$this->set_response([
-		// 		'status' => FALSE,
-		// 		'message' => 'Record could not be found'
-		// 		], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
-		// 	}
-		// }else {
-		// 	$this->set_response([
-		// 	'status' => FALSE,
-		// 	'message' => 'Record could not be found'
-		// 	], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
-		// }
-  //   }
-
+   
     // Send Email
     function sendEmail_post(){
-    	$empid=$this->post('emp_prof_Id');
-    	$result=$this->employee_mgmnt_model->checkEmail($empid);
+    	$empid=$this->post('mail_id');
+    	// $result=$this->employee_mgmnt_model->checkEmail($empid);
     	
-    	if(isset($result[0]['MAIL_ID'])){
-    		$data=$this->employee_mgmnt_model->addMailDetails($result[0]['MAIL_ID']);
+    	if($empid!=''){
+    		$data=$this->employee_mgmnt_model->addMailDetails($empid);
     		// print_r($data['EMAIL_LOG_ID']);exit;
     		if($data){
-    			$message='Hi '.$result[0]['EMPLOYEE_NAME'];
+    			// $message='Hi '.$result[0]['EMPLOYEE_NAME'];
 				$this->email->set_newline("\r\n");
-				$this->email->from('rvijayaraj24@gmail.com'); // change it to yours
-				$this->email->to($result[0]['MAIL_ID']);
+				$this->email->from('manisrikan@gmail.com','Rubycampus'); // change it to yours
+				$this->email->to($empid);
 				$this->email->subject('Rubycampus');
-				$this->email->message($message);
+				$this->email->message('Rubycampus test');
 				if (!$this->email->send())
 				{
 					show_error($this->email->print_debugger());

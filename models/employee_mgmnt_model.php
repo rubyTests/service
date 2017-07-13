@@ -226,43 +226,53 @@
 		}
 
 		function addEmployeeContactDetails($value){
-			if($value['m_address']){
-				$data = array(
-				   'ADDRESS' => $value['m_address'],
-				   'CITY' => $value['m_city'],
-				   'STATE' => $value['m_state'],
-				   'COUNTRY' => $value['m_country'],
-				   'ZIP_CODE' => $value['m_pincode']
-				);
-				$this->db->insert('location', $data);
-				$mailing_id= $this->db->insert_id();
+			$EmailID=$value["email"];
+			$sql="SELECT * FROM profile where EMAIL='$EmailID'";
+			$result=$this->db->query($sql, $return_object = TRUE)->result_array();
+			// return array('status'=>false);
+			// print_r($result);exit();
+			if($result){
+				return array('status'=>false);
+			}else {
+				if($value['m_address']){
+					$data = array(
+					   'ADDRESS' => $value['m_address'],
+					   'CITY' => $value['m_city'],
+					   'STATE' => $value['m_state'],
+					   'COUNTRY' => $value['m_country'],
+					   'ZIP_CODE' => $value['m_pincode']
+					);
+					$this->db->insert('location', $data);
+					$mailing_id= $this->db->insert_id();
+				}
+				if($value['m_address']){
+					$data1 = array(
+					   'ADDRESS' => $value['p_address'],
+					   'CITY' => $value['p_city'],
+					   'STATE' => $value['P_state'],
+					   'COUNTRY' => $value['P_country'],
+					   'ZIP_CODE' => $value['P_pincode']
+					);
+					$this->db->insert('location', $data1);
+					$permanant_id= $this->db->insert_id();
+				}
+				if($value['ProfileID']){
+					$profile = array(
+					   'EMAIL' => $value['email'],
+					   'PHONE_NO_1' => $value['phone_no'],
+					   'PHONE_NO_2' => $value['mobile_no'],
+					   'GOOGLE_LINK' => $value['google'],
+					   'FACEBOOK_LINK' => $value['facebook'],
+					   'LINKEDIN_LINK' => $value['linked_in'],
+					   'MAILING_ADDRESS' => $mailing_id,
+					   'PERMANANT_ADDRESS' => $permanant_id
+					);
+					$this->db->where('ID', $value['ProfileID']);
+					$this->db->update('profile', $profile); 
+				}
+				return array('status'=>true, 'message'=>"Record inserted Successfully",'PROFILE_ID'=>$value['ProfileID'],'EMP_PROFILE_ID'=>$value['employee_id'],'PERM_ADDRESS_ID'=>$permanant_id,'MAILING_ADDRESS_ID'=>$mailing_id);
 			}
-			if($value['m_address']){
-				$data1 = array(
-				   'ADDRESS' => $value['p_address'],
-				   'CITY' => $value['p_city'],
-				   'STATE' => $value['P_state'],
-				   'COUNTRY' => $value['P_country'],
-				   'ZIP_CODE' => $value['P_pincode']
-				);
-				$this->db->insert('location', $data1);
-				$permanant_id= $this->db->insert_id();
-			}
-			if($value['ProfileID']){
-				$profile = array(
-				   'EMAIL' => $value['email'],
-				   'PHONE_NO_1' => $value['phone_no'],
-				   'PHONE_NO_2' => $value['mobile_no'],
-				   'GOOGLE_LINK' => $value['google'],
-				   'FACEBOOK_LINK' => $value['facebook'],
-				   'LINKEDIN_LINK' => $value['linked_in'],
-				   'MAILING_ADDRESS' => $mailing_id,
-				   'PERMANANT_ADDRESS' => $permanant_id
-				);
-				$this->db->where('ID', $value['ProfileID']);
-				$this->db->update('profile', $profile); 
-			}
-			return array('status'=>true, 'message'=>"Record inserted Successfully",'PROFILE_ID'=>$value['ProfileID'],'EMP_PROFILE_ID'=>$value['employee_id'],'PERM_ADDRESS_ID'=>$permanant_id,'MAILING_ADDRESS_ID'=>$mailing_id);
+			
 		}
 		function editEmployeeContactDetails($id,$value){
 			if($id){
@@ -546,206 +556,566 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function updateEmployeeProfileDetails($value){
-			// echo "<pre>";print_r($value);exit;
-			if($value['emp_profile_id']){
-				$profile = array(
-				   'DOB' => $value['dob'],
-				   'IMAGE1' => $value['profile_image'],
-				   'NATIONALITY' => $value['natoinality'],
-				   'MARITAL_STATUS' => $value['marital'],
-				   'EMAIL' => $value['email'],
-				   'PHONE_NO_1' => $value['phone'],
-				   'PHONE_NO_2' => $value['mobile'],
-				   'GOOGLE_LINK' => $value['google'],
-				   'FACEBOOK_LINK' => $value['facebook'],
-				   'LINKEDIN_LINK' => $value['linkedin']
-				);
-				$this->db->where('ID', $value['profile']);
-				$this->db->update('profile', $profile);
-
-				$emp_profile = array(
-				   'QUALIFICATION' =>$value['qualification'],
-				   'EMP_CATEGORY_ID' => $value['category']
-				);
-				$this->db->where('ID', $value['emp_profile_id']);
-				$this->db->update('employee_profile', $emp_profile);
-
-
-				// Contact Details
-				if($value['mail_add_id']){
-					$mail = array(
-					   'ADDRESS' => $value['m_address'],
-					   'CITY' => $value['m_city'],
-					   'STATE' => $value['m_state'],
-					   'COUNTRY' => $value['m_country'],
-					   'ZIP_CODE' => $value['m_pincode']
-					);
-					$this->db->where('ID', $value['mail_add_id']);
-					$this->db->update('location', $mail);
-				}else {
-					$mail = array(
-					   'ADDRESS' => $value['m_address'],
-					   'CITY' => $value['m_city'],
-					   'STATE' => $value['m_state'],
-					   'COUNTRY' => $value['m_country'],
-					   'ZIP_CODE' => $value['m_pincode']
-					);
-					$this->db->insert('location', $mail);
-					$mailing_id= $this->db->insert_id();
-
-					$perm = array(
-					   'ADDRESS' => $value['p_address'],
-					   'CITY' => $value['p_city'],
-					   'STATE' => $value['p_state'],
-					   'COUNTRY' => $value['p_country'],
-					   'ZIP_CODE' => $value['p_pincode']
-					);
-					$this->db->insert('location', $perm);
-					$permanant_id= $this->db->insert_id();
-
+			$PROFILEid=$value['profile'];
+			$passEmail=$value['email'];
+			$sql="SELECT * FROM PROFILE WHERE ID='$PROFILEid'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result[0]['EMAIL']==$value['email']){
+				// echo 'same';
+				if($value['emp_profile_id']){
 					$profile = array(
-					   'MAILING_ADDRESS' => $mailing_id,
-					   'PERMANANT_ADDRESS' => $permanant_id
+					   'DOB' => $value['dob'],
+					   'IMAGE1' => $value['profile_image'],
+					   'NATIONALITY' => $value['natoinality'],
+					   'MARITAL_STATUS' => $value['marital'],
+					   'EMAIL' => $value['email'],
+					   'PHONE_NO_1' => $value['phone'],
+					   'PHONE_NO_2' => $value['mobile'],
+					   'GOOGLE_LINK' => $value['google'],
+					   'FACEBOOK_LINK' => $value['facebook'],
+					   'LINKEDIN_LINK' => $value['linkedin']
 					);
 					$this->db->where('ID', $value['profile']);
 					$this->db->update('profile', $profile);
-				}
-				if($value['perm_add_id']){
-					$perm = array(
-					   'ADDRESS' => $value['p_address'],
-					   'CITY' => $value['p_city'],
-					   'STATE' => $value['p_state'],
-					   'COUNTRY' => $value['p_country'],
-					   'ZIP_CODE' => $value['p_pincode']
+
+					$emp_profile = array(
+					   'QUALIFICATION' =>$value['qualification'],
+					   'EMP_CATEGORY_ID' => $value['category']
 					);
-					$this->db->where('ID', $value['perm_add_id']);
-					$this->db->update('location', $perm);
-				}
+					$this->db->where('ID', $value['emp_profile_id']);
+					$this->db->update('employee_profile', $emp_profile);
 
 
-				// Addtional Details
-				if($value['bank_id']) {
-					$bank= array(
-					   'ACCOUNT_NAME' => $value['account_name'],
-					   'ACCOUNT_NO' => $value['account_num'],
-					   'BANK_NAME' => $value['bank_name'],
-					   'BRANCH_NO' => $value['branch_name']
-					);
-					$this->db->where('ID', $value['bank_id']);
-					$this->db->update('bank_details', $bank);
-				}else {
-					$bank = array(
-					   'ACCOUNT_NAME' => $value['account_name'],
-					   'ACCOUNT_NO' => $value['account_num'],
-					   'BANK_NAME' => $value['bank_name'],
-					   'BRANCH_NO' => $value['branch_name']
-					);
-					$this->db->insert('bank_details', $bank);
-					$bank_id= $this->db->insert_id();
-					if(!empty($bank_id)){
-						$data1 = array(
-						   'PROFILE_ID' => $value['profile'],
-						   'BANK_DETAIL_ID' => $bank_id,
+					// Contact Details
+					if($value['mail_add_id']){
+						$mail = array(
+						   'ADDRESS' => $value['m_address'],
+						   'CITY' => $value['m_city'],
+						   'STATE' => $value['m_state'],
+						   'COUNTRY' => $value['m_country'],
+						   'ZIP_CODE' => $value['m_pincode']
+						);
+						$this->db->where('ID', $value['mail_add_id']);
+						$this->db->update('location', $mail);
+					}else {
+						$mail = array(
+						   'ADDRESS' => $value['m_address'],
+						   'CITY' => $value['m_city'],
+						   'STATE' => $value['m_state'],
+						   'COUNTRY' => $value['m_country'],
+						   'ZIP_CODE' => $value['m_pincode']
+						);
+						$this->db->insert('location', $mail);
+						$mailing_id= $this->db->insert_id();
+
+						$perm = array(
+						   'ADDRESS' => $value['p_address'],
+						   'CITY' => $value['p_city'],
+						   'STATE' => $value['p_state'],
+						   'COUNTRY' => $value['p_country'],
+						   'ZIP_CODE' => $value['p_pincode']
+						);
+						$this->db->insert('location', $perm);
+						$permanant_id= $this->db->insert_id();
+
+						$profile = array(
+						   'MAILING_ADDRESS' => $mailing_id,
+						   'PERMANANT_ADDRESS' => $permanant_id
+						);
+						$this->db->where('ID', $value['profile']);
+						$this->db->update('profile', $profile);
+					}
+					if($value['perm_add_id']){
+						$perm = array(
+						   'ADDRESS' => $value['p_address'],
+						   'CITY' => $value['p_city'],
+						   'STATE' => $value['p_state'],
+						   'COUNTRY' => $value['p_country'],
+						   'ZIP_CODE' => $value['p_pincode']
+						);
+						$this->db->where('ID', $value['perm_add_id']);
+						$this->db->update('location', $perm);
+					}
+
+
+					// Addtional Details
+					if($value['bank_id']) {
+						$bank= array(
+						   'ACCOUNT_NAME' => $value['account_name'],
+						   'ACCOUNT_NO' => $value['account_num'],
+						   'BANK_NAME' => $value['bank_name'],
+						   'BRANCH_NO' => $value['branch_name']
+						);
+						$this->db->where('ID', $value['bank_id']);
+						$this->db->update('bank_details', $bank);
+					}else {
+						$bank = array(
+						   'ACCOUNT_NAME' => $value['account_name'],
+						   'ACCOUNT_NO' => $value['account_num'],
+						   'BANK_NAME' => $value['bank_name'],
+						   'BRANCH_NO' => $value['branch_name']
+						);
+						$this->db->insert('bank_details', $bank);
+						$bank_id= $this->db->insert_id();
+						if(!empty($bank_id)){
+							$data1 = array(
+							   'PROFILE_ID' => $value['profile'],
+							   'BANK_DETAIL_ID' => $bank_id,
+							   'PASSPORT_NO' => $value['passport_num'],
+							   'WORK_PERMIT' => $value['work_permit'],
+							);
+							$this->db->insert('profile_extra', $data1);
+							$extra_id= $this->db->insert_id();
+							if(!empty($extra_id)){
+								$emp_profile = array(
+								   'PROFILE_EXTRA_ID' =>$extra_id
+								);
+								$this->db->where('ID', $value['emp_profile_id']);
+								$this->db->update('employee_profile', $emp_profile);
+							}
+						}
+					}
+
+					if($value['profile_extra_id'])
+					{
+						$extra = array(
 						   'PASSPORT_NO' => $value['passport_num'],
 						   'WORK_PERMIT' => $value['work_permit'],
 						);
-						$this->db->insert('profile_extra', $data1);
-						$extra_id= $this->db->insert_id();
-						if(!empty($extra_id)){
-							$emp_profile = array(
-							   'PROFILE_EXTRA_ID' =>$extra_id
-							);
-							$this->db->where('ID', $value['emp_profile_id']);
-							$this->db->update('employee_profile', $emp_profile);
-						}
+						$this->db->where('ID', $value['profile_extra_id']);
+						$this->db->update('profile_extra', $extra);
 					}
-				}
 
-				if($value['profile_extra_id'])
-				{
-					$extra = array(
-					   'PASSPORT_NO' => $value['passport_num'],
-					   'WORK_PERMIT' => $value['work_permit'],
-					);
-					$this->db->where('ID', $value['profile_extra_id']);
-					$this->db->update('profile_extra', $extra);
-				}
+					
+					// Modified by vijay (25-04-17)
 
-				// // previous Institute
-				// for($i=0;$i<count($value['prvious_work']);$i++){
-				// 	$address = array(
-				// 	   'ADDRESS' => $value['prvious_work'][$i]['location'][0]['ADDRESS'],
-				// 	   'CITY' => $value['prvious_work'][$i]['location'][0]['CITY'],
-				// 	   'STATE' => $value['prvious_work'][$i]['location'][0]['STATE'],
-				// 	   'COUNTRY' => $value['prvious_work'][$i]['location'][0]['COUNTRY'],
-				// 	   'ZIP_CODE' => $value['prvious_work'][$i]['location'][0]['ZIP_CODE']
-				// 	);
-				// 	$this->db->where('ID', $value['prvious_work'][$i]['LOCATION_ID']);
-				// 	$fff=$this->db->update('location', $address);
+					// previous Institute
+					for($i=0;$i<count($value['prvious_work']);$i++){
+						if($value['prvious_work'][$i]['ID']){
+							// echo "edit";
+							$address = array(
+							   'ADDRESS' => $value['prvious_work'][$i]['ADDRESS'],
+							   'CITY' => $value['prvious_work'][$i]['CITY'],
+							   'STATE' => $value['prvious_work'][$i]['STATE'],
+							   'COUNTRY' => $value['prvious_work'][$i]['COUNTRY'],
+							   'ZIP_CODE' => $value['prvious_work'][$i]['ZIP_CODE']
+							);
+							$this->db->where('ID', $value['prvious_work'][$i]['LOCATION_ID']);
+							$fff=$this->db->update('location', $address);
 
-				// 	$inst = array(
-				// 	   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
-				// 	   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
-				// 	   'LOCATION_ID' =>  $value['prvious_work'][$i]['LOCATION_ID'],
-				// 	   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
-				// 	   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
-				// 	);
-				// 	$this->db->where('ID', $value['prvious_work'][$i]['ID']);
-				// 	$this->db->update('previous_institute', $inst);		
-				// }
-
-				// Modified by vijay (25-04-17)
-
-				// previous Institute
-				for($i=0;$i<count($value['prvious_work']);$i++){
-					if($value['prvious_work'][$i]['ID']){
-						// echo "edit";
-						$address = array(
-						   'ADDRESS' => $value['prvious_work'][$i]['ADDRESS'],
-						   'CITY' => $value['prvious_work'][$i]['CITY'],
-						   'STATE' => $value['prvious_work'][$i]['STATE'],
-						   'COUNTRY' => $value['prvious_work'][$i]['COUNTRY'],
-						   'ZIP_CODE' => $value['prvious_work'][$i]['ZIP_CODE']
-						);
-						$this->db->where('ID', $value['prvious_work'][$i]['LOCATION_ID']);
-						$fff=$this->db->update('location', $address);
-
-						$inst = array(
-						   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
-						   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
-						   'LOCATION_ID' =>  $value['prvious_work'][$i]['LOCATION_ID'],
-						   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
-						   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
-						);
-						$this->db->where('ID', $value['prvious_work'][$i]['ID']);
-						$this->db->update('previous_institute', $inst);
-					}else {
-						// echo "add";
-						$newaddress = array(
-						   'ADDRESS' => $value['prvious_work'][$i]['ADDRESS'],
-						   'CITY' => $value['prvious_work'][$i]['CITY'],
-						   'STATE' => $value['prvious_work'][$i]['STATE'],
-						   'COUNTRY' => $value['prvious_work'][$i]['COUNTRY'],
-						   'ZIP_CODE' => $value['prvious_work'][$i]['ZIP_CODE']
-						);
-						$this->db->insert('location', $newaddress);
-						$locID_id= $this->db->insert_id();
-						if(!empty($locID_id)){
-							$newinst = array(
+							$inst = array(
 							   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
 							   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
-							   'EMP_PROF_ID' =>  $value['emp_profile_id'],
-							   'LOCATION_ID' =>  $locID_id,
+							   'LOCATION_ID' =>  $value['prvious_work'][$i]['LOCATION_ID'],
 							   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
 							   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
 							);
-							$this->db->insert('previous_institute', $newinst);
+							$this->db->where('ID', $value['prvious_work'][$i]['ID']);
+							$this->db->update('previous_institute', $inst);
+						}else {
+							// echo "add";
+							$newaddress = array(
+							   'ADDRESS' => $value['prvious_work'][$i]['ADDRESS'],
+							   'CITY' => $value['prvious_work'][$i]['CITY'],
+							   'STATE' => $value['prvious_work'][$i]['STATE'],
+							   'COUNTRY' => $value['prvious_work'][$i]['COUNTRY'],
+							   'ZIP_CODE' => $value['prvious_work'][$i]['ZIP_CODE']
+							);
+							$this->db->insert('location', $newaddress);
+							$locID_id= $this->db->insert_id();
+							if(!empty($locID_id)){
+								$newinst = array(
+								   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
+								   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
+								   'EMP_PROF_ID' =>  $value['emp_profile_id'],
+								   'LOCATION_ID' =>  $locID_id,
+								   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
+								   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
+								);
+								$this->db->insert('previous_institute', $newinst);
+							}
 						}
 					}
+					// exit;
 				}
-				// exit;
+				return array('status'=>true, 'message'=>"Record Updated Successfully",'check'=>'Old');
+			}else {
+				$sql="SELECT EMAIL FROM PROFILE WHERE EMAIL='$passEmail'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					return array('status'=>false);
+				}else {
+					if($value['emp_profile_id']){
+						$profile = array(
+						   'DOB' => $value['dob'],
+						   'IMAGE1' => $value['profile_image'],
+						   'NATIONALITY' => $value['natoinality'],
+						   'MARITAL_STATUS' => $value['marital'],
+						   'EMAIL' => $value['email'],
+						   'PHONE_NO_1' => $value['phone'],
+						   'PHONE_NO_2' => $value['mobile'],
+						   'GOOGLE_LINK' => $value['google'],
+						   'FACEBOOK_LINK' => $value['facebook'],
+						   'LINKEDIN_LINK' => $value['linkedin']
+						);
+						$this->db->where('ID', $value['profile']);
+						$this->db->update('profile', $profile);
+
+						$emp_profile = array(
+						   'QUALIFICATION' =>$value['qualification'],
+						   'EMP_CATEGORY_ID' => $value['category']
+						);
+						$this->db->where('ID', $value['emp_profile_id']);
+						$this->db->update('employee_profile', $emp_profile);
+
+
+						// Contact Details
+						if($value['mail_add_id']){
+							$mail = array(
+							   'ADDRESS' => $value['m_address'],
+							   'CITY' => $value['m_city'],
+							   'STATE' => $value['m_state'],
+							   'COUNTRY' => $value['m_country'],
+							   'ZIP_CODE' => $value['m_pincode']
+							);
+							$this->db->where('ID', $value['mail_add_id']);
+							$this->db->update('location', $mail);
+						}else {
+							$mail = array(
+							   'ADDRESS' => $value['m_address'],
+							   'CITY' => $value['m_city'],
+							   'STATE' => $value['m_state'],
+							   'COUNTRY' => $value['m_country'],
+							   'ZIP_CODE' => $value['m_pincode']
+							);
+							$this->db->insert('location', $mail);
+							$mailing_id= $this->db->insert_id();
+
+							$perm = array(
+							   'ADDRESS' => $value['p_address'],
+							   'CITY' => $value['p_city'],
+							   'STATE' => $value['p_state'],
+							   'COUNTRY' => $value['p_country'],
+							   'ZIP_CODE' => $value['p_pincode']
+							);
+							$this->db->insert('location', $perm);
+							$permanant_id= $this->db->insert_id();
+
+							$profile = array(
+							   'MAILING_ADDRESS' => $mailing_id,
+							   'PERMANANT_ADDRESS' => $permanant_id
+							);
+							$this->db->where('ID', $value['profile']);
+							$this->db->update('profile', $profile);
+						}
+						if($value['perm_add_id']){
+							$perm = array(
+							   'ADDRESS' => $value['p_address'],
+							   'CITY' => $value['p_city'],
+							   'STATE' => $value['p_state'],
+							   'COUNTRY' => $value['p_country'],
+							   'ZIP_CODE' => $value['p_pincode']
+							);
+							$this->db->where('ID', $value['perm_add_id']);
+							$this->db->update('location', $perm);
+						}
+
+
+						// Addtional Details
+						if($value['bank_id']) {
+							$bank= array(
+							   'ACCOUNT_NAME' => $value['account_name'],
+							   'ACCOUNT_NO' => $value['account_num'],
+							   'BANK_NAME' => $value['bank_name'],
+							   'BRANCH_NO' => $value['branch_name']
+							);
+							$this->db->where('ID', $value['bank_id']);
+							$this->db->update('bank_details', $bank);
+						}else {
+							$bank = array(
+							   'ACCOUNT_NAME' => $value['account_name'],
+							   'ACCOUNT_NO' => $value['account_num'],
+							   'BANK_NAME' => $value['bank_name'],
+							   'BRANCH_NO' => $value['branch_name']
+							);
+							$this->db->insert('bank_details', $bank);
+							$bank_id= $this->db->insert_id();
+							if(!empty($bank_id)){
+								$data1 = array(
+								   'PROFILE_ID' => $value['profile'],
+								   'BANK_DETAIL_ID' => $bank_id,
+								   'PASSPORT_NO' => $value['passport_num'],
+								   'WORK_PERMIT' => $value['work_permit'],
+								);
+								$this->db->insert('profile_extra', $data1);
+								$extra_id= $this->db->insert_id();
+								if(!empty($extra_id)){
+									$emp_profile = array(
+									   'PROFILE_EXTRA_ID' =>$extra_id
+									);
+									$this->db->where('ID', $value['emp_profile_id']);
+									$this->db->update('employee_profile', $emp_profile);
+								}
+							}
+						}
+
+						if($value['profile_extra_id'])
+						{
+							$extra = array(
+							   'PASSPORT_NO' => $value['passport_num'],
+							   'WORK_PERMIT' => $value['work_permit'],
+							);
+							$this->db->where('ID', $value['profile_extra_id']);
+							$this->db->update('profile_extra', $extra);
+						}
+
+						
+						// Modified by vijay (25-04-17)
+
+						// previous Institute
+						for($i=0;$i<count($value['prvious_work']);$i++){
+							if($value['prvious_work'][$i]['ID']){
+								// echo "edit";
+								$address = array(
+								   'ADDRESS' => $value['prvious_work'][$i]['ADDRESS'],
+								   'CITY' => $value['prvious_work'][$i]['CITY'],
+								   'STATE' => $value['prvious_work'][$i]['STATE'],
+								   'COUNTRY' => $value['prvious_work'][$i]['COUNTRY'],
+								   'ZIP_CODE' => $value['prvious_work'][$i]['ZIP_CODE']
+								);
+								$this->db->where('ID', $value['prvious_work'][$i]['LOCATION_ID']);
+								$fff=$this->db->update('location', $address);
+
+								$inst = array(
+								   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
+								   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
+								   'LOCATION_ID' =>  $value['prvious_work'][$i]['LOCATION_ID'],
+								   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
+								   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
+								);
+								$this->db->where('ID', $value['prvious_work'][$i]['ID']);
+								$this->db->update('previous_institute', $inst);
+							}else {
+								// echo "add";
+								$newaddress = array(
+								   'ADDRESS' => $value['prvious_work'][$i]['ADDRESS'],
+								   'CITY' => $value['prvious_work'][$i]['CITY'],
+								   'STATE' => $value['prvious_work'][$i]['STATE'],
+								   'COUNTRY' => $value['prvious_work'][$i]['COUNTRY'],
+								   'ZIP_CODE' => $value['prvious_work'][$i]['ZIP_CODE']
+								);
+								$this->db->insert('location', $newaddress);
+								$locID_id= $this->db->insert_id();
+								if(!empty($locID_id)){
+									$newinst = array(
+									   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
+									   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
+									   'EMP_PROF_ID' =>  $value['emp_profile_id'],
+									   'LOCATION_ID' =>  $locID_id,
+									   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
+									   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
+									);
+									$this->db->insert('previous_institute', $newinst);
+								}
+							}
+						}
+						// exit;
+					}
+					return array('status'=>true, 'message'=>"Record Updated Successfully", 'check'=>'New');
+				}
 			}
-			return array('status'=>true, 'message'=>"Record Updated Successfully");
+			exit;
+
+
+
+
+
+
+
+
+
+
+
+
+
+			// echo "<pre>";print_r($value);exit;
+			// if($value['emp_profile_id']){
+			// 	$profile = array(
+			// 	   'DOB' => $value['dob'],
+			// 	   'IMAGE1' => $value['profile_image'],
+			// 	   'NATIONALITY' => $value['natoinality'],
+			// 	   'MARITAL_STATUS' => $value['marital'],
+			// 	   'EMAIL' => $value['email'],
+			// 	   'PHONE_NO_1' => $value['phone'],
+			// 	   'PHONE_NO_2' => $value['mobile'],
+			// 	   'GOOGLE_LINK' => $value['google'],
+			// 	   'FACEBOOK_LINK' => $value['facebook'],
+			// 	   'LINKEDIN_LINK' => $value['linkedin']
+			// 	);
+			// 	$this->db->where('ID', $value['profile']);
+			// 	$this->db->update('profile', $profile);
+
+			// 	$emp_profile = array(
+			// 	   'QUALIFICATION' =>$value['qualification'],
+			// 	   'EMP_CATEGORY_ID' => $value['category']
+			// 	);
+			// 	$this->db->where('ID', $value['emp_profile_id']);
+			// 	$this->db->update('employee_profile', $emp_profile);
+
+
+			// 	// Contact Details
+			// 	if($value['mail_add_id']){
+			// 		$mail = array(
+			// 		   'ADDRESS' => $value['m_address'],
+			// 		   'CITY' => $value['m_city'],
+			// 		   'STATE' => $value['m_state'],
+			// 		   'COUNTRY' => $value['m_country'],
+			// 		   'ZIP_CODE' => $value['m_pincode']
+			// 		);
+			// 		$this->db->where('ID', $value['mail_add_id']);
+			// 		$this->db->update('location', $mail);
+			// 	}else {
+			// 		$mail = array(
+			// 		   'ADDRESS' => $value['m_address'],
+			// 		   'CITY' => $value['m_city'],
+			// 		   'STATE' => $value['m_state'],
+			// 		   'COUNTRY' => $value['m_country'],
+			// 		   'ZIP_CODE' => $value['m_pincode']
+			// 		);
+			// 		$this->db->insert('location', $mail);
+			// 		$mailing_id= $this->db->insert_id();
+
+			// 		$perm = array(
+			// 		   'ADDRESS' => $value['p_address'],
+			// 		   'CITY' => $value['p_city'],
+			// 		   'STATE' => $value['p_state'],
+			// 		   'COUNTRY' => $value['p_country'],
+			// 		   'ZIP_CODE' => $value['p_pincode']
+			// 		);
+			// 		$this->db->insert('location', $perm);
+			// 		$permanant_id= $this->db->insert_id();
+
+			// 		$profile = array(
+			// 		   'MAILING_ADDRESS' => $mailing_id,
+			// 		   'PERMANANT_ADDRESS' => $permanant_id
+			// 		);
+			// 		$this->db->where('ID', $value['profile']);
+			// 		$this->db->update('profile', $profile);
+			// 	}
+			// 	if($value['perm_add_id']){
+			// 		$perm = array(
+			// 		   'ADDRESS' => $value['p_address'],
+			// 		   'CITY' => $value['p_city'],
+			// 		   'STATE' => $value['p_state'],
+			// 		   'COUNTRY' => $value['p_country'],
+			// 		   'ZIP_CODE' => $value['p_pincode']
+			// 		);
+			// 		$this->db->where('ID', $value['perm_add_id']);
+			// 		$this->db->update('location', $perm);
+			// 	}
+
+
+			// 	// Addtional Details
+			// 	if($value['bank_id']) {
+			// 		$bank= array(
+			// 		   'ACCOUNT_NAME' => $value['account_name'],
+			// 		   'ACCOUNT_NO' => $value['account_num'],
+			// 		   'BANK_NAME' => $value['bank_name'],
+			// 		   'BRANCH_NO' => $value['branch_name']
+			// 		);
+			// 		$this->db->where('ID', $value['bank_id']);
+			// 		$this->db->update('bank_details', $bank);
+			// 	}else {
+			// 		$bank = array(
+			// 		   'ACCOUNT_NAME' => $value['account_name'],
+			// 		   'ACCOUNT_NO' => $value['account_num'],
+			// 		   'BANK_NAME' => $value['bank_name'],
+			// 		   'BRANCH_NO' => $value['branch_name']
+			// 		);
+			// 		$this->db->insert('bank_details', $bank);
+			// 		$bank_id= $this->db->insert_id();
+			// 		if(!empty($bank_id)){
+			// 			$data1 = array(
+			// 			   'PROFILE_ID' => $value['profile'],
+			// 			   'BANK_DETAIL_ID' => $bank_id,
+			// 			   'PASSPORT_NO' => $value['passport_num'],
+			// 			   'WORK_PERMIT' => $value['work_permit'],
+			// 			);
+			// 			$this->db->insert('profile_extra', $data1);
+			// 			$extra_id= $this->db->insert_id();
+			// 			if(!empty($extra_id)){
+			// 				$emp_profile = array(
+			// 				   'PROFILE_EXTRA_ID' =>$extra_id
+			// 				);
+			// 				$this->db->where('ID', $value['emp_profile_id']);
+			// 				$this->db->update('employee_profile', $emp_profile);
+			// 			}
+			// 		}
+			// 	}
+
+			// 	if($value['profile_extra_id'])
+			// 	{
+			// 		$extra = array(
+			// 		   'PASSPORT_NO' => $value['passport_num'],
+			// 		   'WORK_PERMIT' => $value['work_permit'],
+			// 		);
+			// 		$this->db->where('ID', $value['profile_extra_id']);
+			// 		$this->db->update('profile_extra', $extra);
+			// 	}
+
+				
+			// 	// Modified by vijay (25-04-17)
+
+			// 	// previous Institute
+			// 	for($i=0;$i<count($value['prvious_work']);$i++){
+			// 		if($value['prvious_work'][$i]['ID']){
+			// 			// echo "edit";
+			// 			$address = array(
+			// 			   'ADDRESS' => $value['prvious_work'][$i]['ADDRESS'],
+			// 			   'CITY' => $value['prvious_work'][$i]['CITY'],
+			// 			   'STATE' => $value['prvious_work'][$i]['STATE'],
+			// 			   'COUNTRY' => $value['prvious_work'][$i]['COUNTRY'],
+			// 			   'ZIP_CODE' => $value['prvious_work'][$i]['ZIP_CODE']
+			// 			);
+			// 			$this->db->where('ID', $value['prvious_work'][$i]['LOCATION_ID']);
+			// 			$fff=$this->db->update('location', $address);
+
+			// 			$inst = array(
+			// 			   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
+			// 			   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
+			// 			   'LOCATION_ID' =>  $value['prvious_work'][$i]['LOCATION_ID'],
+			// 			   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
+			// 			   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
+			// 			);
+			// 			$this->db->where('ID', $value['prvious_work'][$i]['ID']);
+			// 			$this->db->update('previous_institute', $inst);
+			// 		}else {
+			// 			// echo "add";
+			// 			$newaddress = array(
+			// 			   'ADDRESS' => $value['prvious_work'][$i]['ADDRESS'],
+			// 			   'CITY' => $value['prvious_work'][$i]['CITY'],
+			// 			   'STATE' => $value['prvious_work'][$i]['STATE'],
+			// 			   'COUNTRY' => $value['prvious_work'][$i]['COUNTRY'],
+			// 			   'ZIP_CODE' => $value['prvious_work'][$i]['ZIP_CODE']
+			// 			);
+			// 			$this->db->insert('location', $newaddress);
+			// 			$locID_id= $this->db->insert_id();
+			// 			if(!empty($locID_id)){
+			// 				$newinst = array(
+			// 				   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
+			// 				   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
+			// 				   'EMP_PROF_ID' =>  $value['emp_profile_id'],
+			// 				   'LOCATION_ID' =>  $locID_id,
+			// 				   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
+			// 				   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
+			// 				);
+			// 				$this->db->insert('previous_institute', $newinst);
+			// 			}
+			// 		}
+			// 	}
+			// 	// exit;
+			// }
+			// return array('status'=>true, 'message'=>"Record Updated Successfully");
 		}
 
 		public function deleteEmployeeDetails($id,$prof_id){
