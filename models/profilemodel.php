@@ -154,6 +154,7 @@
 			
 			$sql="SELECT EMAIL,EMAIL_VERIFIED,EMAIL_STATUS,PHONE_NO_1,PHONE_NO_1_VERIFIED,PHONE_STATUS FROM profile where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// print_r($result);exit;
 			if($result){
 				$email=$result[0]['EMAIL'];
 				if($email==$values['EMAIL']){
@@ -1435,6 +1436,22 @@
 		// Student Email check 
 		
 		public function checkStudentEmail($email,$id){
+
+			// $sql="SELECT EMAIL FROM profile where ID='$id'";
+			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// if($result[0]['EMAIL']==$email){
+			// 	return array('status'=>'true', 'message'=>"Record Updated Successfully",'check'=>'Old');
+			// }else {
+			// 	$sql="SELECT EMAIL FROM PROFILE WHERE EMAIL='$email'";
+			// 	$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// 	if($result){
+			// 		return array('status'=>'false');
+			// 	}else {
+			// 		return array('status'=>'true', 'message'=>"Record Updated Successfully",'check'=>'New');
+			// 	}
+			// }
+
+
 			// if($id){
 				// $sql="SELECT EMAIL FROM profile where ID='$id'";
 				// $result = $this->db->query($sql, $return_object = TRUE)->result_array();

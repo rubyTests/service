@@ -25,8 +25,8 @@ class ProfileAPI extends REST_Controller {
 			'protocol' => 'smtp',
 			'smtp_host' => 'ssl://smtp.googlemail.com',
 			'smtp_port' => 465,
-			'smtp_user' => 'rvijayaraj24@gmail.com', // change it to yours
-			'smtp_pass' => 'cpivijay94', // change it to yours
+			'smtp_user' => 'manisrikan@gmail.com', // change it to yours
+			'smtp_pass' => 'mani16121993', // change it to yours
 			'mailtype' => 'html',
 			'charset' => 'iso-8859-1',
 			'wordwrap' => TRUE
@@ -94,7 +94,7 @@ class ProfileAPI extends REST_Controller {
 		$id=$this->post('profileId');
 		$type='Student';
 		$mailStatus=$this->profilemodel->checkVerification($id,$type);
-			// print_r($mailStatus);exit;
+			print_r($mailStatus);exit;
 		if($mailStatus){
 			$to=$mailStatus[0]['email'];
 			$token=$mailStatus[0]['token'];
@@ -599,12 +599,13 @@ class ProfileAPI extends REST_Controller {
     	$email=$this->get('email');
     	$id=$this->get('profileId');
 		$result=$this->profilemodel->checkStudentEmail($email,$id);
-		if ($result=='true'){
-			$this->set_response(['status' =>FALSE,'message'=>'Email already exist'], REST_Controller::HTTP_OK); 
+		// print_r($result['status']);exit();
+		if ($result['status']=='true'){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 		}
 		else
 		{
-			$this->set_response(['status' =>TRUE,'message'=>'Success'], REST_Controller::HTTP_OK);
+			$this->set_response(['status' =>FALSE,'message'=>'Email already exist'], REST_Controller::HTTP_OK);
 		} 			
 	}
 	
