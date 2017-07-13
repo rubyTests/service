@@ -128,7 +128,7 @@ class PayrollPayslipAPI extends REST_Controller {
 
     // PayStructure
     function payStructureDetail_post(){
-    	// print_r($this->post());exit;
+    	//print_r($this->post());exit;
     	$id = $this->post('id');
 		$data['PAY_STRU_NAME']=$this->post('structure_name');
 		$data['FREQUENCY']=$this->post('frequency');
@@ -206,7 +206,7 @@ class PayrollPayslipAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Record could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}else{
 			$result=$this->payroll_payslip->deleteSinglePayStructureDetails($id);
 			if ($result!=0){
@@ -217,7 +217,7 @@ class PayrollPayslipAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Record could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
     }
@@ -568,7 +568,7 @@ class PayrollPayslipAPI extends REST_Controller {
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Record could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}else{
 			$result=$this->payroll_payslip->getPayItemusingPaystructure($id);
 			if (!empty($result)){
@@ -579,7 +579,7 @@ class PayrollPayslipAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Record could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
 	}
