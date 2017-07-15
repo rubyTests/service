@@ -767,5 +767,38 @@
 			$sql="SELECT * FROM EMPLOYEE_PROFILE where ID='$emp_id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
+		//written By Manivannan
+		public function assignRoleDetails(){
+			$sql="SELECT * ,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=USER_ID) as PROFILE_NAME,(SELECT NAME FROM department WHERE ID=DEPT_ID)as DEPT_NAME FROM assign_role";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();	
+		}
+		public function getParticularAssignRoleDetails($id){
+			$sql="SELECT * FROM assign_role where ID='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();	
+		}
+		public function assignRoleDelete($id){
+			$sql="DELETE FROM assign_role where ID='$id'";
+			$result = $this->db->query($sql);
+    		return $this->db->affected_rows();
+		}
+		public function assignRoleAdd($data){
+			$data = array(
+				   'USER_ID' => $data['USER_ID'],
+				   'ROLL_NAME' => $data['ROLL_NAME'],
+				   'DEPT_ID' => $data['DEPT_ID']
+				);
+				$this->db->insert('assign_role', $data); 
+				return array('status'=>true, 'message'=>"Record Inserted Successfully");
+		}
+		public function assignRoleUpdate($id,$data){
+			$data = array(
+			   'USER_ID' => $data['USER_ID'],
+			   'ROLL_NAME' => $data['ROLL_NAME'],
+			   'DEPT_ID' => $data['DEPT_ID']
+			);
+			$this->db->where('ID', $id);
+			$this->db->update('assign_role', $data); 
+			return array('status'=>true, 'message'=>"Record Updated Successfully");
+		}
 	}
 ?>
