@@ -740,4 +740,78 @@ class AcademicsAPI extends REST_Controller {
 			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}
     }
+    // Written By Manivannan
+    function assignRoleDetail_get(){
+		$id = $this->get('id');
+		if($id==NULL){
+			$users=$this->academics->assignRoleDetails();
+			if (!empty($users)){
+				$this->set_response(['status' =>TRUE,'message'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Role Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+
+		}
+		// else{
+		// 	$users=$this->academics->getParticularAssignRoleDetails($id);
+		// 	if (!empty($users)){
+		// 		$this->set_response(['status' =>TRUE,'message'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		// 	}
+		// 	else
+		// 	{
+		// 		$this->set_response([
+		// 		'status' => FALSE,
+		// 		'message' => 'Role Detail could not be found'
+		// 		], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		// 	}
+		// }
+    }
+    function assignRoleDetail_post(){ 
+		// print_r($_POST);exit;
+		$id=$this->post('id');
+		$data['USER_ID']=$this->post('employee');
+		$data['ROLL_NAME']=$this->post('roleName');
+		$data['DEPT_ID']=$this->post('dept_name');
+		if($id==NULL){
+			$result=$this->academics->assignRoleAdd($data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}else{
+			$result=$this->academics->assignRoleUpdate($id,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+	}
+	function assignRoleDetail_delete(){
+    	$id = $this->delete('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Department Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$users=$this->academics->assignRoleDelete($id);
+			if ($users!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Department Detail deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Batch Detail could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
 }
