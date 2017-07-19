@@ -125,7 +125,7 @@
 		
 		public function getStuProfileAttendanceReport($pId){
 			//$sql="SELECT (SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID='$pId') as PROFILE_NAME,(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID='$pId') as BATCH_ID,(SELECT NAME FROM course_batch WHERE ID=BATCH_ID) as BATCH_NAME,(SELECT COURSE_ID FROM course_batch WHERE ID=BATCH_ID) as COURSE_ID,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME, FROM student_profile WHERE PROFILE_ID='$pId'";
-			$sql="SELECT ID,PROFILE_ID,(SELECT NAME FROM course WHERE ID=student_leave.COURSE_ID) as COURSE_NAME,(SELECT NAME FROM course_batch WHERE ID=student_leave.COURSEBATCH_ID) as BATCH_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_leave.PROFILE_ID) as ADMISSION_NO,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) as PROFILE_NAME,(SELECT IMAGE1 FROM profile where ID=PROFILE_ID)as IMAGE,(SELECT ROUND((((SELECT DATEDIFF((NOW()),DATE_FORMAT(min(CRT_DT), '%Y-%m-%d')) FROM attendance ) - (SELECT count(*) FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId'))/(SELECT DATEDIFF((NOW()),DATE_FORMAT(min(CRT_DT), '%Y-%m-%d')) FROM attendance ))*100,2) as total FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' GROUP BY PROFILE_ID)as Percentage FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' Group by PROFILE_ID";
+			$sql="SELECT ID,PROFILE_ID,(SELECT NAME FROM course WHERE ID=student_leave.COURSE_ID) as COURSE_NAME,(SELECT NAME FROM course_batch WHERE ID=student_leave.COURSEBATCH_ID) as BATCH_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_leave.PROFILE_ID) as ADMISSION_NO,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) as PROFILE_NAME,(SELECT IMAGE1 FROM profile where ID=PROFILE_ID)as IMAGE,(SELECT ROUND((((SELECT DATEDIFF((NOW()),DATE_FORMAT(min(DATE), '%Y-%m-%d')) FROM attendance ) - (SELECT count(*) FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId'))/(SELECT DATEDIFF((NOW()),DATE_FORMAT(min(DATE), '%Y-%m-%d')) FROM attendance ))*100,2) as total FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' GROUP BY PROFILE_ID)as Percentage FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' Group by PROFILE_ID";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
 				foreach($result as $key => $value){
@@ -201,6 +201,22 @@
 				$this->db->update('student_leave', $data);
 			}
 			return array('status'=>true, 'message'=>"Status Updated Successfully");
+		}
+		
+		// Mobile App Student Attendance Report in Month wise
+		
+		public function mGetStuProfileAttendanceReport($pId){
+			$sql="SELECT ID,PROFILE_ID,MONTH(FROMDATE) as month,MONTHNAME(FROMDATE) as monthName,(SELECT NAME FROM course WHERE ID=student_leave.COURSE_ID) as COURSE_NAME,(SELECT NAME FROM course_batch WHERE ID=student_leave.COURSEBATCH_ID) as BATCH_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_leave.PROFILE_ID) as ADMISSION_NO,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) as PROFILE_NAME,(SELECT IMAGE1 FROM profile where ID=PROFILE_ID)as IMAGE,ROUND((((CASE WHEN MONTH(FROMDATE) THEN (SELECT COUNT(*) COUNT FROM attendance WHERE MONTH(DATE)=month AND PROFILE_ID='$pId' AND ATTENDANCE_TYPE='Daily') ELSE 0 END)-(CASE WHEN MONTH(FROMDATE) THEN (SELECT COUNT(*) COUNT FROM student_leave WHERE MONTH(FROMDATE)=month AND PROFILE_ID='$pId' AND ATTENDANCE_TYPE='Daily') ELSE 0 END))/(CASE WHEN MONTH(FROMDATE) THEN (SELECT COUNT(*) COUNT FROM attendance WHERE MONTH(DATE)=month AND PROFILE_ID='$pId' AND ATTENDANCE_TYPE='Daily') ELSE 0 END))*100,2)as Percentage FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' GROUP BY MONTH(FROMDATE)";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				foreach($result as $key => $value){
+					$mnth=$value['month'];
+					$sql1="SELECT REASON,FROMDATE,TODATE,COALESCE(DATEDIFF(TODATE,FROMDATE),1)as TOTAL_LEAVE FROM student_leave WHERE PROFILE_ID='$pId' AND MONTH(FROMDATE)='$mnth'";
+					$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+					$result[$key]['leaveDetails']=$result1;
+				}
+				return $result;
+			}
 		}
 		
 	}
