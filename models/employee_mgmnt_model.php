@@ -1370,8 +1370,8 @@
 		function updateEmployeeAddtionalDetail($profile_extra_id,$value){
 			if($profile_extra_id){
 				$extra = array(
-				   'PASSPORT_NO' => $value['EmpRoll'],
-				   'WORK_PERMIT' => $value['InstitueName']
+				   'PASSPORT_NO' => $value['PassportNo'],
+				   'WORK_PERMIT' => $value['WorkPermit']
 				);
 				$this->db->where('ID', $profile_extra_id);
 				$this->db->update('profile_extra', $extra);
