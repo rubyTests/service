@@ -321,7 +321,7 @@ class EmployeemgmntAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Employee data could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
        	}	
 		// if (!empty($id)){
@@ -345,8 +345,9 @@ class EmployeemgmntAPI extends REST_Controller {
     }
 	function fetchEmployeeData_get(){
 		$id = $this->get('id');
+		$empProtype = $this->get('empProtype');
 		if (!empty($id)){
-			$users=$this->employee_mgmnt_model->fetchParticularEmployeeDetails($id);
+			$users=$this->employee_mgmnt_model->fetchParticularEmployeeDetails($id,$empProtype);
 			if (!empty($users)){
 				$this->set_response(['status' =>TRUE,'data'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 			}
@@ -355,13 +356,13 @@ class EmployeemgmntAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Employee Details could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
 		}else {
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Employee Detail could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}
     }
     function mailingAddress_get(){
@@ -388,8 +389,9 @@ class EmployeemgmntAPI extends REST_Controller {
 
     function previousInstitute_get(){
     	$id = $this->get('id');
+		$empProtype = $this->get('empProtype');
 		if (!empty($id)){
-			$users=$this->employee_mgmnt_model->fetchPreviousInstituteDetails($id);
+			$users=$this->employee_mgmnt_model->fetchPreviousInstituteDetails($id,$empProtype);
 			if (!empty($users)){
 				$this->set_response(['status' =>TRUE,'data'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 			}
@@ -398,13 +400,13 @@ class EmployeemgmntAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Institute Details could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
 		}else {
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Institute Detail could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}
     }
 
@@ -415,7 +417,7 @@ class EmployeemgmntAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Record Details could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}else{
 			$users=$this->employee_mgmnt_model->deletePrevInstDetails($id,$LocId);
 			if ($users!=0){
@@ -494,7 +496,7 @@ class EmployeemgmntAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Employee Detail could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
     }
