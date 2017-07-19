@@ -551,4 +551,98 @@ class EmployeemgmntAPI extends REST_Controller {
     		echo 'Mail Not available';
     	}
     }
+
+
+    function updateEmployeebasicDetails_post(){
+    	$data['PROFILE_ID']=$this->post('PROFILE_ID');
+    	$EMP_PROFILE_ID=$this->post('EMP_PROFILE_ID');
+    	$data['FirstName']=$this->post('FirstName');
+		$data['LastName']=$this->post('LastName');
+		$data['DateofBirth']=$this->post('DateofBirth');
+		$data['MotherTongue']=$this->post('MotherTongue');
+		$data['Gender']=$this->post('Gender');
+		$data['Nationality']=$this->post('Nationality');
+		$data['Qualification']=$this->post('Qualification');
+		if($EMP_PROFILE_ID==NULL){
+			$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}else{
+			$result=$this->employee_mgmnt_model->updateEmployeePersonalDetails($EMP_PROFILE_ID,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+    }
+    function updateEmployeeContactDetails_post(){
+    	$PROFILE_ID=$this->post('PROFILE_ID');
+    	$data['MAILING_ADDRESS_ID']=$this->post('MAILING_ADDRESS_ID');
+    	$data['Email']=$this->post('Email');
+		$data['Phone']=$this->post('Phone');
+		$data['Address']=$this->post('Address');
+		$data['City']=$this->post('City');
+		$data['Zipcode']=$this->post('Zipcode');
+		$data['State']=$this->post('State');
+		$data['Country']=$this->post('Country');
+		$data['Facebook']=$this->post('Facebook');
+		$data['Google']=$this->post('Google');
+		$data['Linkedin']=$this->post('Linkedin');
+		if($PROFILE_ID==NULL){
+			$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}else{
+			$result=$this->employee_mgmnt_model->updateEmployeeContactDetails($PROFILE_ID,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+    }
+
+    function updateEmployeePrevInstitution_post(){
+    	$EMP_PROFILE_ID=$this->post('EMP_PROFILE_ID');
+    	$data['MAILING_ADDRESS_ID']=$this->post('MAILING_ADDRESS_ID');
+    	$data['Institution_Id']=$this->post('Institution_Id');
+    	$data['InstitueName']=$this->post('InstitueName');
+		$data['EmpRoll']=$this->post('EmpRoll');
+		$data['PeriodFrom']=$this->post('PeriodFrom');
+		$data['PeriodTo']=$this->post('PeriodTo');
+		$data['Address']=$this->post('Address');
+		$data['State']=$this->post('State');
+		$data['Country']=$this->post('Country');
+		$data['City']=$this->post('City');
+		$data['Zipcode']=$this->post('Zipcode');
+		$data['LOCATION_ID']=$this->post('LOCATION_ID');
+		if($EMP_PROFILE_ID==NULL){
+			$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}else{
+			$result=$this->employee_mgmnt_model->updateEmployeePrevInstitution($EMP_PROFILE_ID,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+    }
+
+    function updateEmployeeAddtionalDetail_post(){
+    	$profile_extra_id=$this->post('profile_extra_id');
+    	$data['bankdetail_id']=$this->post('bankdetail_id');
+    	$data['AcName']=$this->post('AcName');
+		$data['AcNo']=$this->post('AcNo');
+		$data['BankName']=$this->post('BankName');
+		$data['BranchName']=$this->post('BranchName');
+		$data['PassportNo']=$this->post('PassportNo');
+		$data['WorkPermit']=$this->post('WorkPermit');
+		if($profile_extra_id==NULL){
+			$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}else{
+			$result=$this->employee_mgmnt_model->updateEmployeeAddtionalDetail($profile_extra_id,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+    }
 }
