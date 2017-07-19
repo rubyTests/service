@@ -31,25 +31,27 @@
 			return $data;
 		}
 		
-		public function addTodoAdmin($values){
+		public function addTodoList($values){
 			$data = array(
 				'TITLE' => $values['title'],
 				'DESCRIPTION' => $values['description'],
 				'DATE' => $values['date'],
 				'CLOSED' => 'false',
 				'IMPORTANT' => $values['important'],
+				'PROFILE_ID' => $values['profileId'],
+				'ROLE_ID' => $values['role_id']
 			);
-			$this->db->insert('todolist_admin', $data);
+			$this->db->insert('todolist', $data);
 			return array('status'=>true, 'message'=>"Record Inserted Successfully");
 		}
 		
-		public function getTodoAdmin(){
-			$sql="SELECT ID,TITLE,DESCRIPTION,DATE,CLOSED,IMPORTANT FROM todolist_admin";
+		public function getTodoList($profileId,$role_id){
+			$sql="SELECT ID,TITLE,DESCRIPTION,DATE,CLOSED,IMPORTANT FROM todolist WHERE PROFILE_ID='$profileId' AND ROLE_ID='$role_id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
-		public function deleteTodoAdmin($id){
-			$sql="DELETE FROM todolist_admin where ID='$id'";
+		public function deleteTodoList($id){
+			$sql="DELETE FROM todolist where ID='$id'";
 			$result = $this->db->query($sql);
 	    	return $this->db->affected_rows();
 		}
@@ -61,11 +63,27 @@
 			if($res){
 				$courseId=$res[0]['COURSE_ID'];
 				$batchId=$res[0]['COURSEBATCH_ID'];
-				$sql="SELECT ID,PROFILE_ID,(SELECT NAME FROM course WHERE ID=student_leave.COURSE_ID) as COURSE_NAME,(SELECT NAME FROM course_batch WHERE ID=student_leave.COURSEBATCH_ID) as BATCH_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_leave.PROFILE_ID) as ADMISSION_NO,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) as PROFILE_NAME,(SELECT IMAGE1 FROM profile where ID=PROFILE_ID)as IMAGE,(SELECT ROUND((((SELECT DATEDIFF((NOW()),DATE_FORMAT(min(CRT_DT), '%Y-%m-%d')) FROM attendance ) - (SELECT count(*) FROM student_leave WHERE COURSE_ID=$courseId AND COURSEBATCH_ID=$batchId AND ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId'))/(SELECT DATEDIFF((NOW()),DATE_FORMAT(min(CRT_DT), '%Y-%m-%d')) FROM attendance ))*100,2) as total FROM student_leave WHERE COURSE_ID=$courseId AND COURSEBATCH_ID=$batchId AND ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' GROUP BY PROFILE_ID)as Percentage FROM student_leave WHERE COURSE_ID=$courseId AND COURSEBATCH_ID=$batchId AND ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' Group by PROFILE_ID";
+				$sql="SELECT (SELECT ROUND((((SELECT DATEDIFF((NOW()),DATE_FORMAT(min(DATE), '%Y-%m-%d')) FROM attendance ) - (SELECT count(*) FROM student_leave WHERE COURSE_ID=$courseId AND COURSEBATCH_ID=$batchId AND ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId'))/(SELECT DATEDIFF((NOW()),DATE_FORMAT(min(DATE), '%Y-%m-%d')) FROM attendance ))*100,2) as total FROM student_leave WHERE COURSE_ID=$courseId AND COURSEBATCH_ID=$batchId AND ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' GROUP BY PROFILE_ID)as Percentage FROM student_leave WHERE COURSE_ID=$courseId AND COURSEBATCH_ID=$batchId AND ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' Group by PROFILE_ID";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 				if($result){
 					$data['attendance']= $result;
 				}
+			}
+			
+			// Assignments
+
+			$sql="SELECT count(*) as AssignCount FROM assignment WHERE COURSE_ID='$courseId' AND BATCH_ID='$batchId'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				$data['assignment']= $result;
+			}
+			
+			// Assignments
+
+			$sql="SELECT count(*) as RepoCount FROM repository_post WHERE COURSE_ID='$courseId'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				$data['repository']= $result;
 			}
 			
 			// $sql="SELECT (SELECT ROUND((((SELECT DATEDIFF((NOW()),DATE_FORMAT(min(CRT_DT), '%Y-%m-%d')) FROM attendance ) - (SELECT count(*) FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId'))/(SELECT DATEDIFF((NOW()),DATE_FORMAT(min(CRT_DT), '%Y-%m-%d')) FROM attendance ))*100,2) as total FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' GROUP BY PROFILE_ID)as Percentage FROM student_leave WHERE ATTENDANCE_TYPE='Daily' AND PROFILE_ID='$pId' Group by PROFILE_ID";
