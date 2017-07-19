@@ -657,5 +657,78 @@ class ProfileAPI extends REST_Controller {
 		} 			
 	}
  
+
+ // parents online fees
+
+	function studentBasicandPaymentDetails_get(){
+		$studentId=$this->get('stud_id');
+		if($studentId==null){
+			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+		}
+		else
+		{
+			$result=$this->profilemodel->studentBasicandPaymentDetails($studentId);
+			if ($result){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+
+	function studentFeePaymentHistory_get(){
+		$studentId=$this->get('stud_id');
+		if($studentId==null){
+			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+		}
+		else
+		{
+			$result=$this->profilemodel->getStudentPaymentHistory($studentId);
+			if ($result){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+
+	function studentFeepaymentList_get(){
+		$feepayment_id=$this->get('feepayment_id');
+		if($feepayment_id==null){
+			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+		}
+		else
+		{
+			$result=$this->profilemodel->studentFeepaymentListDetails($feepayment_id);
+			if ($result){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+	function getNextDueList_get(){
+		$studentId=$this->get('stud_id');
+		if($studentId==null){
+			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+		}
+		else
+		{
+			$result=$this->profilemodel->getNextDueList($studentId);
+			if ($result){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
 }
 ?>

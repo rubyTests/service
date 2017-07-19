@@ -371,7 +371,7 @@ class PayrollPayslipAPI extends REST_Controller {
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Record could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_fetchEmployeePayDetailsFOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}
 	}
 	function fetchEmployeePayDetails_get(){
@@ -397,6 +397,7 @@ class PayrollPayslipAPI extends REST_Controller {
 		}
 	}
 	function payslipGeneration_post(){
+		// print_r($this->post());exit;
 		$id = $this->post('empid');
 		$data['STRUCTURE_ID']=$this->post('struc_id');
 		$data['PAYSLIP_ID']=$this->post('payslipId');
@@ -407,6 +408,7 @@ class PayrollPayslipAPI extends REST_Controller {
 		$data['Net_pay']=$this->post('Net_pay');
 		$data['from_date']=$this->post('fromdate');
 		$data['end_date']=$this->post('enddate');
+		$data['basicPay']=$this->post('basicPay');
 		if($id==NULL){
 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
 		}else{
@@ -628,8 +630,17 @@ class PayrollPayslipAPI extends REST_Controller {
 	}
 
 	function updatePayslipGeneration_post(){
+		// print_r($this->post());exit;
 		$id = $this->post('payslipid');
 		$data['Net_pay']=$this->post('netpay');
+		$data['basic_pay']=$this->post('basicpay');
+		$data['basicDetail']=$this->post('basicDetail');
+		$data['addonDetails']=$this->post('addonDetails');
+
+		$data['empid']=$this->post('empid');
+		$data['struc_id']=$this->post('struc_id');
+		$data['generatoin_date']=$this->post('generatoin_date');
+		
 		if($id==NULL){
 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
 		}else{
@@ -706,6 +717,29 @@ class PayrollPayslipAPI extends REST_Controller {
 					echo 'Mail send successfully';
 				}
 				$this->email->clear(TRUE);	
+			}
+		}
+	}
+
+	function generateRejectedPayslip_post(){
+		// print_r($this->post());exit();
+		$id = $this->post('empid');
+		$data['STRUCTURE_ID']=$this->post('struc_id');
+		$data['GENERATION_DATE']=$this->post('generatoin_date');
+		$data['DEFAULT']=$this->post('default_data');
+		$data['ADDON']=$this->post('addon_data');
+		$data['Net_pay']=$this->post('Net_pay');
+		$data['from_date']=$this->post('fromdate');
+		$data['end_date']=$this->post('enddate');
+		$data['basicPay']=$this->post('basicPay');
+		if($id==NULL){
+			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}else{
+			$result=$this->payroll_payslip->generateRejectedPayslip($id,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
 			}
 		}
 	}
