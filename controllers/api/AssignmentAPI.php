@@ -51,7 +51,7 @@ class AssignmentAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Data could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
         }else{
         	$result=$this->assignment_model->getAssignment_details($id);
@@ -63,7 +63,7 @@ class AssignmentAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Assignment data could not be found'
-				], REST_Controller::HTTP_NOT_FOUND);
+				], REST_Controller::HTTP_OK);
 			}
         }    			
 	}
@@ -86,7 +86,7 @@ class AssignmentAPI extends REST_Controller {
 				'id' => $id,
 				'message' => 'There is no Record found'
 				];
-				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_NOT_FOUND);
+				$this->set_response(['status'=>FALSE,'message'=>$message], REST_Controller::HTTP_OK);
 			}
 		}  
     }
@@ -96,7 +96,8 @@ class AssignmentAPI extends REST_Controller {
 
     function stuAssignmentDetail_get(){
     	$id=$this->get('profileId');
-    	$result=$this->assignment_model->getAllstuAssignmentDetail($id);
+    	$roleId=$this->get('roleId');
+    	$result=$this->assignment_model->getAllstuAssignmentDetail($id,$roleId);
     	if (!empty($result)){
 			$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 		}
@@ -105,7 +106,7 @@ class AssignmentAPI extends REST_Controller {
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Data could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}    			
 	}
 
@@ -132,7 +133,7 @@ class AssignmentAPI extends REST_Controller {
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Data could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
         }else{
         	$result=$this->assignment_model->getStuDetailBatchID($id,$assess);
     		if (!empty($result)){
@@ -143,7 +144,7 @@ class AssignmentAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Assignment data could not be found'
-				], REST_Controller::HTTP_NOT_FOUND);
+				], REST_Controller::HTTP_OK);
 			}
         }
     }
