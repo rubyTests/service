@@ -319,6 +319,18 @@ class LibraryAPI extends REST_Controller {
 			}
 		}	
 	}
+	
+	// Booktaken
+	
+	function bookTaken_get(){
+		$profileId=$this->get('profileId');
+		$result=$this->librarymodel->getBookTakenData($profileId);
+		if ($result){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
 
 	// Library Report
 
