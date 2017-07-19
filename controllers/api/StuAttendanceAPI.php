@@ -189,6 +189,18 @@ class StuAttendanceAPI extends REST_Controller {
 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
 		}
 	}
+	
+	// Mobile App Student Attendance Report in Month wise
+	
+	function mStuProfileAttendanceReport_get(){
+		$pId=$this->get('profileId');
+		$result=$this->stuattendance_model->mGetStuProfileAttendanceReport($pId);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>'Data Not found'], REST_Controller::HTTP_OK);
+		}
+	}
  
 }
 ?>
