@@ -467,7 +467,7 @@
 			$sql="SELECT * FROM employee_profile_view";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
-		function fetchParticularEmployeeDetails($id){
+		function fetchParticularEmployeeDetails($id,$empProtype){
 			// $sql="select 
 			// employee_profile.ID,profile.ID AS PROF_ID,profile.ADMISSION_NO,profile.FIRSTNAME,profile.LASTNAME,profile.DOB,
 			// profile.GENDER,profile.IMAGE1,profile.EMAIL,profile.PHONE_NO_1,profile.PHONE_NO_2,profile.FACEBOOK_LINK,
@@ -489,40 +489,79 @@
 			// JOIN profile_extra on employee_profile.PROFILE_EXTRA_ID=profile_extra.ID
 			// JOIN bank_details on profile_extra.BANK_DETAIL_ID=bank_details.ID
 			// where employee_profile.ID='$id'";
-			$sql="select ID,PROFILE_ID,QUALIFICATION,DEPT_ID,EMP_CATEGORY_ID,EMP_POSTION_ID,BANK_DETAIL_ID,PROFILE_EXTRA_ID,MANAGER_PROFILE_ID,
-			(select FIRSTNAME from profile where ID=PROFILE_ID) AS FIRSTNAME,
-			(select LASTNAME from profile where ID=PROFILE_ID) AS LASTNAME,
-			(select ADMISSION_NO from profile where ID=PROFILE_ID) AS ADMISSION_NO,
-			(select GENDER from profile where ID=PROFILE_ID) AS GENDER,
-			(select DOB from profile where ID=PROFILE_ID) AS DOB,
-			(select IMAGE1 from profile where ID=PROFILE_ID) AS IMAGE1,
-			(select EMAIL from profile where ID=PROFILE_ID) AS EMAIL,
-			(select PHONE_NO_1 from profile where ID=PROFILE_ID) AS PHONE_NO_1,
-			(select PHONE_NO_2 from profile where ID=PROFILE_ID) AS PHONE_NO_2,
-			(select FACEBOOK_LINK from profile where ID=PROFILE_ID) AS FACEBOOK_LINK,
-			(select GOOGLE_LINK from profile where ID=PROFILE_ID) AS GOOGLE_LINK,
-			(select LINKEDIN_LINK from profile where ID=PROFILE_ID) AS LINKEDIN_LINK,
-			(select RELIGION from profile where ID=PROFILE_ID) AS RELIGION,
-			(select MOTHER_TONGUE from profile where ID=PROFILE_ID) AS MOTHER_TONGUE,
-			(select NATIONALITY from profile where ID=PROFILE_ID) AS NATIONALITY,
-			(select MARITAL_STATUS from profile where ID=PROFILE_ID) AS MARITAL_STATUS,
-			(select MAILING_ADDRESS from profile where ID=PROFILE_ID) AS MAILING_ADDRESS,
-			(select PERMANANT_ADDRESS from profile where ID=PROFILE_ID) AS PERMANANT_ADDRESS,
-			(select LOCATION_ID from profile where ID=PROFILE_ID) AS LOCATION_ID,
-			(select NAME from department where ID=DEPT_ID) AS DEPT_NAME,
-			(select NAME from employee_position where ID=EMP_POSTION_ID) AS POSITION_NAME,
-			(select NAME from employee_category where ID=EMP_CATEGORY_ID) AS CATEGORY_NAME,
-			(select NAME from nationality where ID=NATIONALITY) AS NATION_NAME,
-			(select NAME from marital where ID=MARITAL_STATUS) AS MARITAL_NAME,
-			(select PASSPORT_NO from profile_extra where ID=PROFILE_EXTRA_ID) AS PASSPORT_NO,
-			(select WORK_PERMIT from profile_extra where ID=PROFILE_EXTRA_ID) AS WORK_PERMIT,
-			(select BANK_DETAIL_ID from profile_extra where ID=PROFILE_EXTRA_ID) AS BANK_ID,
-			(select ACCOUNT_NAME from bank_details where ID=BANK_ID) AS ACCOUNT_NAME,
-			(select ACCOUNT_NO from bank_details where ID=BANK_ID) AS ACCOUNT_NO,
-			(select BRANCH_NO from bank_details where ID=BANK_ID) AS BRANCH_NO,
-			(select BANK_NAME from bank_details where ID=BANK_ID) AS BANK_NAME
-			from employee_profile where employee_profile.ID='$id'";
-			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			
+			if($empProtype=='myProfile'){
+				$sql="select ID,PROFILE_ID,QUALIFICATION,DEPT_ID,EMP_CATEGORY_ID,EMP_POSTION_ID,BANK_DETAIL_ID,PROFILE_EXTRA_ID,MANAGER_PROFILE_ID,
+				(select FIRSTNAME from profile where ID=PROFILE_ID) AS FIRSTNAME,
+				(select LASTNAME from profile where ID=PROFILE_ID) AS LASTNAME,
+				(select ADMISSION_NO from profile where ID=PROFILE_ID) AS ADMISSION_NO,
+				(select GENDER from profile where ID=PROFILE_ID) AS GENDER,
+				(select DOB from profile where ID=PROFILE_ID) AS DOB,
+				(select IMAGE1 from profile where ID=PROFILE_ID) AS IMAGE1,
+				(select EMAIL from profile where ID=PROFILE_ID) AS EMAIL,
+				(select PHONE_NO_1 from profile where ID=PROFILE_ID) AS PHONE_NO_1,
+				(select PHONE_NO_2 from profile where ID=PROFILE_ID) AS PHONE_NO_2,
+				(select FACEBOOK_LINK from profile where ID=PROFILE_ID) AS FACEBOOK_LINK,
+				(select GOOGLE_LINK from profile where ID=PROFILE_ID) AS GOOGLE_LINK,
+				(select LINKEDIN_LINK from profile where ID=PROFILE_ID) AS LINKEDIN_LINK,
+				(select RELIGION from profile where ID=PROFILE_ID) AS RELIGION,
+				(select MOTHER_TONGUE from profile where ID=PROFILE_ID) AS MOTHER_TONGUE,
+				(select NATIONALITY from profile where ID=PROFILE_ID) AS NATIONALITY,
+				(select MARITAL_STATUS from profile where ID=PROFILE_ID) AS MARITAL_STATUS,
+				(select MAILING_ADDRESS from profile where ID=PROFILE_ID) AS MAILING_ADDRESS,
+				(select PERMANANT_ADDRESS from profile where ID=PROFILE_ID) AS PERMANANT_ADDRESS,
+				(select LOCATION_ID from profile where ID=PROFILE_ID) AS LOCATION_ID,
+				(select NAME from department where ID=DEPT_ID) AS DEPT_NAME,
+				(select NAME from employee_position where ID=EMP_POSTION_ID) AS POSITION_NAME,
+				(select NAME from employee_category where ID=EMP_CATEGORY_ID) AS CATEGORY_NAME,
+				(select NAME from nationality where ID=NATIONALITY) AS NATION_NAME,
+				(select NAME from marital where ID=MARITAL_STATUS) AS MARITAL_NAME,
+				(select PASSPORT_NO from profile_extra where ID=PROFILE_EXTRA_ID) AS PASSPORT_NO,
+				(select WORK_PERMIT from profile_extra where ID=PROFILE_EXTRA_ID) AS WORK_PERMIT,
+				(select BANK_DETAIL_ID from profile_extra where ID=PROFILE_EXTRA_ID) AS BANK_ID,
+				(select ACCOUNT_NAME from bank_details where ID=BANK_ID) AS ACCOUNT_NAME,
+				(select ACCOUNT_NO from bank_details where ID=BANK_ID) AS ACCOUNT_NO,
+				(select BRANCH_NO from bank_details where ID=BANK_ID) AS BRANCH_NO,
+				(select BANK_NAME from bank_details where ID=BANK_ID) AS BANK_NAME
+				from employee_profile where employee_profile.PROFILE_ID='$id'";
+				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}else{
+				$sql="select ID,PROFILE_ID,QUALIFICATION,DEPT_ID,EMP_CATEGORY_ID,EMP_POSTION_ID,BANK_DETAIL_ID,PROFILE_EXTRA_ID,MANAGER_PROFILE_ID,
+				(select FIRSTNAME from profile where ID=PROFILE_ID) AS FIRSTNAME,
+				(select LASTNAME from profile where ID=PROFILE_ID) AS LASTNAME,
+				(select ADMISSION_NO from profile where ID=PROFILE_ID) AS ADMISSION_NO,
+				(select GENDER from profile where ID=PROFILE_ID) AS GENDER,
+				(select DOB from profile where ID=PROFILE_ID) AS DOB,
+				(select IMAGE1 from profile where ID=PROFILE_ID) AS IMAGE1,
+				(select EMAIL from profile where ID=PROFILE_ID) AS EMAIL,
+				(select PHONE_NO_1 from profile where ID=PROFILE_ID) AS PHONE_NO_1,
+				(select PHONE_NO_2 from profile where ID=PROFILE_ID) AS PHONE_NO_2,
+				(select FACEBOOK_LINK from profile where ID=PROFILE_ID) AS FACEBOOK_LINK,
+				(select GOOGLE_LINK from profile where ID=PROFILE_ID) AS GOOGLE_LINK,
+				(select LINKEDIN_LINK from profile where ID=PROFILE_ID) AS LINKEDIN_LINK,
+				(select RELIGION from profile where ID=PROFILE_ID) AS RELIGION,
+				(select MOTHER_TONGUE from profile where ID=PROFILE_ID) AS MOTHER_TONGUE,
+				(select NATIONALITY from profile where ID=PROFILE_ID) AS NATIONALITY,
+				(select MARITAL_STATUS from profile where ID=PROFILE_ID) AS MARITAL_STATUS,
+				(select MAILING_ADDRESS from profile where ID=PROFILE_ID) AS MAILING_ADDRESS,
+				(select PERMANANT_ADDRESS from profile where ID=PROFILE_ID) AS PERMANANT_ADDRESS,
+				(select LOCATION_ID from profile where ID=PROFILE_ID) AS LOCATION_ID,
+				(select NAME from department where ID=DEPT_ID) AS DEPT_NAME,
+				(select NAME from employee_position where ID=EMP_POSTION_ID) AS POSITION_NAME,
+				(select NAME from employee_category where ID=EMP_CATEGORY_ID) AS CATEGORY_NAME,
+				(select NAME from nationality where ID=NATIONALITY) AS NATION_NAME,
+				(select NAME from marital where ID=MARITAL_STATUS) AS MARITAL_NAME,
+				(select PASSPORT_NO from profile_extra where ID=PROFILE_EXTRA_ID) AS PASSPORT_NO,
+				(select WORK_PERMIT from profile_extra where ID=PROFILE_EXTRA_ID) AS WORK_PERMIT,
+				(select BANK_DETAIL_ID from profile_extra where ID=PROFILE_EXTRA_ID) AS BANK_ID,
+				(select ACCOUNT_NAME from bank_details where ID=BANK_ID) AS ACCOUNT_NAME,
+				(select ACCOUNT_NO from bank_details where ID=BANK_ID) AS ACCOUNT_NO,
+				(select BRANCH_NO from bank_details where ID=BANK_ID) AS BRANCH_NO,
+				(select BANK_NAME from bank_details where ID=BANK_ID) AS BANK_NAME
+				from employee_profile where employee_profile.ID='$id'";
+				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}
+			
 		}
 		function getEmployeeList(){
 			$sql="SELECT PROFILE_ID as ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=employee_profile.PROFILE_ID)as EMP_NAME FROM employee_profile";
@@ -533,7 +572,7 @@
 			$sql="SELECT ID,ADDRESS,CITY,STATE,COUNTRY,ZIP_CODE,(select NAME from country where ID=location.COUNTRY)AS COUNTRY_NAME FROM location where ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
-		function fetchPreviousInstituteDetails($id){
+		function fetchPreviousInstituteDetails($id,$empProtype){
 			// $sql="SELECT ID,DESIGNATION,INST_NAME,LOCATION_ID,PERIOD_FROM,PERIOD_TO FROM previous_institute where EMP_PROF_ID='$id'";
 			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
@@ -544,16 +583,32 @@
 			// }
 			// return $result;
 
-
-			$sql="SELECT ID,DESIGNATION,INST_NAME,LOCATION_ID,PERIOD_FROM,PERIOD_TO,
-				(SELECT ADDRESS FROM LOCATION WHERE ID=LOCATION_ID) AS ADDRESS,
-				(SELECT CITY FROM LOCATION WHERE ID=LOCATION_ID) AS CITY,
-				(SELECT STATE FROM LOCATION WHERE ID=LOCATION_ID) AS STATE,
-				(SELECT ZIP_CODE FROM LOCATION WHERE ID=LOCATION_ID) AS ZIP_CODE,
-				(SELECT COUNTRY FROM LOCATION WHERE ID=LOCATION_ID) AS COUNTRY,
-				(SELECT NAME FROM country WHERE ID=COUNTRY) AS COUNTRY_NAME
-				FROM previous_institute where EMP_PROF_ID='$id'";
-			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($empProtype=='myProfile'){
+				$sql="SELECT ID FROM employee_profile WHERE PROFILE_ID='$id'";
+				$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($res){
+					$id=$res[0]['ID'];
+					$sql="SELECT ID,DESIGNATION,INST_NAME,LOCATION_ID,PERIOD_FROM,PERIOD_TO,
+						(SELECT ADDRESS FROM LOCATION WHERE ID=LOCATION_ID) AS ADDRESS,
+						(SELECT CITY FROM LOCATION WHERE ID=LOCATION_ID) AS CITY,
+						(SELECT STATE FROM LOCATION WHERE ID=LOCATION_ID) AS STATE,
+						(SELECT ZIP_CODE FROM LOCATION WHERE ID=LOCATION_ID) AS ZIP_CODE,
+						(SELECT COUNTRY FROM LOCATION WHERE ID=LOCATION_ID) AS COUNTRY,
+						(SELECT NAME FROM country WHERE ID=COUNTRY) AS COUNTRY_NAME
+						FROM previous_institute where EMP_PROF_ID='$id'";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
+			}else{
+				$sql="SELECT ID,DESIGNATION,INST_NAME,LOCATION_ID,PERIOD_FROM,PERIOD_TO,
+					(SELECT ADDRESS FROM LOCATION WHERE ID=LOCATION_ID) AS ADDRESS,
+					(SELECT CITY FROM LOCATION WHERE ID=LOCATION_ID) AS CITY,
+					(SELECT STATE FROM LOCATION WHERE ID=LOCATION_ID) AS STATE,
+					(SELECT ZIP_CODE FROM LOCATION WHERE ID=LOCATION_ID) AS ZIP_CODE,
+					(SELECT COUNTRY FROM LOCATION WHERE ID=LOCATION_ID) AS COUNTRY,
+					(SELECT NAME FROM country WHERE ID=COUNTRY) AS COUNTRY_NAME
+					FROM previous_institute where EMP_PROF_ID='$id'";
+				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}
 		}
 		function updateEmployeeProfileDetails($value){
 			$PROFILEid=$value['profile'];
