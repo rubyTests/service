@@ -1291,5 +1291,102 @@
 			$this->db->update('EMAIL_LOG', $data); 
 			return array('status'=>true, 'message'=>"Record Updated Successfully",'EMAIL_LOG_ID'=>$emaillog_Id);
 		}
+
+		function updateEmployeePersonalDetails($EMP_PROFILE_ID,$value){
+			if($value['PROFILE_ID']){
+				$profile = array(
+				   'FIRSTNAME' => $value['FirstName'],
+				   'LASTNAME' => $value['LastName'],
+				   'GENDER' => $value['Gender'],
+				   'DOB' => $value['DateofBirth'],
+				   'NATIONALITY' => $value['Nationality'],
+				   'MOTHER_TONGUE' => $value['MotherTongue']
+				);
+				$this->db->where('ID', $value['PROFILE_ID']);
+				$this->db->update('profile', $profile);
+			}
+			if($EMP_PROFILE_ID){
+				$emp_profile = array(
+				   'QUALIFICATION' =>$value['Qualification'],
+				);
+				$this->db->where('ID', $EMP_PROFILE_ID);
+				$this->db->update('employee_profile', $emp_profile);
+			}
+			return array('status'=>true, 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$value['PROFILE_ID'],'EMP_PROFILE_ID'=>$EMP_PROFILE_ID);
+		}
+
+		function updateEmployeeContactDetails($PROFILE_ID,$value){
+			if($value['MAILING_ADDRESS_ID']){
+				$location = array(
+				   'ADDRESS' => $value['Address'],
+				   'CITY' => $value['City'],
+				   'STATE' => $value['State'],
+				   'COUNTRY' => $value['Country'],
+				   'ZIP_CODE' => $value['Zipcode']
+				);
+				$this->db->where('ID', $value['MAILING_ADDRESS_ID']);
+				$this->db->update('LOCATION', $location);
+			}
+			if($PROFILE_ID){
+				$profile = array(
+				   'PHONE_NO_1' =>$value['Phone'],
+				   'EMAIL' =>$value['Email'],
+				   'FACEBOOK_LINK' =>$value['Facebook'],
+				   'GOOGLE_LINK' =>$value['Google'],
+				   'LINKEDIN_LINK' =>$value['Linkedin']
+				);
+				$this->db->where('ID', $PROFILE_ID);
+				$this->db->update('profile', $profile);
+			}
+			return array('status'=>true, 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$PROFILE_ID,'MAILING_ADDRESS_ID'=>$value['MAILING_ADDRESS_ID']);
+		}
+
+		function updateEmployeePrevInstitution($EMP_PROFILE_ID,$value){
+			if($value['Institution_Id']){
+				$inst = array(
+				   'DESIGNATION' => $value['EmpRoll'],
+				   'INST_NAME' => $value['InstitueName'],
+				   'LOCATION_ID' => $value['LOCATION_ID'],
+				   'PERIOD_FROM' => $value['PeriodFrom'],
+				   'PERIOD_TO' => $value['PeriodTo']
+				);
+				$this->db->where('ID', $value['Institution_Id']);
+				$this->db->update('previous_institute', $inst);
+			}
+			if($value['LOCATION_ID']){
+				$location = array(
+				   'ADDRESS' => $value['Address'],
+				   'CITY' => $value['City'],
+				   'STATE' => $value['State'],
+				   'COUNTRY' => $value['Country'],
+				   'ZIP_CODE' => $value['Zipcode']
+				);
+				$this->db->where('ID', $value['LOCATION_ID']);
+				$this->db->update('location', $location);
+			}
+			return array('status'=>true, 'message'=>"Record Updated Successfully",'INSTITUTE_ID'=>$value['Institution_Id'],'LOCATION_ID'=> $value['LOCATION_ID']);
+		}
+
+		function updateEmployeeAddtionalDetail($profile_extra_id,$value){
+			if($profile_extra_id){
+				$extra = array(
+				   'PASSPORT_NO' => $value['EmpRoll'],
+				   'WORK_PERMIT' => $value['InstitueName']
+				);
+				$this->db->where('ID', $profile_extra_id);
+				$this->db->update('profile_extra', $extra);
+			}
+			if($value['bankdetail_id']){
+				$bank = array(
+				   'ACCOUNT_NAME' => $value['AcName'],
+				   'ACCOUNT_NO' => $value['AcNo'],
+				   'BANK_NAME' => $value['BankName'],
+				   'BRANCH_NO' => $value['BranchName']
+				);
+				$this->db->where('ID', $value['bankdetail_id']);
+				$this->db->update('bank_details', $bank);
+			}
+			return array('status'=>true, 'message'=>"Record Inserted Successfully",'BANK_ID'=>$value['bankdetail_id'],'PROF_EXTRA_ID'=>$profile_extra_id);
+		}
 	}
 ?>
