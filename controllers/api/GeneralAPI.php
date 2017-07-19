@@ -217,7 +217,7 @@ class GeneralAPI extends REST_Controller {
 	// File Upload API
 	
 	function fileUpload_post(){
-		$folderPath = $config['upload_path'] = 'application/uploads/';
+		$folderPath = $config['upload_path'] = 'uploads/';
 		$config['allowed_types'] = '*';   
 		$this->load->library('upload', $config);
 		$this->upload->initialize($config);
@@ -228,6 +228,35 @@ class GeneralAPI extends REST_Controller {
 			$filePath1=$folderPath.$data1['file_name'];
 			$this->set_response(['status' =>TRUE,'message'=>$filePath1], REST_Controller::HTTP_OK);
 		}
+	}
+	
+	function mobileFileUpload_post(){
+		// $folderPath = $config['upload_path'] = 'uploads/';
+		// $config['allowed_types'] = '*';   
+		// $this->load->library('upload', $config);
+		// $this->upload->initialize($config);
+		// if(!$this->upload->do_upload('file')){
+			// // print_r($_FILES);exit;
+			// $this->set_response(['status' =>FALSE,'message'=>'Upload Error'], REST_Controller::HTTP_NOT_FOUND);
+		// }else{
+			// $data1 = $this->upload->data();
+			// // print_r($_FILES);
+			// // print_r($data1);
+			// // exit;
+			// $filePath1=$folderPath.$data1['file_name'];
+			// $this->set_response($filePath1, REST_Controller::HTTP_OK);
+		// }
+		$getFile=$_FILES['file'];
+		//print_r($getFile);exit;
+		$result=$this->GeneralMod->mfileUpload($getFile);
+		//print_r($result);exit;
+		if ($result){
+			$this->set_response($result, REST_Controller::HTTP_OK); 
+		}
+		else{
+			$this->set_response(['status' =>FALSE,'message'=>'Invalid User Access Token'], REST_Controller::HTTP_OK);
+		}
+		
 	}
 	
 	function mFileUpload_post(){
