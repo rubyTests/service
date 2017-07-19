@@ -51,6 +51,13 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 
+		// BookTaken
+		
+		public function getBookTakenData($profileId){
+			$sql="SELECT BOOK_ID,(SELECT NAME FROM l_book WHERE CODE=BOOK_ID)as BOOK_NAME,ISSUED_DATETIME,DUE_DATETIME,DATEDIFF(CURDATE(),DUE_DATETIME)as daysLeft FROM l_book_issue WHERE PROFILE_ID='$profileId' AND BOOK_RETURN='NO'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
 		public function fetchBookIdDetails($id){
 			$sql="SELECT ID,NAME,CODE,CATEGORY_ID,DEPT_ID,SUBJECT_ID,AUTHOR,REGULATION,YEAROFPUBLISHED,ISBN,PUBLISHER,EDITION,PRICE,RACKNO,C_QUANTITY,IMAGE, 
 			(SELECT NAME FROM l_category WHERE ID = CATEGORY_ID) AS CATEGORY_NAME,
