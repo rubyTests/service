@@ -163,10 +163,10 @@ class ProfileAPI extends REST_Controller {
 				$msg="Dear Sir/Madam,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Welcome to Rubycampus application. <a href='http://192.168.1.139/Projects/campus/#/verification/$token'> Click Here </a> <br><br><br>Thanks &amp; Regards,<br>Admin<br>";
 				$sms="Welcome to Rubycampus application. Please click the link: http://192.168.1.137/Projects/campus/#/verification/$token";
 				
-				//$result=mailVerification($to,$msg);
-				// if($to){
-				// 	$res=mailVerify($to,$msg);
-				// }
+				// $result=mailVerification($to,$msg);
+				if($to){
+					$res=mailVerify($to,$msg);
+				}
 				//print_r($result);exit;
 				if($phone){
 					$data=$this->GeneralMod->mobileCheck($id,$phone);
@@ -601,11 +601,11 @@ class ProfileAPI extends REST_Controller {
 		$result=$this->profilemodel->checkStudentEmail($email,$id);
 		// print_r($result['status']);exit();
 		if ($result['status']=='true'){
-			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			$this->set_response($result, REST_Controller::HTTP_OK); 
 		}
 		else
 		{
-			$this->set_response(['status' =>FALSE,'message'=>'Email already exist'], REST_Controller::HTTP_OK);
+			$this->set_response($result, REST_Controller::HTTP_OK);
 		} 			
 	}
 	
