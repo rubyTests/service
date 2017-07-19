@@ -32,12 +32,14 @@ class DashboardAPI extends REST_Controller {
 		} 			
 	}
 	
-	function todoAdmin_post(){
+	function todoList_post(){
+		$data['profileId']=$this->post('profileId');
 		$data['title']=$this->post('title');
 		$data['description']=$this->post('description');
 		$data['date']=$this->post('date');
 		$data['important']=$this->post('important');
-		$result=$this->dashboardmodel->addTodoAdmin($data);
+		$data['role_id']=$this->post('role_id');
+		$result=$this->dashboardmodel->addTodoList($data);
 		if ($result['status']==true){
 			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_OK); 
 		}
@@ -47,8 +49,10 @@ class DashboardAPI extends REST_Controller {
 		}
 	}
 	
-	function todoAdmin_get(){
-		$result=$this->dashboardmodel->getTodoAdmin();
+	function todoList_get(){
+		$profileId=$this->get('profileId');
+		$role_id=$this->get('role_id');
+		$result=$this->dashboardmodel->getTodoList($profileId,$role_id);
 		if (!empty($result)){
 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 		}
@@ -58,13 +62,13 @@ class DashboardAPI extends REST_Controller {
 		} 			
 	}
 	
-	function todoAdmin_delete(){
+	function todoList_delete(){
     	$id=$this->delete('id');
     	if ($id == null)
         {
             $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
         }else{
-			$result=$this->dashboardmodel->deleteTodoAdmin($id);
+			$result=$this->dashboardmodel->deleteTodoList($id);
 			if($result!=0){
 				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
 			}else{
@@ -86,47 +90,6 @@ class DashboardAPI extends REST_Controller {
 			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
 		} 			
 	}
-	
-	function todoStudent_post(){
-		$data['title']=$this->post('title');
-		$data['description']=$this->post('description');
-		$data['date']=$this->post('date');
-		$data['important']=$this->post('important');
-		$result=$this->dashboardmodel->addTodoStudent($data);
-		if ($result['status']==true){
-			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_OK); 
-		}
-		else
-		{
-			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
-		}
-	}
-	
-	function todoStudent_get(){
-		$result=$this->dashboardmodel->getTodoStudent();
-		if (!empty($result)){
-			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
-		}
-		else
-		{
-			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
-		} 			
-	}
-	
-	function todoStudent_delete(){
-    	$id=$this->delete('id');
-    	if ($id == null)
-        {
-            $this->response(['status'=>FALSE,'message'=>'No data Here'], REST_Controller::HTTP_BAD_REQUEST);
-        }else{
-			$result=$this->dashboardmodel->deleteTodoStudent($id);
-			if($result!=0){
-				$this->set_response(['status'=>TRUE,'message'=>'Record Deleted Successfully'], REST_Controller::HTTP_OK);
-			}else{
-				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
-			}
-		} 
-    }
 	
 	function stuAssignmentShow_get(){
 		$proId=$this->get('profileId');
