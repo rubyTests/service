@@ -565,6 +565,7 @@ class EmployeemgmntAPI extends REST_Controller {
 		$data['Gender']=$this->post('Gender');
 		$data['Nationality']=$this->post('Nationality');
 		$data['Qualification']=$this->post('Qualification');
+		$data['MaritalStatus']=$this->post('MaritalStatus');
 		if($EMP_PROFILE_ID==NULL){
 			$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
 		}else{
