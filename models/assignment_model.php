@@ -16,7 +16,7 @@
 				   'COURSE_ID' => $value['course_id'],
 				   'BATCH_ID' => $value['batch_id'],
 				   'SUBJECT_ID' => $value['subject_id'],
-				   'CRT_USER_ID' => $value['userId']
+				   'UPD_USER_ID' => $value['userId']
 				);
 				$this->db->where('ID', $id);
 				$this->db->update('assignment', $data); 
@@ -29,7 +29,7 @@
 				   'COURSE_ID' => $value['course_id'],
 				   'BATCH_ID' => $value['batch_id'],
 				   'SUBJECT_ID' => $value['subject_id'],
-				   'UPD_USER_ID' => $value['userId']
+				   'CRT_USER_ID' => $value['userId']
 				);
 				$this->db->insert('assignment', $data);
 				$get_id=$this->db->insert_id();
@@ -41,9 +41,10 @@
 	    	$sql="SELECT ID,NAME,CONTENT,DUE_DATE,COURSE_ID,BATCH_ID,SUBJECT_ID,
 	    	(SELECT NAME FROM course WHERE ID = COURSE_ID) as COURSE_NAME,
 	    	(SELECT NAME FROM course_batch WHERE ID = BATCH_ID) as BATCH_NAME,
-	    	(SELECT NAME FROM subject WHERE ID = SUBJECT_ID) as SUBJECT_NAME,
+	    	(SELECT NAME FROM subject WHERE ID = SUBJECT_ID) as SUBJECT_NAME,COALESCE(UPD_USER_ID,CRT_USER_ID)as post_userId,
+	    	(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=post_userId)as profileName,DATE_FORMAT(CRT_DT, '%d-%m-%Y') as POST_DATE,
 	    	CASE WHEN (SELECT count(PROFILE_ID) FROM student_profile WHERE COURSEBATCH_ID=BATCH_ID) = (SELECT count(ID) FROM assignment_status WHERE ASSIGNMENT_ID=assignment.ID AND COURSEBATCH_ID=assignment.BATCH_ID) THEN 'Completed' ELSE 'Pending' END as STATUS
-	    	 FROM assignment";
+	    	 FROM assignment ORDER BY `CRT_DT` DESC";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
@@ -52,16 +53,23 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
-	    function getAllstuAssignmentDetail($id){
-	    	$sql="SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID='$id'";
-	    	$res = $this->db->query($sql, $return_object = TRUE)->result_array();
-	    	if($res){
-	    		$batchId=$res[0]['COURSEBATCH_ID'];
-	    		$sql="SELECT ID,NAME,CONTENT,DUE_DATE,SUBJECT_ID,CRT_USER_ID,
-	    		(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=assignment.CRT_USER_ID)as profileName,
-	    		(SELECT NAME FROM subject WHERE ID = SUBJECT_ID) as SUBJECT_NAME,DATE_FORMAT(CRT_DT, '%d-%m-%Y') as POST_DATE FROM assignment WHERE BATCH_ID='$batchId'";
+	    function getAllstuAssignmentDetail($id,$roleId){
+	    	if($roleId==3){
+				$sql="SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID='$id'";
+				$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($res){
+					$batchId=$res[0]['COURSEBATCH_ID'];
+					$sql="SELECT ID,NAME,CONTENT,DUE_DATE,SUBJECT_ID,CRT_USER_ID,COALESCE(UPD_USER_ID,CRT_USER_ID)as post_userId,
+					(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=post_userId)as profileName,
+					(SELECT NAME FROM subject WHERE ID = SUBJECT_ID) as SUBJECT_NAME,DATE_FORMAT(CRT_DT, '%d-%m-%Y') as POST_DATE FROM assignment WHERE BATCH_ID='$batchId'";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
+			}else if($roleId==2){
+				$sql="SELECT ID,NAME,CONTENT,DUE_DATE,SUBJECT_ID,CRT_USER_ID,COALESCE(UPD_USER_ID,CRT_USER_ID)as post_userId,
+				(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=post_userId)as profileName,
+				(SELECT NAME FROM subject WHERE ID = SUBJECT_ID) as SUBJECT_NAME,DATE_FORMAT(CRT_DT, '%d-%m-%Y') as POST_DATE FROM assignment WHERE CRT_USER_ID='$id'";
 				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-	    	}
+			}
 	    }
 
 	    function deleteAssignmentData($id){
