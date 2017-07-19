@@ -98,13 +98,13 @@ class RepositoryAPI extends REST_Controller {
 	}
 	
 	function Rep_Post_post(){
-
 		$id=$this->post('rep_id');
 		$data['TITLE']=$this->post('rep_title');
 		$data['UPLOAD_FILE']=$_FILES;
 		$data['CONTENT']=$this->post('rep_content');
 		$data['COURSE_ID']=$this->post('courseId');
 		$data['REP_CATEGORY_ID']=$this->post('categoryId');
+		$data['userProfileId']=$this->post('userProfileId');
 		
 		if($id==null){
 			$result=$this->repositorymodel->addRepPostDetails($data);
@@ -155,5 +155,68 @@ class RepositoryAPI extends REST_Controller {
 			}
 		}
 	}
+	
+	// Mobile Rep Details
+	
+	public function mRepDetails_get(){
+		$id=$this->get('id');
+		if($id==null){
+			$result=$this->repositorymodel->mGetAllRepPostDetails();
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}else{
+			$result=$this->repositorymodel->mGetRepPostDetails($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+	
+	public function mGetCourseBased_get(){
+		$id=$this->get('profileId');
+		$roleId=$this->get('roleId');
+		$result=$this->repositorymodel->mGetRepCoursebased($id,$roleId);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	public function mRepPost_post(){
+		$id=$this->post('rep_id');
+		$data['TITLE']=$this->post('rep_title');
+		$data['UPLOAD_FILE']=$this->post('rep_image');
+		$data['CONTENT']=$this->post('rep_content');
+		$data['COURSE_ID']=$this->post('courseId');
+		$data['REP_CATEGORY_ID']=$this->post('categoryId');
+		$data['userProfileId']=$this->post('userProfileId');
+		
+		if($id==null){
+			$result=$this->repositorymodel->addmRepPostDetails($data);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>'Repository Post Detail Inserted Successfully'], REST_Controller::HTTP_OK); 
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}else{
+			$result=$this->repositorymodel->editmRepPostDetails($id,$data);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>'Repository Post Detail Updated Successfully'], REST_Controller::HTTP_OK);
+			}
+			else
+			{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
+	}
+	
 }
 ?>
