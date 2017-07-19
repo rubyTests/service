@@ -1473,14 +1473,18 @@
 				if($result){
 					$sql="SELECT EMAIL FROM profile where ID='$id'";
 					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-					$emailDB=$result1[0]['EMAIL'];
-					if($emailDB==$email){
-						return 'false';
+					if($result1){
+						$emailDB=$result1[0]['EMAIL'];
+						if($emailDB==$email){
+							return array('status'=>'true', 'message'=>"success",'check'=>'Old');
+						}else{
+							return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
+						}
 					}else{
-						return 'true';
+						return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
 					}
 				}else{
-					return 'false';
+					return array('status'=>'true', 'message'=>"success",'check'=>'New');
 				}
 			//}
 		}
@@ -1902,7 +1906,7 @@
 					$this->load->helper('string');
 					$token=random_string('alnum',25);
 					
-					if($mailStatus=='N'){
+					if($mailVerify=='N'){
 						$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
 						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
 						if($result1){
@@ -1951,7 +1955,7 @@
 					}else{
 						$to='';
 					}
-					if($phoneStatus=='N'){
+					if($phoneVerify=='N'){
 						$sql="SELECT * FROM user where USER_PROFILE_ID='$id'";
 						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
 						if($result1){
