@@ -1300,7 +1300,8 @@
 				   'GENDER' => $value['Gender'],
 				   'DOB' => $value['DateofBirth'],
 				   'NATIONALITY' => $value['Nationality'],
-				   'MOTHER_TONGUE' => $value['MotherTongue']
+				   'MOTHER_TONGUE' => $value['MotherTongue'],
+				   'MARITAL_STATUS' => $value['MaritalStatus']
 				);
 				$this->db->where('ID', $value['PROFILE_ID']);
 				$this->db->update('profile', $profile);
