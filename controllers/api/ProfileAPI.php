@@ -661,13 +661,14 @@ class ProfileAPI extends REST_Controller {
  // parents online fees
 
 	function studentBasicandPaymentDetails_get(){
-		$studentId=$this->get('stud_id');
-		if($studentId==null){
+		$profileId=$this->get('profileId');
+		$roleId=$this->get('roleId');
+		if($profileId==null){
 			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
 		}
 		else
 		{
-			$result=$this->profilemodel->studentBasicandPaymentDetails($studentId);
+			$result=$this->profilemodel->studentBasicandPaymentDetails($profileId,$roleId);
 			if ($result){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 			}
@@ -679,13 +680,14 @@ class ProfileAPI extends REST_Controller {
 	}
 
 	function studentFeePaymentHistory_get(){
-		$studentId=$this->get('stud_id');
-		if($studentId==null){
+		$profileId=$this->get('profileId');
+		$roleId=$this->get('roleId');
+		if($profileId==null){
 			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
 		}
 		else
 		{
-			$result=$this->profilemodel->getStudentPaymentHistory($studentId);
+			$result=$this->profilemodel->getStudentPaymentHistory($profileId,$roleId);
 			if ($result){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 			}
@@ -714,13 +716,14 @@ class ProfileAPI extends REST_Controller {
 		}
 	}
 	function getNextDueList_get(){
-		$studentId=$this->get('stud_id');
-		if($studentId==null){
+		$profileId=$this->get('profileId');
+		$roleId=$this->get('roleId');
+		if($profileId==null){
 			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
 		}
 		else
 		{
-			$result=$this->profilemodel->getNextDueList($studentId);
+			$result=$this->profilemodel->getNextDueList($profileId,$roleId);
 			if ($result){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 			}
