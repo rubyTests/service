@@ -2085,7 +2085,7 @@
 			}
 		}
 		function getStudentPaymentHistory($profileId,$roleId){
-			$sql="SELECT * FROM fee_payment WHERE PROFILE_ID='$profileId'";
+			$sql="SELECT ID,STUDENT_FEE_ID,PROFILE_ID,RECIEPT_NO,PAYMENT_DATE,MODEOF_PAYMENT_ID,TOTAL_AMOUNT,CRT_DT,(SELECT PAYMENT_MODE FROM modeofpayment WHERE ID=MODEOF_PAYMENT_ID) AS MODE_OF_PAYMENT FROM fee_payment WHERE PROFILE_ID='$profileId'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function studentFeepaymentListDetails($feepayment_id){
