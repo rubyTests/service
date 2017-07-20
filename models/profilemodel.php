@@ -2076,10 +2076,10 @@
 			// 	(SELECT COURSE_ID FROM COURSE_BATCH WHERE ID=student_profile.COURSEBATCH_ID) AS COURSEID,
 			// 	(SELECT NAME FROM COURSE WHERE ID=COURSEID) AS COURSE_NAME
 			// 	FROM profile INNER JOIN student_profile on profile.ID=student_profile.PROFILE_ID WHERE profile.ID='$studentId'";
-			if($roleId==4){
+			if($roleId==$roleId){
 				$sql="SELECT STUDENT_PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_fee.STUDENT_PROFILE_ID) as STUDENT_NAME,(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as batchId,(SELECT NAME FROM course_batch WHERE ID=batchId) as BATCH_NAME,(SELECT COURSE_ID FROM course_batch WHERE ID=batchId)as courseId,(SELECT NAME FROM course WHERE ID=courseId)as COURSE_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_fee.STUDENT_PROFILE_ID) as ADMISSION_NO,SUM((SELECT SUM(AMOUNT) FROM fee_item_structure WHERE FEE_STRUCTURE_ID=student_fee.FEE_STRUCTURE_ID)) as TOTAL_AMOUNT,(SELECT ID FROM fee_payment WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as feePaymentId,(SELECT SUM(PAID_AMOUNT) FROM student_fee_status WHERE FEE_PAYMENT_ID=feePaymentId)as PAID_AMOUNT FROM student_fee WHERE STUDENT_PROFILE_ID='$profileId'";
 				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			}else if($roleId==4){
+			}else if($roleId==$roleId){
 				$sql="SELECT STUDENT_PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_fee.STUDENT_PROFILE_ID) as STUDENT_NAME,(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as batchId,(SELECT NAME FROM course_batch WHERE ID=batchId) as BATCH_NAME,(SELECT COURSE_ID FROM course_batch WHERE ID=batchId)as courseId,(SELECT NAME FROM course WHERE ID=courseId)as COURSE_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_fee.STUDENT_PROFILE_ID) as ADMISSION_NO,SUM((SELECT SUM(AMOUNT) FROM fee_item_structure WHERE FEE_STRUCTURE_ID=student_fee.FEE_STRUCTURE_ID)) as TOTAL_AMOUNT,(SELECT ID FROM fee_payment WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as feePaymentId,(SELECT SUM(PAID_AMOUNT) FROM student_fee_status WHERE FEE_PAYMENT_ID=feePaymentId)as PAID_AMOUNT FROM student_fee WHERE STUDENT_PROFILE_ID='$profileId'";
 				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			}
