@@ -10,9 +10,9 @@ class AcademicsAPI extends REST_Controller {
 		header("Access-Control-Allow-Origin: *");
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
-		$userIDByToken="";
-		checkTokenAccess();
-		checkAccess();
+		// $userIDByToken="";
+		// checkTokenAccess();
+		// checkAccess();
     }
 
     // Department Details 
@@ -775,7 +775,7 @@ class AcademicsAPI extends REST_Controller {
 		// print_r($_POST);exit;
 		$id=$this->post('id');
 		$data['USER_ID']=$this->post('employee');
-		$data['ROLL_NAME']=$this->post('roleName');
+		$data['ROLL_NAME']=implode(",",$this->post('roleName'));
 		$data['DEPT_ID']=$this->post('dept_name');
 		if($id==NULL){
 			$result=$this->academics->assignRoleAdd($data);
@@ -813,5 +813,20 @@ class AcademicsAPI extends REST_Controller {
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
 		}
+    }
+    public function  getRoles_get(){
+ 		$id = $this->get('id');
+		if($id==NULL){
+			$roles=$this->academics->getRolesDetails();
+			if (!empty($roles)){
+				$this->set_response(['status' =>TRUE,'message'=>$roles], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Role Details could not be found'
+				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			}
+		}   	
     }
 }
