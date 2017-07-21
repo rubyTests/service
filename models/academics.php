@@ -770,7 +770,14 @@
 		//written By Manivannan
 		public function assignRoleDetails(){
 			$sql="SELECT * ,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=USER_ID) as PROFILE_NAME,(SELECT NAME FROM department WHERE ID=DEPT_ID)as DEPT_NAME FROM assign_role";
-			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();	
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			foreach ($result as $key => $value) {
+				$role_id = $value['ROLL_NAME'];
+				$sql1="SELECT role_name FROM user_roles WHERE id IN ($role_id)";
+				$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+				$result[$key]['role_name'] = $result1;
+			}
+			return $result;
 		}
 		public function getParticularAssignRoleDetails($id){
 			$sql="SELECT * FROM assign_role where ID='$id'";
@@ -799,6 +806,10 @@
 			$this->db->where('ID', $id);
 			$this->db->update('assign_role', $data); 
 			return array('status'=>true, 'message'=>"Record Updated Successfully");
+		}
+		public function getRolesDetails(){
+			$sql="SELECT id, role_name FROM user_roles";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();			
 		}
 	}
 ?>
