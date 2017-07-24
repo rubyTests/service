@@ -2,6 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 require APPPATH . '/libraries/REST_Controller.php';
 require APPPATH . '/helpers/checktoken_helper.php';
+require APPPATH . '/helpers/smsGateway/ClickSend/clickSend.php';
 class SettingAPI extends REST_Controller {    
     function SettingAPI()
     {
@@ -59,4 +60,27 @@ class SettingAPI extends REST_Controller {
 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}
     }
+	
+	// Bulk sms sending
+	function bulkSms_post(){
+		$data['courseId']=$this->post('courseId');
+		$data['batchId']=$this->post('batchId');
+		$data['msg']=$this->post('msg');
+		$result=$this->setting_model->bulkSmsSent($data);
+		if (!empty($result)){
+			$bulk=bulkSend($result,$data['msg']);
+			$valu=json_decode(json_encode($bulk),true);	
+			if($valu['response_code']=='SUCCESS'){
+				$result=$this->setting_model->bulkSmsSentDetials($valu,$data);
+				if($result=true){
+					$this->set_response(['status' =>TRUE,'message'=>'SMS send successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+				}else{
+					$this->set_response(['status' => FALSE,'message' => 'SMS could not be sent'], REST_Controller::HTTP_OK);
+				}
+			}
+		}
+		else{
+			$this->set_response(['status' => FALSE,'message' => 'SMS could not be sent'], REST_Controller::HTTP_OK);
+		}
+	}
 }
