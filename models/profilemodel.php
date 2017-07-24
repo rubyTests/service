@@ -1439,7 +1439,7 @@
 		
 		// Student Email check 
 		
-		public function checkStudentEmail($email,$id){
+		public function checkStudentEmail($email,$id,$type,$values){
 
 			// $sql="SELECT EMAIL FROM profile where ID='$id'";
 			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -1472,25 +1472,232 @@
 					// return 'false';
 				// }
 			// }else{
-				$sql="SELECT EMAIL FROM profile where EMAIL='$email'";
-				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($result){
-					$sql="SELECT EMAIL FROM profile where ID='$id'";
-					$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-					if($result1){
-						$emailDB=$result1[0]['EMAIL'];
-						if($emailDB==$email){
-							return array('status'=>'true', 'message'=>"success",'check'=>'Old');
+				if($type=='parents'){
+					$father_mail=$values['father']['p_email'];
+					if($father_mail=''){
+						$frel_id=$values['father']['relationId'];
+						$sql="SELECT PROF_ID FROM student_relation where ID='$frel_id'";
+						$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($res){
+							$proId=$res[0]['PROF_ID'];
+							$sql="SELECT EMAIL FROM profile where EMAIL='$father_mail'";
+							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+							if($result){
+								$sql="SELECT EMAIL FROM profile where ID='$proId'";
+								$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+								if($result1){
+									$emailDB=$result1[0]['EMAIL'];
+									if($emailDB==$father_mail){
+										
+									}else{
+										return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
+									}
+								}else{
+									return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
+								}
+							}
+						}else{
+							$sql="SELECT EMAIL FROM profile where EMAIL='$father_mail'";
+							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+							if($result){
+								return array('status'=>'false', 'message'=>"Email already exist");
+							}
+						}
+						
+					}
+					
+					$mother_mail=$values['mother']['p_email'];
+					if($mother_mail=''){
+						$mrel_id=$values['mother']['relationId'];
+						$sql="SELECT PROF_ID FROM student_relation where ID='$mrel_id'";
+						$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($res){
+							$proId=$res[0]['PROF_ID'];
+							$sql="SELECT EMAIL FROM profile where EMAIL='$mother_mail'";
+							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+							if($result){
+								$sql="SELECT EMAIL FROM profile where ID='$proId'";
+								$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+								if($result1){
+									$emailDB=$result1[0]['EMAIL'];
+									if($emailDB==$mother_mail){
+										
+									}else{
+										return array('status'=>'false', 'message'=>"Mother Email already exist",'check'=>null);
+									}
+								}else{
+									return array('status'=>'false', 'message'=>"Mother Email already exist",'check'=>null);
+								}
+							}
+						}else{
+							$sql="SELECT EMAIL FROM profile where EMAIL='$mother_mail'";
+							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+							if($result){
+								return array('status'=>'false', 'message'=>"Mother Email already exist");
+							}
+						}
+						
+					}
+					
+					$guardian_mail=$values['guardian']['p_email'];
+					if($guardian_mail=''){
+						$grel_id=$values['guardian']['relationId'];
+						$sql="SELECT PROF_ID FROM student_relation where ID='$grel_id'";
+						$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($res){
+							$proId=$res[0]['PROF_ID'];
+							$sql="SELECT EMAIL FROM profile where EMAIL='$guardian_mail'";
+							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+							if($result){
+								$sql="SELECT EMAIL FROM profile where ID='$proId'";
+								$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+								if($result1){
+									$emailDB=$result1[0]['EMAIL'];
+									if($emailDB==$guardian_mail){
+										
+									}else{
+										return array('status'=>'false', 'message'=>"Guardian Email already exist",'check'=>null);
+									}
+								}else{
+									return array('status'=>'false', 'message'=>"Guardian Email already exist",'check'=>null);
+								}
+							}
+						}else{
+							$sql="SELECT EMAIL FROM profile where EMAIL='$guardian_mail'";
+							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+							if($result){
+								return array('status'=>'false', 'message'=>"Guardian Email already exist");
+							}
+						}
+						
+					}
+					
+				}else{
+					$sql="SELECT EMAIL FROM profile where EMAIL='$email'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						$sql="SELECT EMAIL FROM profile where ID='$id'";
+						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($result1){
+							$emailDB=$result1[0]['EMAIL'];
+							if($emailDB==$email){
+								return array('status'=>'true', 'message'=>"success",'check'=>'Old');
+							}else{
+								return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
+							}
 						}else{
 							return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
 						}
 					}else{
-						return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
+						return array('status'=>'true', 'message'=>"success",'check'=>'New');
+					}
+				}
+				
+			//}
+		}
+		
+		// Parents Email check 
+		
+		public function checkParentsEmail($values){
+			// print_r($values);exit;
+			$father_mail=$values['father']['p_email'];
+			if($father_mail!=''){
+				$frel_id=$values['father']['relationId'];
+				$sql="SELECT PROF_ID FROM student_relation where ID='$frel_id'";
+				$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($res){
+					$proId=$res[0]['PROF_ID'];
+					$sql="SELECT EMAIL FROM profile where EMAIL='$father_mail'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						$sql="SELECT EMAIL FROM profile where ID='$proId'";
+						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($result1){
+							$emailDB=$result1[0]['EMAIL'];
+							if($emailDB==$father_mail){
+								
+							}else{
+								return array('status'=>'false', 'message'=>"Father Email already exist");
+							}
+						}else{
+							return array('status'=>'false', 'message'=>"Father Email already exist");
+						}
 					}
 				}else{
-					return array('status'=>'true', 'message'=>"success",'check'=>'New');
+					$sql="SELECT EMAIL FROM profile where EMAIL='$father_mail'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						return array('status'=>'false', 'message'=>"Father Email already exist");
+					}
 				}
-			//}
+				
+			}
+			
+			$mother_mail=$values['mother']['p_email'];
+			if($mother_mail!=''){
+				$mrel_id=$values['mother']['relationId'];
+				$sql="SELECT PROF_ID FROM student_relation where ID='$mrel_id'";
+				$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($res){
+					$proId=$res[0]['PROF_ID'];
+					$sql="SELECT EMAIL FROM profile where EMAIL='$mother_mail'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						$sql="SELECT EMAIL FROM profile where ID='$proId'";
+						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($result1){
+							$emailDB=$result1[0]['EMAIL'];
+							if($emailDB==$mother_mail){
+								
+							}else{
+								return array('status'=>'false', 'message'=>"Mother Email already exist",'check'=>null);
+							}
+						}else{
+							return array('status'=>'false', 'message'=>"Mother Email already exist",'check'=>null);
+						}
+					}
+				}else{
+					$sql="SELECT EMAIL FROM profile where EMAIL='$mother_mail'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						return array('status'=>'false', 'message'=>"Mother Email already exist");
+					}
+				}
+				
+			}
+			
+			$guardian_mail=$values['guardian']['p_email'];
+			if($guardian_mail!=''){
+				$grel_id=$values['guardian']['relationId'];
+				$sql="SELECT PROF_ID FROM student_relation where ID='$grel_id'";
+				$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($res){
+					$proId=$res[0]['PROF_ID'];
+					$sql="SELECT EMAIL FROM profile where EMAIL='$guardian_mail'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						$sql="SELECT EMAIL FROM profile where ID='$proId'";
+						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if($result1){
+							$emailDB=$result1[0]['EMAIL'];
+							if($emailDB==$guardian_mail){
+								
+							}else{
+								return array('status'=>'false', 'message'=>"Guardian Email already exist",'check'=>null);
+							}
+						}else{
+							return array('status'=>'false', 'message'=>"Guardian Email already exist",'check'=>null);
+						}
+					}
+				}else{
+					$sql="SELECT EMAIL FROM profile where EMAIL='$guardian_mail'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						return array('status'=>'false', 'message'=>"Guardian Email already exist");
+					}
+				}
+				
+			}
 		}
 		
 		// set password details
@@ -2076,11 +2283,11 @@
 			// 	(SELECT COURSE_ID FROM COURSE_BATCH WHERE ID=student_profile.COURSEBATCH_ID) AS COURSEID,
 			// 	(SELECT NAME FROM COURSE WHERE ID=COURSEID) AS COURSE_NAME
 			// 	FROM profile INNER JOIN student_profile on profile.ID=student_profile.PROFILE_ID WHERE profile.ID='$studentId'";
-			if($roleId==$roleId){
+			if($roleId==3){
 				$sql="SELECT STUDENT_PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_fee.STUDENT_PROFILE_ID) as STUDENT_NAME,(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as batchId,(SELECT NAME FROM course_batch WHERE ID=batchId) as BATCH_NAME,(SELECT COURSE_ID FROM course_batch WHERE ID=batchId)as courseId,(SELECT NAME FROM course WHERE ID=courseId)as COURSE_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_fee.STUDENT_PROFILE_ID) as ADMISSION_NO,SUM((SELECT SUM(AMOUNT) FROM fee_item_structure WHERE FEE_STRUCTURE_ID=student_fee.FEE_STRUCTURE_ID)) as TOTAL_AMOUNT,(SELECT ID FROM fee_payment WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as feePaymentId,(SELECT SUM(PAID_AMOUNT) FROM student_fee_status WHERE FEE_PAYMENT_ID=feePaymentId)as PAID_AMOUNT FROM student_fee WHERE STUDENT_PROFILE_ID='$profileId'";
 				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			}else if($roleId==$roleId){
-				$sql="SELECT STUDENT_PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_fee.STUDENT_PROFILE_ID) as STUDENT_NAME,(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as batchId,(SELECT NAME FROM course_batch WHERE ID=batchId) as BATCH_NAME,(SELECT COURSE_ID FROM course_batch WHERE ID=batchId)as courseId,(SELECT NAME FROM course WHERE ID=courseId)as COURSE_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_fee.STUDENT_PROFILE_ID) as ADMISSION_NO,SUM((SELECT SUM(AMOUNT) FROM fee_item_structure WHERE FEE_STRUCTURE_ID=student_fee.FEE_STRUCTURE_ID)) as TOTAL_AMOUNT,(SELECT ID FROM fee_payment WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as feePaymentId,(SELECT SUM(PAID_AMOUNT) FROM student_fee_status WHERE FEE_PAYMENT_ID=feePaymentId)as PAID_AMOUNT FROM student_fee WHERE STUDENT_PROFILE_ID='$profileId'";
+			}else if($roleId==4){
+				$sql="SELECT STUDENT_PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_fee.STUDENT_PROFILE_ID) as STUDENT_NAME,(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as batchId,(SELECT NAME FROM course_batch WHERE ID=batchId) as BATCH_NAME,(SELECT COURSE_ID FROM course_batch WHERE ID=batchId)as courseId,(SELECT NAME FROM course WHERE ID=courseId)as COURSE_NAME,(SELECT ADMISSION_NO FROM profile WHERE ID=student_fee.STUDENT_PROFILE_ID) as ADMISSION_NO,SUM((SELECT SUM(AMOUNT) FROM fee_item_structure WHERE FEE_STRUCTURE_ID=student_fee.FEE_STRUCTURE_ID)) as TOTAL_AMOUNT,(SELECT ID FROM fee_payment WHERE PROFILE_ID=student_fee.STUDENT_PROFILE_ID)as feePaymentId,(SELECT SUM(PAID_AMOUNT) FROM student_fee_status WHERE FEE_PAYMENT_ID=feePaymentId)as PAID_AMOUNT FROM student_fee WHERE STUDENT_PROFILE_ID=(SELECT STU_PROF_ID FROM student_relation WHERE PROF_ID='$profileId')";
 				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			}
 		}
