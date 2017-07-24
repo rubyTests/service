@@ -50,9 +50,11 @@ function checkAccess(){
 		
 		//$sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_email='$email' and user.user_role_id=user_roles.id";
 		if(is_numeric($email)){
-			$sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_phone='$email' and user.user_role_id=user_roles.id";
+			// $sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_phone='$email' and user.user_role_id=user_roles.id";
+			$sql="SELECT user_roles.api_id,USER_ID,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID,case when (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) THEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) ELSE '0' END AS Additional FROM user,user_roles where user.user_phone='$email' and user.user_role_id=user_roles.id";
 		}else{
-			$sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_email='$email' and user.user_role_id=user_roles.id";
+			// $sql="SELECT user_roles.api_id,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID FROM user,user_roles where user.user_email='$email' and user.user_role_id=user_roles.id";
+			$sql="SELECT user_roles.api_id,USER_ID,USER_READ,USER_WRITE,USER_EDIT,USER_DELETE,USER_ROLE_ID,case when (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) THEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) ELSE '0' END AS Additional FROM user,user_roles where user.user_email='$email' and user.user_role_id=user_roles.id";
 		}
 		
 		$resultofApi = $ci->db->query($sql, $return_object = TRUE)->result_array();
@@ -67,6 +69,23 @@ function checkAccess(){
         }
 
         $jsonData=$resultofApi[0]['api_id'];
+		$additionalApi=$resultofApi[0]['Additional'];
+		if($additionalApi){
+			$sql="SELECT api_id FROM user_roles WHERE ID IN($additionalApi)";
+			$result = $ci->db->query($sql, $return_object = TRUE)->result_array();
+			foreach($result as $keys => $value){
+				$array = json_decode($value['api_id'], true);
+				foreach($array as $keys1 => $value1){
+					$out[$keys1] = $value1;
+				}
+			}
+			$addApi = json_encode($out);
+			$newApi =$jsonData.','.$addApi;
+			$string = str_replace('{','', $newApi);
+			$string = str_replace('}','', $string);
+			$jsonData='{'.$string.'}';
+		}
+		
         $result=json_decode($jsonData,true);
 
         $arrayApi='';
