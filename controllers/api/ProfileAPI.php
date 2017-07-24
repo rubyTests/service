@@ -609,6 +609,24 @@ class ProfileAPI extends REST_Controller {
 		} 			
 	}
 	
+	// Parents email check 
+	
+	function parentsEmailCheck_post(){
+    	$data['father']=$this->post('father');
+		// print_r($this->post('father'));exit;
+		$data['mother']=$this->post('mother');
+		$data['guardian']=$this->post('guardian');
+		$result=$this->profilemodel->checkParentsEmail($data);
+		// print_r($result['status']);exit();
+		if ($result['status']=='true'){
+			$this->set_response($result, REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response($result, REST_Controller::HTTP_OK);
+		} 			
+	}
+	
 	// Mobile app API for student detail filter with batchId
 	
 	function mStudentDetails_get(){
