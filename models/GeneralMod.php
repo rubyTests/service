@@ -6,7 +6,8 @@
 		
 		//Email number Login
 		public function getEmailLoginDetail($id,$id1){
-			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,USER_PROFILE_ID,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ROLE_ID=user_roles.id AND USER_EMAIL='$id' AND USER_PASSWORD='$id1'";
+			// $sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,USER_PROFILE_ID,role_name,CASE WHEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) THEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) ELSE 0 END as Role_Id FROM `user`,`user_roles` where user.USER_ROLE_ID=user_roles.id AND USER_EMAIL='$id' AND USER_PASSWORD='$id1'";
+			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,USER_PROFILE_ID,role_name,USER_ROLE_ID,CASE WHEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) THEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) ELSE null END as Additional_RoleId FROM `user`,`user_roles` where user.USER_ROLE_ID=user_roles.id AND USER_EMAIL='$id' AND USER_PASSWORD='$id1'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if(!empty($result)){
 				return $result;
@@ -15,7 +16,8 @@
 		
 		//Phone number Login
 		public function getPhoneLoginDetail($id,$id1){
-			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,USER_PROFILE_ID,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ID=user_roles.id AND USER_PHONE='$id' AND USER_PASSWORD='$id1'";
+			// $sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,USER_PROFILE_ID,role_name, USER_ROLE_ID FROM `user`,`user_roles` where user.USER_ID=user_roles.id AND USER_PHONE='$id' AND USER_PASSWORD='$id1'";
+			$sql="SELECT USER_ID,USER_FIRST_NAME,USER_LAST_NAME,USER_PHONE,USER_EMAIL,USER_PROFILE_ID,role_name,USER_ROLE_ID,CASE WHEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) THEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) ELSE null END as Additional_RoleId FROM `user`,`user_roles` where user.USER_ROLE_ID=user_roles.id AND USER_PHONE='$id' AND USER_PASSWORD='$id1'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if(!empty($result)){
 				return $result;
