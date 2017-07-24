@@ -143,7 +143,7 @@ class GeneralAPI extends REST_Controller {
 			$users=$this->tokenGen($type,$email,$pwd,$client_id);
 			if($users[0]['message']=='Success'){
 				if($type=='phone'){
-					// $result=$this->GeneralMod->getPhoneLoginDetail($email,$pwd);					
+					$result=$this->GeneralMod->getPhoneLoginDetail($email,$pwd);					
 				}else{
 					$result=$this->GeneralMod->getEmailLoginDetail($email,$pwd);
 				}
