@@ -148,5 +148,10 @@
 			}
 		}
 		
+		public function getSidemenu($proId,$roleId){
+			$sql="SELECT user.USER_ID,CASE WHEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) THEN (SELECT ROLL_NAME FROM assign_role WHERE USER_ID=user.USER_ID) ELSE NULL END AS Additional_RoleId FROM user WHERE USER_PROFILE_ID='$proId' AND USER_ROLE_ID='$roleId'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
 	}
 ?>
