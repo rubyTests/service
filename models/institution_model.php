@@ -747,5 +747,59 @@
 			$sql="SELECT * FROM room";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
+		function addInstitutionSettingDetails($value){
+			$data = array(
+			   'STUDENT_ADM_NO' => $value['student_status'],
+			   'EMPLOYEE_ADM_NO' => $value['employee_status'],
+			   'MATERIAL_REQUEST' => $value['material_status'],
+			   'PURCHASE_ORDER' => $value['purchase_status'],
+			   'INVOICE' => $value['invoice_status'],
+			   'GOODS_RECEIPT' => $value['goods_status'],
+			   'STUDENT_PREFIX' => $value['student_prefix'],
+			   'EMPLOYEE_PREFIX' => $value['employee_prefix'],
+			   'MATERIAL_REQUEST_PREFIX' => $value['material_prefix'],
+			   'PURCHASE_ORDER_PREFIX' => $value['purchase_prefix'],
+			   'INVOICE_PREFIX' => $value['invoice_prefix'],
+			   'GOODS_RECEIPT_PREFIX' => $value['goods_prefix'],
+			   'STU_ADM_NO' => $value['studentAdm_No'],
+			   'EMP_ADM_NO' => $value['employeeAdm_no'],
+			   'MATERIAL_NO' => $value['material_No'],
+			   'ORDER_NO' => $value['order_no'],
+			   'INVOICE_NO' => $value['invoice_no'],
+			   'GRN_NO' => $value['grn_no']
+			);
+			$this->db->insert('INSTITUTION_SETTING', $data);
+			$setting_id=$this->db->insert_id();
+			return array('status'=>true, 'message'=>"Record Inserted Successfully",'SETTING_ID'=>$setting_id);
+		}
+		function updateInstitutionSettingDetails($id,$value){
+			$data = array(
+			   'STUDENT_ADM_NO' => $value['student_status'],
+			   'EMPLOYEE_ADM_NO' => $value['employee_status'],
+			   'MATERIAL_REQUEST' => $value['material_status'],
+			   'PURCHASE_ORDER' => $value['purchase_status'],
+			   'INVOICE' => $value['invoice_status'],
+			   'GOODS_RECEIPT' => $value['goods_status'],
+			   'STUDENT_PREFIX' => $value['student_prefix'],
+			   'EMPLOYEE_PREFIX' => $value['employee_prefix'],
+			   'MATERIAL_REQUEST_PREFIX' => $value['material_prefix'],
+			   'PURCHASE_ORDER_PREFIX' => $value['purchase_prefix'],
+			   'INVOICE_PREFIX' => $value['invoice_prefix'],
+			   'GOODS_RECEIPT_PREFIX' => $value['goods_prefix'],
+			   'STU_ADM_NO' => $value['studentAdm_No'],
+			   'EMP_ADM_NO' => $value['employeeAdm_no'],
+			   'MATERIAL_NO' => $value['material_No'],
+			   'ORDER_NO' => $value['order_no'],
+			   'INVOICE_NO' => $value['invoice_no'],
+			   'GRN_NO' => $value['grn_no']
+			);
+			$this->db->where('ID', $id);
+			$this->db->update('INSTITUTION_SETTING', $data);
+			return array('status'=>true, 'message'=>"Record Inserted Successfully",'SETTING_ID'=>$id);
+		}
+		function getInstitutionSettingData(){
+			$sql="SELECT * FROM INSTITUTION_SETTING";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
 	}
 ?>

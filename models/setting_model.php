@@ -18,6 +18,10 @@
 			$sql="SELECT DISTINCT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS FULLNAME FROM employee_profile";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
+		function emailSendList(){
+			$sql="SELECT * FROM EMAIL_LOG WHERE STATUS='N' ORDER BY CRT_DT";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
 		
 		// Bulk SMS sending
 		public function bulkSmsSent($values){

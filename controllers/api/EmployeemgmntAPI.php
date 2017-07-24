@@ -209,6 +209,7 @@ class EmployeemgmntAPI extends REST_Controller {
 		$data['email']=$this->post('email');
 		$data['ProfileID']=$this->post('ProfileID');
 		$data['report_to']=$this->post('report_to');
+		$data['inst_id']=$this->post('inst_id');
 		if($id==NULL){
 			$result=$this->employee_mgmnt_model->addEmployeeAdmissionDetails($data);
 			if($result['status']==true){

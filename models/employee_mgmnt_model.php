@@ -131,6 +131,15 @@
 					);
 					$this->db->insert('employee_profile', $emp_profile); 
 					$emp_profile_id= $this->db->insert_id();
+
+					$val = filter_var($value['admission_no'], FILTER_SANITIZE_NUMBER_INT);
+					$incrementNo=$val+1;
+					$inst = array(
+						'EMP_ADM_NO' => $incrementNo
+					);
+					$this->db->where('ID', $value['inst_id']);
+					$this->db->update('INSTITUTION_SETTING', $inst);
+
 					return array('status'=>true, 'message'=>"Record Inserted Successfully",'PROFILE_ID'=>$profile_id,'EMP_PROFILE_ID'=>$emp_profile_id);
 				}
 			}

@@ -11,6 +11,7 @@ class SettingAPI extends REST_Controller {
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
 		$this->load->model('setting_model');
+		$this->load->library('email');
 		$userIDByToken="";
 		checkTokenAccess();
 		checkAccess();
@@ -60,6 +61,44 @@ class SettingAPI extends REST_Controller {
 			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 		}
     }
+
+    function mailSend_post()
+	{
+		// print_r($this->post('email'));exit;
+		$config = Array(
+			'protocol' => 'smtp',
+			'smtp_host' => 'ssl://smtp.googlemail.com',
+			'smtp_port' => 465,
+			'smtp_user' => 'manisrikan@gmail.com', // change it to yours
+			'smtp_pass' => 'mani16121993', // change it to yours
+			'mailtype' => 'html',
+			'charset' => 'iso-8859-1',
+			'wordwrap' => TRUE
+		);
+
+		$result=$this->setting_model->emailSendList();
+
+		// $result=['vijayaraj@appnlogic.com','manivannan@appnlogic.com'];
+		
+		for ($i=0; $i < count($result); $i++) { 
+			$this->email->initialize($config);
+			$this->load->library('email', $config);
+			$this->email->set_newline("\r\n");
+			$this->email->from('rvijayaraj24@gmail.com'); // change it to yours
+			$this->email->to($this->post('email'));
+			$this->email->subject($this->post('user'));
+			$this->email->message($this->post('subject'));
+			if (!$this->email->send())
+			{
+				show_error($this->email->print_debugger());
+			}
+			else{
+				echo 'Mail Sended Successfully';
+			}
+			$this->email->clear(TRUE);
+		}
+		
+	}
 	
 	// Bulk sms sending
 	function bulkSms_post(){

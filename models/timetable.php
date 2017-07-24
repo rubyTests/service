@@ -75,8 +75,7 @@
 			return $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function checkEmployeeTimetable($employee_id,$setday,$starttime,$endtime){
-			$sql="SELECT * FROM TIMETABLE WHERE PROFILE_ID='$employee_id' AND DAY='$setday' AND START_TIME >='$starttime' AND END_TIME <='$endtime'";
-			// SELECT * FROM TIMETABLE WHERE PROFILE_ID='1' AND DAY='Monday' AND START_TIME >= '09:30:00' AND END_TIME <= '13:30:00' 
+			$sql="SELECT * FROM TIMETABLE WHERE PROFILE_ID='$employee_id' AND DAY='$setday' AND START_TIME < '$endtime' AND END_TIME > '$starttime'";
 			return $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function getTimetableAllocationDetails($batch){
@@ -104,16 +103,42 @@
 			return $this->db->affected_rows();
 		}
 		function updateCalendarDetails($id,$value){
-			print_r($value);exit();
-			$data = array(
-			   'SUBJECT_ID' => $value['subject_id'],
-			   'PROFILE_ID' => $value['employee_id'],
-			   'DAY' => $value['start_day']
-			);
-			// print_r($data);exit;
-			$this->db->where('ID', $id);
-			$this->db->update('TIMETABLE', $data);
-			return array('status'=>true, 'message'=>"Record Inserted Successfully",'TIMETABLE_ID'=>$table_id);
+			// print_r($value);exit;
+			$employee_id=$value['employee_id'];
+			$startTime=$value['startTime'];
+			$endTime=$value['endTime'];
+			$start_day=$value['start_day'];
+			$sql="SELECT * FROM TIMETABLE WHERE PROFILE_ID='$employee_id' AND DAY='$start_day' AND START_TIME < '$endTime' AND END_TIME > '$startTime'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				if($result[0]['PROFILE_ID']==$employee_id && $result[0]['DAY']==$start_day && $result[0]['START_TIME']==$startTime && $result[0]['END_TIME']==$endTime)
+				{
+					$data = array(
+					   'SUBJECT_ID' => $value['subject_id'],
+					   'PROFILE_ID' => $employee_id,
+					   'DAY' => $start_day,
+					   'START_TIME'=>$startTime,
+					   'END_TIME'=>$endTime
+					);
+					$this->db->where('ID', $id);
+					$this->db->update('TIMETABLE', $data);
+					return array('status'=>true, 'message'=>"Record Inserted Successfully",'TIMETABLE_ID'=>$id);
+				}
+				else {
+					return array('status'=>false);
+				}
+			}else {
+				$data = array(
+				   'SUBJECT_ID' => $value['subject_id'],
+				   'PROFILE_ID' => $employee_id,
+				   'DAY' => $start_day,
+				   'START_TIME'=>$startTime,
+				   'END_TIME'=>$endTime
+				);
+				$this->db->where('ID', $id);
+				$this->db->update('TIMETABLE', $data);
+				return array('status'=>true, 'message'=>"Record Inserted Successfully",'TIMETABLE_ID'=>$id);
+			}
 		}
 
 		function saveDetails($value){

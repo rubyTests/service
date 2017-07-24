@@ -592,6 +592,7 @@ class InventoryAPI extends REST_Controller {
     	$data['store_id']=$this->post('store_id');
     	$data['notesData']=$this->post('notesData');
     	$data['itemData']=$this->post('itemData');
+    	$data['inst_id']=$this->post('inst_id');
     	
 		$result=$this->inventory_model->materialRequestDetails($data);
 		
@@ -693,6 +694,7 @@ class InventoryAPI extends REST_Controller {
     	$data['po_ref']=$this->post('po_reference');
     	$data['total_amount']=$this->post('total_amount');
     	$data['itemData']=$this->post('itemData');
+    	$data['institute_id']=$this->post('institute_id');
     	
 		$result=$this->inventory_model->purchaseOrderPostData($data);
 		
@@ -791,6 +793,7 @@ class InventoryAPI extends REST_Controller {
     	$data['notes']=$this->post('notes');
     	$data['total_amount']=$this->post('total_amount');
     	$data['itemData']=$this->post('itemData');
+    	$data['institute_id']=$this->post('institute_id');
     	
 		$result=$this->inventory_model->billingPostData($data);
 		
@@ -892,6 +895,7 @@ class InventoryAPI extends REST_Controller {
     	$data['invoice_date']=$this->post('invoice_date');
     	$data['total_amount']=$this->post('total_amount');
     	$data['itemData']=$this->post('itemData');
+    	$data['institute_id']=$this->post('institute_id');
     	if($id==NULL){
 			$result=$this->inventory_model->grnPostData($data);
 	    	if($result['status']==true){

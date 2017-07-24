@@ -26,6 +26,15 @@
 				);
 				$this->db->insert('student_profile', $data1);
 				$student_profile_id= $this->db->insert_id();
+
+				$val = filter_var($values['ADMISSION_NO'], FILTER_SANITIZE_NUMBER_INT);
+				$incrementNo=$val+1;
+				$inst = array(
+					'STU_ADM_NO' => $incrementNo
+				);
+				$this->db->where('ID', $values['inst_id']);
+				$this->db->update('INSTITUTION_SETTING', $inst);
+
 				// if(!empty($student_profile_id)){
 					// $data2 = array(
 						// 'STU_PROF_ID' => $student_profile_id
@@ -2310,6 +2319,14 @@
 			$sql="SELECT SF.FEE_STRUCTURE_ID,FIS.ID,FIS.DUE_DATE,FIS.AMOUNT,(SELECT NAME FROM feeitem WHERE ID=FIS.FEE_ITEM_ID) AS ITEM_NAME,CASE WHEN(SELECT PAID_AMOUNT FROM student_fee_status as SFS WHERE SFS.FEE_STRUCTURE_ID=FIS.FEE_STRUCTURE_ID AND SFS.FEE_ITEM_ID=FIS.FEE_ITEM_ID) THEN (SELECT PAID_AMOUNT FROM student_fee_status as SFS WHERE SFS.FEE_STRUCTURE_ID=FIS.FEE_STRUCTURE_ID AND SFS.FEE_ITEM_ID=FIS.FEE_ITEM_ID) ELSE 0 END AS PAID_AMOUNT FROM student_fee as SF 
 				INNER JOIN fee_item_structure as FIS ON SF.FEE_STRUCTURE_ID=FIS.FEE_STRUCTURE_ID AND CURDATE() <= FIS.DUE_DATE
 				WHERE SF.STUDENT_PROFILE_ID='$profileId'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		// function getStudentPrefix(){
+		// 	$sql="SELECT ID,STUDENT_ADM_NO,STUDENT_PREFIX from institution_setting";
+		// 	return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		// }
+		function getAutoincrementNo(){
+			$sql="SELECT * from INSTITUTION_SETTING";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 	}

@@ -365,6 +365,15 @@
 						);
 						$this->db->insert('material_request_items', $data1);
 					}
+
+					$val = filter_var($value['req_num'], FILTER_SANITIZE_NUMBER_INT);
+					$incrementNo=$val+1;
+					$inst = array(
+						'MATERIAL_NO' => $incrementNo
+					);
+					$this->db->where('ID', $value['inst_id']);
+					$this->db->update('INSTITUTION_SETTING', $inst);
+
 					return array('status'=>true, 'message'=>"Record Inserted Successfully",'REQ_ID'=>$req_id);
 				}
 			}
@@ -442,6 +451,15 @@
 						);
 						$this->db->insert('purchase_order_items', $data1);
 					}
+
+					$val = filter_var($value['po_num'], FILTER_SANITIZE_NUMBER_INT);
+					$incrementNo=$val+1;
+					$inst = array(
+						'ORDER_NO' => $incrementNo
+					);
+					$this->db->where('ID', $value['inst_id']);
+					$this->db->update('INSTITUTION_SETTING', $inst);
+
 					return array('status'=>true, 'message'=>"Record Inserted Successfully",'PO_ID'=>$po_id);
 				}
 			}
@@ -514,6 +532,15 @@
 						);
 						$this->db->insert('billing_items', $data1);
 					}
+
+					$val = filter_var($value['invoice_no'], FILTER_SANITIZE_NUMBER_INT);
+					$incrementNo=$val+1;
+					$inst = array(
+						'INVOICE_NO' => $incrementNo
+					);
+					$this->db->where('ID', $value['institute_id']);
+					$this->db->update('INSTITUTION_SETTING', $inst);
+					
 					return array('status'=>true, 'message'=>"Record Inserted Successfully",'BILLING_ID'=>$invoice_id);
 				}
 			}
@@ -588,6 +615,15 @@
 						);
 						$this->db->insert('grn_items', $data1);
 					}
+
+					$val = filter_var($value['grn_number'], FILTER_SANITIZE_NUMBER_INT);
+					$incrementNo=$val+1;
+					$inst = array(
+						'GRN_NO' => $incrementNo
+					);
+					$this->db->where('ID', $value['institute_id']);
+					$this->db->update('INSTITUTION_SETTING', $inst);
+
 					return array('status'=>true, 'message'=>"Record Inserted Successfully",'GRN_ID'=>$grn_id);
 				}
 			}

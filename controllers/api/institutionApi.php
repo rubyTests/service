@@ -663,4 +663,55 @@ class InstitutionAPI extends REST_Controller {
 			}
 		}  	
 	}
+
+	function institutionSettingData_post(){
+		// print_r($this->post());exit();
+		$id=$this->post('setting_id');
+		$data['student_status']=$this->post('student_status');
+		$data['employee_status']=$this->post('employee_status');
+		$data['material_status']=$this->post('material_status');
+		$data['purchase_status']=$this->post('purchase_status');
+		$data['invoice_status']=$this->post('invoice_status');
+		$data['goods_status']=$this->post('goods_status');
+		$data['student_prefix']=$this->post('student_prefix');
+		$data['employee_prefix']=$this->post('employee_prefix');
+		$data['material_prefix']=$this->post('material_prefix');
+		$data['purchase_prefix']=$this->post('purchase_prefix');
+		$data['invoice_prefix']=$this->post('invoice_prefix');
+		$data['goods_prefix']=$this->post('goods_prefix');
+		$data['studentAdm_No']=$this->post('studentAdm_No');
+		$data['employeeAdm_no']=$this->post('employeeAdm_no');
+		$data['material_No']=$this->post('material_No');
+		$data['order_no']=$this->post('order_no');
+		$data['invoice_no']=$this->post('invoice_no');
+		$data['grn_no']=$this->post('grn_no');
+		if($id==null){
+			$result=$this->institution_model->addInstitutionSettingDetails($data);
+	    	if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}else {
+			$result=$this->institution_model->updateInstitutionSettingDetails($id,$data);
+	    	if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+	}
+	function institutionSettingData_get(){
+		$result=$this->institution_model->getInstitutionSettingData();
+    	if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Data could not be found'
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}
+	}
 }

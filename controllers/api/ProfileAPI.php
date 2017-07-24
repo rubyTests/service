@@ -52,6 +52,7 @@ class ProfileAPI extends REST_Controller {
     	$data['RELIGION']=$this->post('religion');
     	$data['COURSEBATCH_ID']=$this->post('batchId');
     	$data['ROLL_NO']=$this->post('roll_no');
+    	$data['inst_id']=$this->post('inst_id');
 		
 		if($id==null){
 			$result=$this->profilemodel->addAdmission($data);
@@ -94,7 +95,7 @@ class ProfileAPI extends REST_Controller {
 		$id=$this->post('profileId');
 		$type='Student';
 		$mailStatus=$this->profilemodel->checkVerification($id,$type);
-			print_r($mailStatus);exit;
+			// print_r($mailStatus);exit;
 		if($mailStatus){
 			$to=$mailStatus[0]['email'];
 			$token=$mailStatus[0]['token'];
@@ -750,6 +751,40 @@ class ProfileAPI extends REST_Controller {
 				$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
 			}
 		}
+	}
+	function getStudentPrefix_get(){
+		$result=$this->profilemodel->getStudentPrefix();
+		if ($result){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+		}
+	}
+	function getAutoincrementNo_get(){
+		$result=$this->profilemodel->getAutoincrementNo();
+		if ($result){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+		}
+		// $Prefixname=$this->get('Prefixname');
+		// if($Prefixname==null){
+		// 	$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+		// }
+		// else{
+		// 	$result=$this->profilemodel->getStudentAdmissionNo($Prefixname);
+		// 	if ($result){
+		// 		$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		// 	}
+		// 	else
+		// 	{
+		// 		$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
+		// 	}
+		// }
 	}
 }
 ?>
