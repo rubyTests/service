@@ -101,5 +101,16 @@ class DashboardAPI extends REST_Controller {
 		}
 	}
 	
+	function sidemenu_get(){
+		$proId=$this->get('profileId');
+		$roleId=$this->get('roleId');
+		$result=$this->dashboardmodel->getSidemenu($proId,$roleId);
+		if($result){
+			$this->set_response(['status'=>TRUE,'message'=>$result], REST_Controller::HTTP_OK);
+		}else{
+			$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
+		}
+	}
+	
 }
 ?>
