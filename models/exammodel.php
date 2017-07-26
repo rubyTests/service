@@ -659,5 +659,9 @@
 			}
 		}
 		
+		function fetchExamlistbasedonTerms($id){
+			$sql="SELECT ID,NAME,SETTERM_ID,STARTDATE,ENDDATE FROM e_createexam WHERE SETTERM_ID='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
 	}
 ?>
