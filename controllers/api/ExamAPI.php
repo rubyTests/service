@@ -670,5 +670,20 @@ class ExamAPI extends REST_Controller {
 			$this->set_response(['status' =>FALSE,'message'=>'Data1 not found'], REST_Controller::HTTP_OK);
 		}
 	}
+	
+
+	function examListBasedonTerms_get(){
+		$id=$this->get('termid');
+		if($id==null){
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}else{
+			$result=$this->exammodel->fetchExamlistbasedonTerms($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}	
+	}
 }
 ?>
