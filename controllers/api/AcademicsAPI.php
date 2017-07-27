@@ -10,9 +10,9 @@ class AcademicsAPI extends REST_Controller {
 		header("Access-Control-Allow-Origin: *");
 		header("Access-Control-Allow-Headers: Content-Type,access_token");
 		header("Access-Control-Allow-Methods: GET,POST,DELETE");
-		// $userIDByToken="";
-		// checkTokenAccess();
-		// checkAccess();
+		$userIDByToken="";
+		checkTokenAccess();
+		checkAccess();
     }
 
     // Department Details 
@@ -828,5 +828,83 @@ class AcademicsAPI extends REST_Controller {
 				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
 			}
 		}   	
+    }
+
+    function newsandevents_post(){
+    	// print_r($this->post());exit();
+    	$id=$this->post('event_id');
+    	$data['usertype']=$this->post('usertype');
+    	$data['department_id']=$this->post('department_id');
+		$data['course_id']=$this->post('course_id');
+		$data['batch_id']=$this->post('batch_id');
+		$data['title']=$this->post('title');
+		$data['description']=$this->post('description');
+		$data['start_date']=$this->post('start_date');
+		$data['end_date']=$this->post('end_date');
+		$data['starttime']=$this->post('starttime');
+		$data['endtime']=$this->post('endtime');
+		if($id==NULL){
+			$result=$this->academics->addNewsEvents($data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}else{
+			$result=$this->academics->updateNewsEvents($id,$data);
+			if($result['status']==true){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_CREATED);
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
+			}
+		}
+    }
+
+    function newsandevents_get(){
+    	$id = $this->get('id');
+		if($id==NULL){
+			$data=$this->academics->getAllNewsandEvents();
+			if (!empty($data)){
+				$this->set_response(['status' =>TRUE,'message'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data not found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}else {
+			$data=$this->academics->getParticularNewsandEvents($id);
+			if (!empty($data)){
+				$this->set_response(['status' =>TRUE,'message'=>$data], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Data not found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+    function newsandevents_delete(){
+    	$id = $this->delete('id');
+		if($id==NULL){
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$users=$this->academics->deleteEvents($id);
+			if ($users!=0){
+				$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Batch Detail could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
     }
 }

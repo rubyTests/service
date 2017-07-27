@@ -811,5 +811,89 @@
 			$sql="SELECT id, role_name FROM user_roles";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();			
 		}
+		function addNewsEvents($value){
+			// print_r($value);
+			if($value['department_id'] !=''){
+				$deptVal=join(",",$value['department_id']);
+			}else {
+				$deptVal='';
+			}
+
+			if($value['course_id']){
+				$courseVal=join(",",$value['course_id']);
+			}else {
+				$courseVal='';
+			}
+
+			if($value['batch_id']){
+				$batchVal=join(",",$value['batch_id']);
+			}else {
+				$batchVal='';
+			}
+			$data = array(
+			   'USER_TYPE' => $value['usertype'],
+			   'DEPT_ID' => $deptVal,
+			   'COURSE_ID' => $courseVal,
+			   'BATCH_ID' => $batchVal,
+			   'TITLE' => $value['title'],
+			   'DESCRIPTION' => $value['description'],
+			   'STARTDATE' => $value['start_date'],
+			   'ENDDATE' => $value['end_date'],
+			   'STARTTIME' => $value['starttime'],
+			   'ENDTIME' => $value['endtime']
+			);
+			// print_r($data);exit;
+			$this->db->insert('news_events', $data); 
+			return array('status'=>true, 'message'=>"Record Inserted Successfully");
+		}
+
+		function updateNewsEvents($id,$value){
+			// print_r($value);exit();
+			if($value['department_id'] !=''){
+				$deptVal=join(",",$value['department_id']);
+			}else {
+				$deptVal='';
+			}
+
+			if($value['course_id']){
+				$courseVal=join(",",$value['course_id']);
+			}else {
+				$courseVal='';
+			}
+
+			if($value['batch_id']){
+				$batchVal=join(",",$value['batch_id']);
+			}else {
+				$batchVal='';
+			}
+			$data = array(
+			   'USER_TYPE' => $value['usertype'],
+			   'DEPT_ID' => $deptVal,
+			   'COURSE_ID' => $courseVal,
+			   'BATCH_ID' => $batchVal,
+			   'TITLE' => $value['title'],
+			   'DESCRIPTION' => $value['description'],
+			   'STARTDATE' => $value['start_date'],
+			   'ENDDATE' => $value['end_date'],
+			   'STARTTIME' => $value['starttime'],
+			   'ENDTIME' => $value['endtime']
+			);
+			$this->db->where('ID', $id);
+			$this->db->update('news_events', $data); 
+			return array('status'=>true, 'message'=>"Record Updatd Successfully");
+		}
+		function getAllNewsandEvents(){
+			$sql="SELECT * FROM news_events";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();	
+		}
+		function getParticularNewsandEvents($id){
+			$sql="SELECT * FROM news_events where ID='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();	
+		}
+		function deleteEvents($id){
+			$sql="DELETE FROM news_events where ID='$id'";
+			$result = $this->db->query($sql);
+    		return $this->db->affected_rows();
+		}
 	}
 ?>
