@@ -364,7 +364,10 @@
 		// Set Examination
 		
 		public function getAllExaminationDetails(){
-			$sql="SELECT ID,NAME,CREATEEXAM_ID,MAX_MARK,(SELECT NAME FROM e_createexam WHERE ID=CREATEEXAM_ID)as EXAM_NAME FROM e_setexamination";
+			// $sql="SELECT ID,NAME,CREATEEXAM_ID,MAX_MARK,(SELECT NAME FROM e_createexam WHERE ID=CREATEEXAM_ID)as EXAM_NAME FROM e_setexamination";
+			$sql="SELECT e_setexamination.ID,e_setexamination.COURSEBATCH_ID,e_setexamination.CREATEEXAM_ID,e_setexamination.SUBJECT_ID,e_setexamination.DATE,e_setexamination.START_TIME,e_setexamination.END_TIME,e_setexamination.PASS_MARK,e_setexamination.MAX_MARK,course_batch.COURSE_ID,(SELECT NAME FROM COURSE WHERE COURSE.ID=course_batch.COURSE_ID) AS COURSE_NAME,e_createexam.NAME AS EXAM_NAME,e_createexam.SETTERM_ID,(SELECT NAME FROM e_setterm WHERE e_setterm.ID=e_createexam.SETTERM_ID) AS TERM_NAME,(SELECT NAME FROM SUBJECT WHERE ID=e_setexamination.SUBJECT_ID) AS SUBJECT_NAME,(SELECT NAME FROM COURSE_BATCH WHERE ID=e_setexamination.COURSEBATCH_ID) AS BATCH_NAME FROM e_setexamination 
+				INNER JOIN course_batch on e_setexamination.COURSEBATCH_ID=course_batch.ID
+				INNER JOIN e_createexam on e_setexamination.CREATEEXAM_ID=e_createexam.ID";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
@@ -374,9 +377,10 @@
 		}
 		
 		public function addSetExaminationDetails($values){
+			// print_r($values);exit;
 			$data = array(
-				'COURSEBATCH_ID' => $values['COURSEBATCH_ID'],
-				'CREATEEXAM_ID' => $values['CREATEEXAM_ID'],
+				'COURSEBATCH_ID' => $values['BATCH_ID'],
+				'CREATEEXAM_ID' => $values['EXAM_ID'],
 				'SUBJECT_ID' => $values['SUBJECT_ID'],
 				'DATE' => $values['DATE'],
 				'START_TIME' => $values['START_TIME'],
@@ -393,8 +397,8 @@
 		
 		public function editSetExaminationDetails($Id,$values){
 			$data = array(
-				'COURSEBATCH_ID' => $values['COURSEBATCH_ID'],
-				'CREATEEXAM_ID' => $values['CREATEEXAM_ID'],
+				'COURSEBATCH_ID' => $values['BATCH_ID'],
+				'CREATEEXAM_ID' => $values['EXAM_ID'],
 				'SUBJECT_ID' => $values['SUBJECT_ID'],
 				'DATE' => $values['DATE'],
 				'START_TIME' => $values['START_TIME'],
