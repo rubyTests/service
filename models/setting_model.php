@@ -25,7 +25,11 @@
 		
 		// Bulk SMS sending
 		public function bulkSmsSent($values){
-			$batchId=$values['batchId'];
+			if(count($values['batchId'])==1){
+				$batchId=$values['batchId'];
+			}else{
+				$batchId=implode(',', $values['batchId']);
+			}
 			$sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROFILE_ID FROM student_profile WHERE COURSEBATCH_ID IN($batchId)) AND PHONE_NO_1 IS NOT NULL";
 			return $res = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
@@ -66,5 +70,11 @@
 				return true;
 			}
 		}
+		
+		public function getBulkSmsDetails(){
+			$sql="SELECT ID,COURSE_ID,(SELECT NAME FROM course WHERE ID=COURSE_ID) as COURSE_NAME,BATCH_ID,(SELECT NAME FROM course_batch WHERE ID=BATCH_ID) as BATCH_NAME,MESSAGE,TOTAL,SUCCESS FROM bulksms";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
+		
 	}
 ?>
