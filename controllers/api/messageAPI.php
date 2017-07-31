@@ -44,6 +44,22 @@ class messageAPI extends REST_Controller {
 		}
 	}
 
+	function replyMsg_post(){
+		$data['recipient']=$this->post('recipient');
+		$data['message']=$this->post('message');
+		$data['from_id']=$this->post('from_id');
+		$data['msg_con_id']=$this->post('msg_con_id');
+		$data['reply_id']=$this->post('reply_id');
+		$result=$this->messagemodel->addReplyMsgDetails($data);
+		if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'message'=>'Message Send Successfully'], REST_Controller::HTTP_OK); 
+		}
+		else
+		{
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}
+	}
+
 	function messageHeaderList_get(){
 		$profileId = $this->get('id');
 		$result=$this->messagemodel->getMessageHeaderList($profileId);
@@ -56,7 +72,8 @@ class messageAPI extends REST_Controller {
 
 	function messageDetailById_get(){
 		$Id = $this->get('id');
-		$result=$this->messagemodel->getMessageDetailById($Id);
+		$profile_id = $this->get('profile_id');
+		$result=$this->messagemodel->getMessageDetailById($Id,$profile_id);
 		if (!empty($result)){
 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 		}else{
@@ -77,6 +94,13 @@ class messageAPI extends REST_Controller {
 				$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
 			}
 		}
+	}
+	public function updateMessageStatus_post(){
+		$data['C_ID']=$this->post('C_ID');
+		$data['MESSAGE_ID']=$this->post('MESSAGE_ID');
+		$data['STATUS']=$this->post('STATUS');
+		$result=$this->messagemodel->updateMessageStatus($data);
+		// print_r($result);exit();
 	}
 }
 ?>
