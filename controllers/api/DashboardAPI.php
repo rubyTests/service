@@ -112,5 +112,15 @@ class DashboardAPI extends REST_Controller {
 		}
 	}
 	
+	function last5daysRegCalc_get(){
+		$result=$this->dashboardmodel->getLast5daysRegCalc();
+		if($result){
+			$this->set_response(['status'=>TRUE,'message'=>$result], REST_Controller::HTTP_OK);
+		}else{
+			$this->set_response(['status'=>FALSE,'message'=>'There is no Record found'], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	
 }
 ?>
