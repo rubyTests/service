@@ -443,17 +443,32 @@
 		}
 		
 		public function getStudentDetails($data){
+			$stuDetails=$data['studentDetails'];
+			$courseId=$data['course'];
 			$batchId=$data['batch'];
 			$assessmentId=$data['assessmentId'];
 			$subject=$data['subject'];
-			$sql="SELECT ID FROM e_setassessment_mark WHERE SETASSESSMENT_ID='$assessmentId' AND SUBJECT_ID='$subject'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result){
-				$sql="SELECT ID,SETASSESSMENT_ID,MARK,COURSEBATCH_ID,SUBJECT_ID,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as Name,(SELECT MAX_MARK FROM e_setassessment WHERE ID=SETASSESSMENT_ID)as MAX_MARK FROM e_setassessment_mark WHERE SETASSESSMENT_ID='$assessmentId' AND SUBJECT_ID='$subject'";
-				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($stuDetails=='OverAllMarks'){
+				$sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) as PROFILE_NAME FROM student_profile WHERE COURSEBATCH_ID='$batchId'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				foreach($result as $key => $value){
+					$proId=$value['PROFILE_ID'];
+					// $sql="SELECT term.ID,term.NAME as Term_Name,cExam.NAME as Exam_Name,cExam.ID,sum(sExam.MAX_MARK),sExam.SUBJECT_ID,sum(mList.MARK),mList.PROFILE_ID FROM e_setterm as term INNER JOIN e_createexam as cExam on term.ID=cExam.SETTERM_ID INNER JOIN e_setexamination as sExam on sExam.CREATEEXAM_ID=cExam.ID AND sExam.SUBJECT_ID IN(SELECT ID FROM course_subject WHERE COURSE_ID=$courseId) RIGHT JOIN e_marklist as mList on mList.SETEXAM_ID=sExam.ID WHERE sExam.COURSEBATCH_ID='$batchId' AND mList.PROFILE_ID='$proId' GROUP BY cExam.ID,mList.PROFILE_ID";
+					$sql="SELECT term.ID,term.NAME as Term_Name,cExam.NAME as Exam_Name,cExam.ID,sum(sExam.MAX_MARK) as MAX_MARK,sExam.SUBJECT_ID,sum(mList.MARK) as MARK,mList.PROFILE_ID FROM e_setterm as term INNER JOIN e_createexam as cExam on term.ID=cExam.SETTERM_ID INNER JOIN e_setexamination as sExam on sExam.CREATEEXAM_ID=cExam.ID AND sExam.SUBJECT_ID IN(SELECT ID FROM course_subject WHERE COURSE_ID=$courseId) RIGHT JOIN e_marklist as mList on mList.SETEXAM_ID=sExam.ID WHERE sExam.COURSEBATCH_ID='$batchId' AND mList.PROFILE_ID='$proId' GROUP BY term.ID,mList.PROFILE_ID";
+					$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+					$result[$key]['terms']=$res;
+				}
+				return $result;
 			}else{
-				$sql="SELECT ID,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_profile.PROFILE_ID)as Name,(SELECT MAX_MARK FROM e_setassessment WHERE ID='$assessmentId')as MAX_MARK FROM student_profile WHERE COURSEBATCH_ID='$batchId'";
-				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				$sql="SELECT ID FROM e_setassessment_mark WHERE SETASSESSMENT_ID='$assessmentId' AND SUBJECT_ID='$subject'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					$sql="SELECT ID,SETASSESSMENT_ID,MARK,COURSEBATCH_ID,SUBJECT_ID,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as Name,(SELECT MAX_MARK FROM e_setassessment WHERE ID=SETASSESSMENT_ID)as MAX_MARK FROM e_setassessment_mark WHERE SETASSESSMENT_ID='$assessmentId' AND SUBJECT_ID='$subject'";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}else{
+					$sql="SELECT ID,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_profile.PROFILE_ID)as Name,(SELECT MAX_MARK FROM e_setassessment WHERE ID='$assessmentId')as MAX_MARK FROM student_profile WHERE COURSEBATCH_ID='$batchId'";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
 			}
 		}
 		
@@ -502,7 +517,8 @@
 			if($result){
 				$setExamId=$result[0]['ID'];
 				foreach($val['markList'] as $values){
-					$sql="SELECT ID FROM e_marklist WHERE SETEXAM_ID='$setExamId'";
+					$proId=$values['PROFILE_ID'];
+					$sql="SELECT ID FROM e_marklist WHERE SETEXAM_ID='$setExamId' AND PROFILE_ID='$proId'";
 					$res = $this->db->query($sql, $return_object = TRUE)->result_array();
 					if($res){
 						$data = array(
@@ -510,16 +526,16 @@
 							'MARK' => $values['MARK'],
 							'PROFILE_ID' => $values['PROFILE_ID']
 						);
-						$this->db->where('id', $values['ID']);
+						$this->db->where('id', $values['MARK_ID']);
 						$this->db->update('e_marklist', $data);
 						$msg="Student Mark List Details Updated Successfully";
 					}else{
-						$data = array(
+						$data1 = array(
 							'SETEXAM_ID' => $setExamId,
 							'MARK' => $values['MARK'],
 							'PROFILE_ID' => $values['PROFILE_ID']
 						);
-						$this->db->insert('e_marklist', $data);
+						$this->db->insert('e_marklist', $data1);
 						$msg="Student Mark List Details Inserted Successfully";
 					}
 				}
@@ -537,17 +553,24 @@
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
 				$setExamId=$result[0]['ID'];
-				$sql="SELECT ID FROM e_marklist WHERE SETEXAM_ID='$setExamId'";
-				$res = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($res){
-					$sql="SELECT ID,SETEXAM_ID,MARK,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as Name,(SELECT MAX_MARK FROM e_setexamination WHERE CREATEEXAM_ID='$createExam' AND SUBJECT_ID='$subject' AND COURSEBATCH_ID='$batch')as MAX_MARK FROM e_marklist WHERE SETEXAM_ID='$setExamId'";
-					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-					return array(['status'=>'true','message'=>$result]);
-				}else{
-					$sql="SELECT ID,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_profile.PROFILE_ID)as Name,(SELECT MAX_MARK FROM e_setexamination WHERE CREATEEXAM_ID='$createExam' AND SUBJECT_ID='$subject' AND COURSEBATCH_ID='$batch')as MAX_MARK FROM student_profile WHERE COURSEBATCH_ID='$batch'";
-					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-					return array(['status'=>'true','message'=>$result]);
-				}
+				// $sql="SELECT ID FROM e_marklist WHERE SETEXAM_ID='$setExamId'";
+				// $res = $this->db->query($sql, $return_object = TRUE)->result_array();
+				// if($res){
+					// $sql="SELECT ID,SETEXAM_ID,MARK,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as Name,(SELECT MAX_MARK FROM e_setexamination WHERE CREATEEXAM_ID='$createExam' AND SUBJECT_ID='$subject' AND COURSEBATCH_ID='$batch')as MAX_MARK FROM e_marklist WHERE SETEXAM_ID='$setExamId'";
+					// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					// return array(['status'=>'true','message'=>$result]);
+				// }else{
+					// $sql="SELECT ID,PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_profile.PROFILE_ID)as Name,(SELECT MAX_MARK FROM e_setexamination WHERE CREATEEXAM_ID='$createExam' AND SUBJECT_ID='$subject' AND COURSEBATCH_ID='$batch')as MAX_MARK FROM student_profile WHERE COURSEBATCH_ID='$batch'";
+					// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					// return array(['status'=>'true','message'=>$result]);
+				// }
+				
+				$sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=student_profile.PROFILE_ID)as Name,
+					CASE WHEN (SELECT ID FROM e_marklist WHERE SETEXAM_ID='$setExamId' AND PROFILE_ID=student_profile.PROFILE_ID) THEN (SELECT ID FROM e_marklist WHERE SETEXAM_ID='$setExamId' AND PROFILE_ID=student_profile.PROFILE_ID) ELSE null END AS MARK_ID,
+					CASE WHEN (SELECT ID FROM e_marklist WHERE SETEXAM_ID='$setExamId' AND PROFILE_ID=student_profile.PROFILE_ID) THEN (SELECT SETEXAM_ID FROM e_marklist WHERE SETEXAM_ID='$setExamId' AND PROFILE_ID=student_profile.PROFILE_ID) ELSE null END AS SETEXAM_ID,
+					CASE WHEN (SELECT ID FROM e_marklist WHERE SETEXAM_ID='$setExamId' AND PROFILE_ID=student_profile.PROFILE_ID) THEN (SELECT MARK FROM e_marklist WHERE SETEXAM_ID='$setExamId' AND PROFILE_ID=student_profile.PROFILE_ID) ELSE null END AS MARK FROM student_profile WHERE COURSEBATCH_ID='$batch'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				return array(['status'=>'true','message'=>$result]);
 			}else{
 				return array(['status'=>'false','message'=>'Exam Not found']);
 			}
@@ -642,6 +665,7 @@
 			if($result){
 				foreach($result as $key =>$value){
 					$termId=$value['ID'];
+					$batchId=$value['batchId'];
 					$sql1="SELECT ID,NAME FROM e_createexam WHERE SETTERM_ID='$termId'";
 					$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
 					$result[$key]['Exam']=$result1;
@@ -650,7 +674,11 @@
 						//$sql2="SELECT ID,SUBJECT_ID,MAX_MARK,PASS_MARK,COURSEBATCH_ID FROM e_setexamination WHERE CREATEEXAM_ID='$createExamId'";
 						//$sql2="SELECT sExam.ID,sExam.SUBJECT_ID,sExam.MAX_MARK,mark.MARK,mark.PROFILE_ID FROM e_setexamination as sExam right join e_marklist as mark ON mark.SETEXAM_ID=sExam.ID WHERE mark.PROFILE_ID='$val' AND sExam.CREATEEXAM_ID='$createExamId'";
 						//$sql2="SELECT sExam.ID,sExam.SUBJECT_ID,sExam.MAX_MARK,mark.MARK,mark.PROFILE_ID,assessment.MAX_MARK as asMAX,assessment.MARK as asMark FROM e_setexamination as sExam right join e_marklist as mark ON mark.SETEXAM_ID=sExam.ID inner join (select assess.MAX_MARK,as_mark.MARK,as_mark.PROFILE_ID from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID where as_mark.PROFILE_ID='$val' AND assess.CREATEEXAM_ID='$createExamId' GROUP BY assess.CREATEEXAM_ID) as assessment WHERE mark.PROFILE_ID='$val' AND sExam.CREATEEXAM_ID='$createExamId' ";
-						$sql2="SELECT sExam.ID,sExam.SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=sExam.SUBJECT_ID)as SUBJECT_NAME,sExam.MAX_MARK,mark.MARK,mark.PROFILE_ID,CASE WHEN (select as_mark.MARK from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID WHERE assess.CREATEEXAM_ID=sExam.CREATEEXAM_ID AND as_mark.PROFILE_ID=mark.PROFILE_ID AND as_mark.SUBJECT_ID=sExam.SUBJECT_ID) THEN (select as_mark.MARK from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID WHERE assess.CREATEEXAM_ID=sExam.CREATEEXAM_ID AND as_mark.PROFILE_ID=mark.PROFILE_ID AND as_mark.SUBJECT_ID=sExam.SUBJECT_ID) ELSE 0 END as AssMark,CASE WHEN (select assess.MAX_MARK from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID WHERE assess.CREATEEXAM_ID=sExam.CREATEEXAM_ID AND as_mark.PROFILE_ID=mark.PROFILE_ID AND as_mark.SUBJECT_ID=sExam.SUBJECT_ID) THEN (select assess.MAX_MARK from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID WHERE assess.CREATEEXAM_ID=sExam.CREATEEXAM_ID AND as_mark.PROFILE_ID=mark.PROFILE_ID AND as_mark.SUBJECT_ID=sExam.SUBJECT_ID) ELSE 0 END as AssMax FROM e_setexamination as sExam right join e_marklist as mark ON mark.SETEXAM_ID=sExam.ID WHERE mark.PROFILE_ID=$val AND sExam.CREATEEXAM_ID='$createExamId'";
+						// Assessment based mark calculation
+						// $sql2="SELECT sExam.ID,sExam.SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=sExam.SUBJECT_ID)as SUBJECT_NAME,sExam.MAX_MARK,mark.MARK,mark.PROFILE_ID,CASE WHEN (select as_mark.MARK from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID WHERE assess.CREATEEXAM_ID=sExam.CREATEEXAM_ID AND as_mark.PROFILE_ID=mark.PROFILE_ID AND as_mark.SUBJECT_ID=sExam.SUBJECT_ID) THEN (select as_mark.MARK from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID WHERE assess.CREATEEXAM_ID=sExam.CREATEEXAM_ID AND as_mark.PROFILE_ID=mark.PROFILE_ID AND as_mark.SUBJECT_ID=sExam.SUBJECT_ID) ELSE 0 END as AssMark,CASE WHEN (select assess.MAX_MARK from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID WHERE assess.CREATEEXAM_ID=sExam.CREATEEXAM_ID AND as_mark.PROFILE_ID=mark.PROFILE_ID AND as_mark.SUBJECT_ID=sExam.SUBJECT_ID) THEN (select assess.MAX_MARK from e_setassessment as assess right join e_setassessment_mark as as_mark ON as_mark.SETASSESSMENT_ID=assess.ID WHERE assess.CREATEEXAM_ID=sExam.CREATEEXAM_ID AND as_mark.PROFILE_ID=mark.PROFILE_ID AND as_mark.SUBJECT_ID=sExam.SUBJECT_ID) ELSE 0 END as AssMax FROM e_setexamination as sExam right join e_marklist as mark ON mark.SETEXAM_ID=sExam.ID WHERE mark.PROFILE_ID=$val AND sExam.CREATEEXAM_ID='$createExamId'";
+						$sql2="SELECT sExam.ID,sExam.DATE,sExam.SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=sExam.SUBJECT_ID)as SUBJECT_NAME,sExam.MAX_MARK,mark.MARK,mark.PROFILE_ID,
+							CASE WHEN (SELECT max(MINI_PERCENTAGE) FROM e_grade WHERE MINI_PERCENTAGE < mark.MARK) THEN (SELECT NAME FROM e_grade WHERE MINI_PERCENTAGE=(SELECT max(MINI_PERCENTAGE) FROM e_grade WHERE MINI_PERCENTAGE < mark.MARK)) ELSE null END as GRADE
+							FROM e_setexamination as sExam RIGHT JOIN e_marklist as mark ON mark.SETEXAM_ID=sExam.ID WHERE mark.PROFILE_ID='$val' AND sExam.CREATEEXAM_ID='$createExamId' AND sExam.COURSEBATCH_ID='$batchId' ";
 						$result2 = $this->db->query($sql2, $return_object = TRUE)->result_array();
 						if($result2){
 							$result[$key]['Exam'][$key1]['Subject']=$result2;
@@ -667,5 +695,27 @@
 			$sql="SELECT ID,NAME,SETTERM_ID,STARTDATE,ENDDATE FROM e_createexam WHERE SETTERM_ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
+		
+		function stuMarkReportChart($id){
+			$sql="SELECT ID,NAME FROM e_setterm";
+			$result=$this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				$result1=array();
+				foreach($result as $key=>$value){
+					$termId=$value['ID'];
+					$sql="SELECT ec.NAME as meta,sum(m.MARK) as value FROM e_createexam as ec RIGHT JOIN e_setexamination as es ON es.CREATEEXAM_ID=ec.ID RIGHT JOIN e_marklist as m ON m.SETEXAM_ID=es.ID WHERE m.PROFILE_ID='$id' AND ec.SETTERM_ID='$termId' GROUP BY es.CREATEEXAM_ID";
+					$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+					foreach($res as $key1=>$value1){
+						$result1['labels']=$result;
+						$result1['series'][$key1][]=$value1;
+					}
+				}				
+				return $result1;
+				// $sql="SELECT t.NAME as TermName,ec.NAME as ExamName,sum(m.MARK) as Total FROM e_setterm as t RIGHT JOIN e_createexam as ec ON ec.SETTERM_ID=t.ID 
+				// RIGHT JOIN e_setexamination as es ON es.CREATEEXAM_ID=ec.ID RIGHT JOIN e_marklist as m ON m.SETEXAM_ID=es.ID WHERE m.PROFILE_ID='$id' GROUP BY es.CREATEEXAM_ID";
+				
+			}
+		}
+		
 	}
 ?>
