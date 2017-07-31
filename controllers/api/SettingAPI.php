@@ -104,9 +104,11 @@ class SettingAPI extends REST_Controller {
 	function bulkSms_post(){
 		$data['courseId']=$this->post('courseId');
 		$data['batchId']=$this->post('batchId');
+		// print_r($data['batchId']);exit;
 		$data['msg']=$this->post('msg');
 		$result=$this->setting_model->bulkSmsSent($data);
 		if (!empty($result)){
+			print_r($result);exit;
 			$bulk=bulkSend($result,$data['msg']);
 			$valu=json_decode(json_encode($bulk),true);	
 			if($valu['response_code']=='SUCCESS'){
@@ -120,6 +122,15 @@ class SettingAPI extends REST_Controller {
 		}
 		else{
 			$this->set_response(['status' => FALSE,'message' => 'SMS could not be sent'], REST_Controller::HTTP_OK);
+		}
+	}
+	
+	function bulkSms_get(){
+		$result=$this->setting_model->getBulkSmsDetails();
+		if($result){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}else{
+			$this->set_response(['status' => FALSE,'message' => 'Data could not be found'], REST_Controller::HTTP_OK);
 		}
 	}
 }
