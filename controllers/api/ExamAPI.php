@@ -582,6 +582,7 @@ class ExamAPI extends REST_Controller {
 		$data['course']=$this->get('course');
 		$data['batch']=$this->get('batch');
 		$data['subject']=$this->get('subject');
+		$data['studentDetails']=$this->get('getStuDetails');
 		$result=$this->exammodel->getStudentDetails($data);
 		if (!empty($result)){
 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
@@ -684,6 +685,20 @@ class ExamAPI extends REST_Controller {
 				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
 			}
 		}	
+	}
+	
+	function stuExamReportChart_get(){
+		$id=$this->get('profileId');
+		if($id==null){
+			$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+		}else{
+			$result=$this->exammodel->stuMarkReportChart($id);
+			if (!empty($result)){
+				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+			}else{
+				$this->set_response(['status' =>FALSE,'message'=>'Data not found'], REST_Controller::HTTP_OK);
+			}
+		}
 	}
 }
 ?>
