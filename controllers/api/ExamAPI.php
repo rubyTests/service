@@ -516,12 +516,12 @@ class ExamAPI extends REST_Controller {
 	
 	function setExamination_post(){
 		$id=$this->post('id');
-		$data['COURSEBATCH_ID']=$this->post('batchId');
-		$data['CREATEEXAM_ID']=$this->post('examId');
-		$data['SUBJECT_ID']=$this->post('subjectId');
-		$data['DATE']=$this->post('examDate');
-		$data['START_TIME']=$this->post('startTime');
-		$data['END_TIME']=$this->post('endTime');
+		$data['BATCH_ID']=$this->post('batch_id');
+		$data['EXAM_ID']=$this->post('exam_id');
+		$data['SUBJECT_ID']=$this->post('subject_id');
+		$data['DATE']=$this->post('exam_date');
+		$data['START_TIME']=$this->post('starttime');
+		$data['END_TIME']=$this->post('endtime');
 		$data['PASS_MARK']=$this->post('passMark');
 		$data['MAX_MARK']=$this->post('maxMark');
 		if($id==null){
