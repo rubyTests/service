@@ -184,8 +184,9 @@ class AcademicsAPI extends REST_Controller {
 		$data['COURSE_ID']=$this->post('course_id');
 		$data['NAME']=$this->post('batch_name');		
 		$data['INCHARGE']=$this->post('incharge');
-		$data['PERIOD_FROM']=$this->post('period_from');
-		$data['PERIOD_TO']=$this->post('period_to');
+		// date("Y-m-d", strtotime($this->post('date')));
+		$data['PERIOD_FROM']=date("Y-m-d", strtotime($this->post('period_from')));
+		$data['PERIOD_TO']=date("Y-m-d", strtotime($this->post('period_to')));
 		if($id==NULL){
 			$result=$this->academics->addBatchDetails($data);
 			if($result==true){

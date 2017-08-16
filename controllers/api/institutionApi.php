@@ -31,7 +31,8 @@ class InstitutionAPI extends REST_Controller {
     	$data['currency']=$this->post('currency');
     	$data['profile_id']=$this->post('profile_id');
     	$result=$this->institution_model->addInstitutionBasicDetails($data);
-    	if($result['status']==true){
+    	// print_r($result);exit;
+    	if($result['status']=='true'){
 			$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_CREATED);
 		}else{
 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);

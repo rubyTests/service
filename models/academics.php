@@ -245,15 +245,19 @@
 		// Batch Details 
 		
 		public function addBatchDetails($value){
+			$checkDate=date("Y", strtotime($value['PERIOD_FROM']));
+			$batchName=$checkDate.'-'.$value['NAME'];
+
 			$name=$value['NAME'];
 			$course_id=$value['COURSE_ID'];
-			$sql="SELECT * FROM course_batch where NAME='$name' and COURSE_ID='$course_id'";
+			$sql="SELECT * FROM course_batch where NAME='$name' and COURSE_ID='$course_id' and year(PERIOD_FROM)='$checkDate'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($result){
 				return array('status'=>false);
 			}else {
 				$data = array(
 				   'NAME' => $value['NAME'],
+				   'BATCH_DISPLAY_NAME' => $batchName,
 				   'COURSE_ID' => $value['COURSE_ID'],
 				   'PERIOD_FROM' => $value['PERIOD_FROM'],
 				   'PERIOD_TO' => $value['PERIOD_TO'],
@@ -268,11 +272,15 @@
 	    }
 		
 		public function editBatchDetails($id,$value){
+			$checkDate=date("Y", strtotime($value['PERIOD_FROM']));
+			$batchName=$checkDate.'-'.$value['NAME'];
+
 			$sql="SELECT * FROM course_batch where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
 			if($result[0]['NAME']==$value['NAME'] && $result[0]['COURSE_ID']==$value['COURSE_ID']){
 				$data = array(
 				   'NAME' => $value['NAME'],
+				   'BATCH_DISPLAY_NAME' => $batchName,
 				   'COURSE_ID' => $value['COURSE_ID'],
 				   'PERIOD_FROM' => $value['PERIOD_FROM'],
 				   'PERIOD_TO' => $value['PERIOD_TO'],
@@ -284,13 +292,14 @@
 			}else {
 				$name=$value['NAME'];
 				$course_id=$value['COURSE_ID'];
-				$sql="SELECT * FROM course_batch where NAME='$name' and COURSE_ID='$course_id'";
+				$sql="SELECT * FROM course_batch where NAME='$name' and COURSE_ID='$course_id' and year(PERIOD_FROM)='$checkDate'";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 				if($result){
 					return array('status'=>false);
 				}else {
 					$data = array(
 					   'NAME' => $value['NAME'],
+					   'BATCH_DISPLAY_NAME' => $batchName,
 					   'COURSE_ID' => $value['COURSE_ID'],
 					   'PERIOD_FROM' => $value['PERIOD_FROM'],
 					   'PERIOD_TO' => $value['PERIOD_TO'],
