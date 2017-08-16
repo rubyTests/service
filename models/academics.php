@@ -895,5 +895,10 @@
 			$result = $this->db->query($sql);
     		return $this->db->affected_rows();
 		}
+
+		function getAttandanceType($id){
+			$sql="SELECT * FROM course where ID='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();	
+		}
 	}
 ?>

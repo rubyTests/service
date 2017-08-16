@@ -203,5 +203,126 @@
 	    	$sql="SELECT PROFILE_ID,(SELECT EMAIL FROM PROFILE WHERE ID=PROFILE_ID) AS EMAIL_ID FROM employee_profile WHERE ID='$empid'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
+	    function fetchEmployeeDetailsBasedonDepartment($id,$date){
+	    	// $sql="SELECT ID,PROFILE_ID,EMP_CATEGORY_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS EMPLOYEE_NAME,(SELECT ADMISSION_NO FROM PROFILE WHERE ID=PROFILE_ID) AS ADM_NO,(SELECT IMAGE1 FROM PROFILE WHERE ID=PROFILE_ID) AS PROFILE_IMAGE,(SELECT NAME FROM EMPLOYEE_CATEGORY WHERE ID=EMP_CATEGORY_ID) AS CATEGORY_NAME FROM EMPLOYEE_PROFILE WHERE DEPT_ID='$id'";
+	    	$sql="SELECT ID,PROFILE_ID,PROFILE_ID as empProfile_id,EMP_CATEGORY_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS EMPLOYEE_NAME,(SELECT ADMISSION_NO FROM PROFILE WHERE ID=PROFILE_ID) AS ADM_NO,(SELECT IMAGE1 FROM PROFILE WHERE ID=PROFILE_ID) AS PROFILE_IMAGE,(SELECT NAME FROM EMPLOYEE_CATEGORY WHERE ID=EMP_CATEGORY_ID) AS CATEGORY_NAME,CASE WHEN (SELECT STATUS FROM employee_attendance WHERE DEPT_ID='$id' AND DATE='$date' AND employee_attendance.PROFILE_ID=empProfile_id)='Y' THEN 'Y' ELSE 'N' END as row_select,(SELECT ID FROM employee_attendance WHERE DEPT_ID='$id' AND DATE='$date' AND employee_attendance.PROFILE_ID=empProfile_id) as attendance_id,CASE WHEN (SELECT STATUS FROM employee_attendance WHERE DEPT_ID='$id' AND DATE='$date' AND employee_attendance.PROFILE_ID=empProfile_id)='Y' THEN (SELECT REASON FROM employee_attendance WHERE DEPT_ID='$id' AND DATE='$date' AND employee_attendance.PROFILE_ID=empProfile_id) END as remark,CASE WHEN (SELECT STATUS FROM employee_attendance WHERE DEPT_ID='$id' AND DATE='$date' AND employee_attendance.PROFILE_ID=empProfile_id)='Y' THEN (SELECT DURATION FROM employee_attendance WHERE DEPT_ID='$id' AND DATE='$date' AND employee_attendance.PROFILE_ID=empProfile_id) END as duration,CASE WHEN (SELECT STATUS FROM employee_attendance WHERE DEPT_ID='$id' AND DATE='$date' AND employee_attendance.PROFILE_ID=empProfile_id)='Y' THEN (SELECT LEAVE_TYPE FROM employee_attendance WHERE DEPT_ID='$id' AND DATE='$date' AND employee_attendance.PROFILE_ID=empProfile_id) END as leaveType FROM EMPLOYEE_PROFILE WHERE DEPT_ID='$id'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+	    function addEmployeeAttendanceDetails($val){
+	    	// print_r($value);exit;
+	    	for ($i=0; $i < count($val['details']); $i++) {
+				$dept_id = $val['dept_id'];
+				$date = $val['attendance_date'];
+				$profileid = $val['details'][$i]['PROFILE_ID'];
+				if($val['details'][$i]['leaveType']){
+					$leavetype=$val['details'][$i]['leaveType'];
+				}else{
+					$leavetype='';
+				}
+
+				if($val['details'][$i]['row_select']=='N'){
+					$sql="SELECT * FROM employee_attendance_leave WHERE DEPT_ID='$dept_id' AND DATE='$date' AND PROFILE_ID='$profileid'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						$sql="DELETE FROM employee_attendance_leave WHERE DEPT_ID='$dept_id' AND DATE='$date' AND PROFILE_ID='$profileid'";
+						$result = $this->db->query($sql);
+					}
+					$remark='';
+					$duration='';
+				}else{
+					$remark=$val['details'][$i]['remark'];
+					if(isset($val['details'][$i]['duration'])){
+						$duration=$val['details'][$i]['duration'];
+					}else {
+						$duration='';
+					}
+					$sql2="SELECT * FROM employee_attendance_leave WHERE DEPT_ID='$dept_id' AND DATE='$date' AND PROFILE_ID='$profileid'";
+					$result2 = $this->db->query($sql2, $return_object = TRUE)->result_array();
+					if(isset($result2[0]['ID'])){
+						$leavedata = array(
+							'DEPT_ID' =>$val['dept_id'],
+							'PROFILE_ID' =>$val['details'][$i]['PROFILE_ID'],
+							'DATE' =>$val['attendance_date'],
+							'REASON' =>$remark,
+							'DURATION' =>$duration,
+							'LEAVE_TYPE' =>$leavetype,
+							'STATUS' =>$val['details'][$i]['row_select'],
+							'CRT_USER_ID' =>$val['userId']
+						);
+						$this->db->where('ID', $result2[0]['ID']);
+						$this->db->update('employee_attendance_leave', $leavedata);
+					}else {
+						$leavedata = array(
+							'DEPT_ID' =>$val['dept_id'],
+							'PROFILE_ID' =>$val['details'][$i]['PROFILE_ID'],
+							'DATE' =>$val['attendance_date'],
+							'REASON' =>$remark,
+							'DURATION' =>$duration,
+							'LEAVE_TYPE' =>$leavetype,
+							'STATUS' =>$val['details'][$i]['row_select'],
+							'CRT_USER_ID' =>$val['userId']
+						);
+						$this->db->insert('employee_attendance_leave', $leavedata); 
+					}
+				}
+
+				$data = array(
+					'DEPT_ID' =>$val['dept_id'],
+					'PROFILE_ID' =>$val['details'][$i]['PROFILE_ID'],
+					'DATE' =>$val['attendance_date'],
+					'REASON' =>$remark,
+					'DURATION' =>$duration,
+					'LEAVE_TYPE' =>$leavetype,
+					'STATUS' =>$val['details'][$i]['row_select'],
+					'CRT_USER_ID' =>$val['userId']
+				);
+				if($val['details'][$i]['attendance_id']){
+					$this->db->where('ID', $val['details'][$i]['attendance_id']);
+					$this->db->update('employee_attendance', $data);
+				}else{
+					$this->db->insert('employee_attendance', $data);
+
+					$sql1="SELECT * FROM employee_attendance_report WHERE  DEPT_ID='$dept_id' AND PROFILE_ID='$profileid'";
+					$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+					// print_r($result1);
+					if(isset($result1[0]['NO_OF_DAYS'])){
+						$Days=$result1[0]['NO_OF_DAYS']+1;
+						$dayDetails = array(
+							'NO_OF_DAYS' =>$Days,
+							'DEPT_ID' =>$dept_id,
+							'PROFILE_ID' =>$val['details'][$i]['PROFILE_ID']
+						);
+						$this->db->where('ID', $result1[0]['ID']);
+						$this->db->update('employee_attendance_report', $dayDetails);
+					}else{
+						$Days=1;
+						$dayDetails = array(
+							'NO_OF_DAYS' =>$Days,
+							'DEPT_ID' =>$dept_id,
+							'PROFILE_ID' =>$val['details'][$i]['PROFILE_ID']
+						);
+						$this->db->insert('employee_attendance_report', $dayDetails);
+					}
+				}
+			}
+			// exit;
+			return array('status'=>true, 'message'=>"Record Inserted Successfully");
+	    }
+	    function fetchEmployeeDetailsandPercentage($dept_id){
+	    	$sql="SELECT ID,PROFILE_ID,PROFILE_ID as empProfile_id,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS EMPLOYEE_NAME,(SELECT ADMISSION_NO FROM PROFILE WHERE ID=PROFILE_ID) AS ADM_NO,(SELECT IMAGE1 FROM PROFILE WHERE ID=PROFILE_ID) AS EMPLOYEE_IMAGE,
+	    		CASE WHEN (SELECT COUNT(ID) FROM employee_attendance_leave WHERE PROFILE_ID=employee_attendance.PROFILE_ID) > 0 THEN ROUND(((((SELECT NO_OF_DAYS FROM employee_attendance_report WHERE PROFILE_ID=employee_attendance.PROFILE_ID AND DEPT_ID=employee_attendance.DEPT_ID)-(SELECT COUNT(ID) FROM employee_attendance_leave WHERE PROFILE_ID=employee_attendance.PROFILE_ID))*100)/(SELECT NO_OF_DAYS FROM employee_attendance_report WHERE PROFILE_ID=employee_attendance.PROFILE_ID AND DEPT_ID=employee_attendance.DEPT_ID)),-1) ELSE '0' END AS PERCENTAGE FROM employee_attendance WHERE DEPT_ID='$dept_id' GROUP BY PROFILE_ID";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+	    }
+	    function fetchParticularEmployeeDetailsandPercentage($profileid){
+	    	$sql="SELECT ID,PROFILE_ID,PROFILE_ID as empProfile_id,(SELECT EMP_CATEGORY_ID FROM EMPLOYEE_PROFILE WHERE EMPLOYEE_PROFILE.PROFILE_ID=employee_attendance.PROFILE_ID) AS EMP_CATEGORY_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS EMPLOYEE_NAME,(SELECT ADMISSION_NO FROM PROFILE WHERE ID=PROFILE_ID) AS ADM_NO,(SELECT IMAGE1 FROM PROFILE WHERE ID=PROFILE_ID) AS EMPLOYEE_IMAGE,(SELECT NAME FROM EMPLOYEE_CATEGORY WHERE ID=EMP_CATEGORY_ID) AS CATEGORY_NAME,
+	    		CASE WHEN (SELECT COUNT(ID) FROM employee_attendance_leave WHERE PROFILE_ID=employee_attendance.PROFILE_ID) > 0 THEN ROUND(((((SELECT NO_OF_DAYS FROM employee_attendance_report WHERE PROFILE_ID=employee_attendance.PROFILE_ID AND DEPT_ID=employee_attendance.DEPT_ID)-(SELECT COUNT(ID) FROM employee_attendance_leave WHERE PROFILE_ID=employee_attendance.PROFILE_ID))*100)/(SELECT NO_OF_DAYS FROM employee_attendance_report WHERE PROFILE_ID=employee_attendance.PROFILE_ID AND DEPT_ID=employee_attendance.DEPT_ID)),-1) ELSE '0' END AS PERCENTAGE FROM employee_attendance WHERE PROFILE_ID='$profileid' GROUP BY PROFILE_ID";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			foreach ($result as $key => $value) {
+				$profileID=$value['PROFILE_ID'];
+				$sql1="SELECT * from employee_attendance_leave where PROFILE_ID='$profileID'";
+				$result[$key]['leave_list']=$this->db->query($sql1, $return_object = TRUE)->result_array();
+			}
+			return $result;
+	    }
 	}
 ?>

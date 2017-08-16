@@ -22,14 +22,20 @@ class StuAttendanceAPI extends REST_Controller {
 	//-------------------------------------  Student Attendance marking ---------------------------------------------------
     function stuAttendanceMark_post()
     {
-    	$data['presentStatus']=$this->post('presentStatus');
-    	$data['studentList']=$this->post('studentList');
+    	// print_r($this->post());exit;
+    	// $data['presentStatus']=$this->post('presentStatus');
+    	// $data['studentList']=$this->post('studentList');
+    	// $data['courseId']=$this->post('courseId');
+    	// $data['batchId']=$this->post('batchId');
+    	// $data['subjectId']=$this->post('subjectId');
+    	// $data['date']=date("Y-m-d", strtotime($this->post('date')));
+    	// $data['type']=$this->post('type');
+    	$data['userId']=$this->post('userId');
+    	$data['details']=$this->post('details');
     	$data['courseId']=$this->post('courseId');
     	$data['batchId']=$this->post('batchId');
     	$data['subjectId']=$this->post('subjectId');
     	$data['date']=date("Y-m-d", strtotime($this->post('date')));
-    	$data['type']=$this->post('type');
-    	$data['userId']=$this->post('userId');
 		$result=$this->stuattendance_model->addStuAttendanceDetails($data);
     	if($result['status']==true){
 			$this->set_response(['status' =>TRUE,'message'=>$result['message']], REST_Controller::HTTP_CREATED);
@@ -110,6 +116,7 @@ class StuAttendanceAPI extends REST_Controller {
 	}
 	
 	function stuAttendanceReport_get(){
+		// print_r($this->get());exit;
 		$pId=$this->get('profileId');
 		$courseId=$this->get('course');
 		$batch_id=$this->get('batchId');
@@ -117,14 +124,14 @@ class StuAttendanceAPI extends REST_Controller {
 		$subjectId=$this->get('subjectId');
 		$method=$this->get('type');
 		if($pId==null){
-			$result=$this->stuattendance_model->getAllStuAttendanceReport($courseId,$batch_id,$type,$subjectId,$method);
+			$result=$this->stuattendance_model->getAllStuAttendanceReport($courseId,$batch_id,$type);
 			if (!empty($result)){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 			}else{
 				$this->set_response(['status' =>FALSE,'message'=>'Data Not found'], REST_Controller::HTTP_OK);
 			}
 		}else{
-			$result=$this->stuattendance_model->getStuAttendanceReport($courseId,$batch_id,$type,$subjectId,$pId,$method);
+			$result=$this->stuattendance_model->getStuAttendanceReport($type,$pId,$subjectId);
 			if (!empty($result)){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 			}else{
@@ -133,6 +140,20 @@ class StuAttendanceAPI extends REST_Controller {
 		} 			
 	}
 	
+	function studentBasicandPercentageDetails_get(){
+		// print_r($this->get());exit;
+		$profileid=$this->get('profileid');
+		$subjectId=$this->get('subjectId');
+		$result=$this->stuattendance_model->getStudentBasicandPercentage($profileid,$subjectId);
+		// print_r($result);exit;
+		if ($result){
+			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
+		}else{
+			$this->set_response(['status' =>FALSE,'message'=>'Data Not found'], REST_Controller::HTTP_OK);
+		}
+	}
+
+
 	function stuProfileAttendanceReport_get(){
 		$pId=$this->get('profileId');
 		$result=$this->stuattendance_model->getStuProfileAttendanceReport($pId);

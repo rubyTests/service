@@ -614,7 +614,6 @@ class ProfileAPI extends REST_Controller {
 	
 	function parentsEmailCheck_post(){
     	$data['father']=$this->post('father');
-		// print_r($this->post('father'));exit;
 		$data['mother']=$this->post('mother');
 		$data['guardian']=$this->post('guardian');
 		$result=$this->profilemodel->checkParentsEmail($data);
@@ -771,20 +770,6 @@ class ProfileAPI extends REST_Controller {
 		{
 			$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
 		}
-		// $Prefixname=$this->get('Prefixname');
-		// if($Prefixname==null){
-		// 	$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
-		// }
-		// else{
-		// 	$result=$this->profilemodel->getStudentAdmissionNo($Prefixname);
-		// 	if ($result){
-		// 		$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
-		// 	}
-		// 	else
-		// 	{
-		// 		$this->set_response(['status' =>FALSE,'message'=>'Record not found'], REST_Controller::HTTP_OK);
-		// 	}
-		// }
 	}
 }
 ?>

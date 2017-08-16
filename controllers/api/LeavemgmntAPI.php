@@ -62,14 +62,14 @@ class LeavemgmntAPI extends REST_Controller {
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Record could not be found'
-				], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 			}
 
 		}else{
 			$this->set_response([
 			'status' => FALSE,
 			'message' => 'Record could not be found'
-			], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}
     }
 	
@@ -375,5 +375,69 @@ class LeavemgmntAPI extends REST_Controller {
     			echo 'Mail Not available';
     		}
     	}
+    }
+    function employeeList_get(){
+    	$id = $this->get('deptId');
+    	$date = date("Y-m-d", strtotime($this->get('att_date')));
+		if($id==NULL){
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Record could not be found'
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}else{
+			$users=$this->leave_mgmnt_model->fetchEmployeeDetailsBasedonDepartment($id,$date);
+			if (!empty($users)){
+				$this->set_response(['status' =>TRUE,'message'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record Detail could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
+    }
+    function employeeAttendance_post(){
+    	//print_r($this->post());exit;
+    	$data['details']=$this->post('details');
+    	$data['userId']=$this->post('userId');
+    	$data['attendance_date']=date("Y-m-d", strtotime($this->post('attendance_date')));
+    	$data['dept_id']=$this->post('dept_id');
+    	$result=$this->leave_mgmnt_model->addEmployeeAttendanceDetails($data);
+		if($result['status']==true){
+			$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_CREATED);
+		}else{
+			$this->set_response(['status' =>FALSE,'data'=>"Failure"], REST_Controller::HTTP_CREATED);
+		}
+    }
+    function employeeAttendanceDetails_get(){
+    	$profileid = $this->get('profileid');
+    	$dept_id = $this->get('department_id');
+		if($profileid){
+			$users=$this->leave_mgmnt_model->fetchParticularEmployeeDetailsandPercentage($profileid);
+			if (!empty($users)){
+				$this->set_response(['status' =>TRUE,'message'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record Detail could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}else{
+			$users=$this->leave_mgmnt_model->fetchEmployeeDetailsandPercentage($dept_id);
+			if (!empty($users)){
+				$this->set_response(['status' =>TRUE,'message'=>$users], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+			}
+			else
+			{
+				$this->set_response([
+				'status' => FALSE,
+				'message' => 'Record Detail could not be found'
+				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+			}
+		}
     }
 }

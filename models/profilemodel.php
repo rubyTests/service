@@ -1448,161 +1448,25 @@
 		
 		// Student Email check 
 		
-		public function checkStudentEmail($email,$id,$type,$values){
-
-			// $sql="SELECT EMAIL FROM profile where ID='$id'";
-			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// if($result[0]['EMAIL']==$email){
-			// 	return array('status'=>'true', 'message'=>"Record Updated Successfully",'check'=>'Old');
-			// }else {
-			// 	$sql="SELECT EMAIL FROM PROFILE WHERE EMAIL='$email'";
-			// 	$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// 	if($result){
-			// 		return array('status'=>'false');
-			// 	}else {
-			// 		return array('status'=>'true', 'message'=>"Record Updated Successfully",'check'=>'New');
-			// 	}
-			// }
-
-
-			// if($id){
-				// $sql="SELECT EMAIL FROM profile where ID='$id'";
-				// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-				// if($result){
-					// $sql="SELECT EMAIL FROM profile where ID='$id'";
-					// $result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-					// $emailDB=$result1[0]['EMAIL'];
-					// if($emailDB==$email){
-						// return 'false';
-					// }else{
-						// return 'true';
-					// }
-				// }else{
-					// return 'false';
-				// }
-			// }else{
-				if($type=='parents'){
-					$father_mail=$values['father']['p_email'];
-					if($father_mail=''){
-						$frel_id=$values['father']['relationId'];
-						$sql="SELECT PROF_ID FROM student_relation where ID='$frel_id'";
-						$res = $this->db->query($sql, $return_object = TRUE)->result_array();
-						if($res){
-							$proId=$res[0]['PROF_ID'];
-							$sql="SELECT EMAIL FROM profile where EMAIL='$father_mail'";
-							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-							if($result){
-								$sql="SELECT EMAIL FROM profile where ID='$proId'";
-								$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-								if($result1){
-									$emailDB=$result1[0]['EMAIL'];
-									if($emailDB==$father_mail){
-										
-									}else{
-										return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
-									}
-								}else{
-									return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
-								}
-							}
-						}else{
-							$sql="SELECT EMAIL FROM profile where EMAIL='$father_mail'";
-							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-							if($result){
-								return array('status'=>'false', 'message'=>"Email already exist");
-							}
-						}
-						
-					}
-					
-					$mother_mail=$values['mother']['p_email'];
-					if($mother_mail=''){
-						$mrel_id=$values['mother']['relationId'];
-						$sql="SELECT PROF_ID FROM student_relation where ID='$mrel_id'";
-						$res = $this->db->query($sql, $return_object = TRUE)->result_array();
-						if($res){
-							$proId=$res[0]['PROF_ID'];
-							$sql="SELECT EMAIL FROM profile where EMAIL='$mother_mail'";
-							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-							if($result){
-								$sql="SELECT EMAIL FROM profile where ID='$proId'";
-								$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-								if($result1){
-									$emailDB=$result1[0]['EMAIL'];
-									if($emailDB==$mother_mail){
-										
-									}else{
-										return array('status'=>'false', 'message'=>"Mother Email already exist",'check'=>null);
-									}
-								}else{
-									return array('status'=>'false', 'message'=>"Mother Email already exist",'check'=>null);
-								}
-							}
-						}else{
-							$sql="SELECT EMAIL FROM profile where EMAIL='$mother_mail'";
-							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-							if($result){
-								return array('status'=>'false', 'message'=>"Mother Email already exist");
-							}
-						}
-						
-					}
-					
-					$guardian_mail=$values['guardian']['p_email'];
-					if($guardian_mail=''){
-						$grel_id=$values['guardian']['relationId'];
-						$sql="SELECT PROF_ID FROM student_relation where ID='$grel_id'";
-						$res = $this->db->query($sql, $return_object = TRUE)->result_array();
-						if($res){
-							$proId=$res[0]['PROF_ID'];
-							$sql="SELECT EMAIL FROM profile where EMAIL='$guardian_mail'";
-							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-							if($result){
-								$sql="SELECT EMAIL FROM profile where ID='$proId'";
-								$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-								if($result1){
-									$emailDB=$result1[0]['EMAIL'];
-									if($emailDB==$guardian_mail){
-										
-									}else{
-										return array('status'=>'false', 'message'=>"Guardian Email already exist",'check'=>null);
-									}
-								}else{
-									return array('status'=>'false', 'message'=>"Guardian Email already exist",'check'=>null);
-								}
-							}
-						}else{
-							$sql="SELECT EMAIL FROM profile where EMAIL='$guardian_mail'";
-							$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-							if($result){
-								return array('status'=>'false', 'message'=>"Guardian Email already exist");
-							}
-						}
-						
-					}
-					
-				}else{
-					$sql="SELECT EMAIL FROM profile where EMAIL='$email'";
-					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-					if($result){
-						$sql="SELECT EMAIL FROM profile where ID='$id'";
-						$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
-						if($result1){
-							$emailDB=$result1[0]['EMAIL'];
-							if($emailDB==$email){
-								return array('status'=>'true', 'message'=>"success",'check'=>'Old');
-							}else{
-								return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
-							}
-						}else{
-							return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
-						}
+		public function checkStudentEmail($email,$id){
+			$sql="SELECT EMAIL FROM profile where EMAIL='$email'";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				$sql="SELECT EMAIL FROM profile where ID='$id'";
+				$result1 = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result1){
+					$emailDB=$result1[0]['EMAIL'];
+					if($emailDB==$email){
+						return array('status'=>'true', 'message'=>"success",'check'=>'Old');
 					}else{
-						return array('status'=>'true', 'message'=>"success",'check'=>'New');
+						return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
 					}
+				}else{
+					return array('status'=>'false', 'message'=>"Email already exist",'check'=>null);
 				}
-				
-			//}
+			}else{
+				return array('status'=>'true', 'message'=>"success",'check'=>'New');
+			}
 		}
 		
 		// Parents Email check 

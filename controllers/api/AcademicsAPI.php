@@ -907,4 +907,21 @@ class AcademicsAPI extends REST_Controller {
 			}
 		}
     }
+
+    // Written on 31-07-17 by vijayaraj
+    
+    function fetchAttandanceType_get(){
+    	$id = $this->get('id');
+		if($id==NULL){
+			$this->set_response(['status' => FALSE, 'message' => 'Data not found'], REST_Controller::HTTP_OK); 
+		}else {
+			$data=$this->academics->getAttandanceType($id);
+			if (!empty($data)){
+				$this->set_response(['status' =>TRUE,'message'=>$data], REST_Controller::HTTP_OK);
+			}
+			else{
+				$this->set_response(['status' => FALSE,'message' => 'Data not found'], REST_Controller::HTTP_OK); 
+			}
+		}
+    }
 }
