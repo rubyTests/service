@@ -38,7 +38,7 @@ class UserCredentials implements GrantTypeInterface
             return null;
         }
 
-        if (!$this->storage->checkUserCredentials($request->request("username"), $request->request("password"))) {
+        if (!$this->storage->checkUserCredentials($request->request("username"), md5($request->request("password")))) {
             $response->setError(401, 'invalid_grant', 'Invalid username and password combination');
 
             return null;

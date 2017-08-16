@@ -106,7 +106,7 @@ if($loadData=='getToken'){
 	for($i=0;$i<count($UsersList);$i++){
 		$AllUsers[$UsersList[$i]['USER_EMAIL']] = array('password' => $UsersList[$i]['USER_PASSWORD']);
 	}
-	
+	// print_r(UsersList);exit;
 	// create some users in memory
 		
 	//$users = array('admin@gmail.com' => array('password' => '123'));
