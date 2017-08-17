@@ -1183,6 +1183,13 @@
 				$data1="";
 			}
 			
+			//If employee Department Detail
+			$sql="SELECT ID,NAME FROM department WHERE ID=(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID='$id')";
+			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($result){
+				$data['deptId']=$result[0]['ID'];
+				$data['deptName']=$result[0]['NAME'];
+			}
 			
 			$sql="SELECT ID,INSTITUTE,LEVEL,YEAR_COMPLETION,TOTAL_GRADE FROM previous_education where PROFILE_ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -1585,7 +1592,7 @@
 		
 		public function setPassword($values){
 			$data = array (
-				'USER_PASSWORD' => $values['password'],
+				'USER_PASSWORD' => md5($values['password']),
 				'USER_VERIFYKEY' => '',
 				'USER_STATUS' => 'Y'
 			);
@@ -2129,9 +2136,16 @@
 			}
 		}
 
-		public function checkbirthDayList(){
-			$sql="SELECT ID, FIRSTNAME, LASTNAME, IMAGE1, DOB FROM profile WHERE DOB = DATE_FORMAT(CURDATE(), '%m.%d.%Y')";
-			return $this->db->query($sql, $return_object = TRUE)->result_array();
+		public function checkbirthDayList($show){
+			// $sql="SELECT ID, FIRSTNAME, LASTNAME, IMAGE1, DOB FROM profile WHERE DOB = DATE_FORMAT(CURDATE(), '%m.%d.%Y')";
+			// return $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($show=='dashboard'){
+				$sql="SELECT CONCAT(FIRSTNAME,' ',LASTNAME) as NAME,CASE WHEN DATE_FORMAT(DOB,'%m-%d')=DATE_FORMAT(NOW(),'%m-%d') THEN 'Today' Else DATE_FORMAT(DOB,'%d %b') END AS UpCdate FROM profile WHERE DATE_FORMAT(DOB,'%m-%d')>= DATE_FORMAT(NOW(),'%m-%d') ORDER BY DATE_FORMAT(DOB,'%m-%d') LIMIT 3";
+				return $this->db->query($sql, $return_object = TRUE)->result_array();
+			}else{
+				$sql="SELECT CONCAT(FIRSTNAME,' ',LASTNAME) as NAME,EMAIL,DOB,ADMISSION_NO,CASE WHEN DATE_FORMAT(DOB,'%m-%d')=DATE_FORMAT(NOW(),'%m-%d') THEN 'Today' Else DATE_FORMAT(DOB,'%d %b') END AS UpCdate,CASE WHEN (SELECT PROFILE_ID FROM `employee_profile` WHERE PROFILE_ID=profile.ID) THEN 'employee' ELSE 'student' END as type,CASE WHEN (SELECT PROFILE_ID FROM `employee_profile` WHERE PROFILE_ID=profile.ID) THEN (SELECT NAME FROM department WHERE ID=(SELECT DEPT_ID FROM `employee_profile` WHERE PROFILE_ID=profile.ID)) ELSE null END as Dept,CASE WHEN (SELECT PROFILE_ID FROM `student_profile` WHERE PROFILE_ID=profile.ID) THEN (SELECT NAME FROM course WHERE ID=(SELECT COURSE_ID FROM course_batch WHERE ID=(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=profile.ID))) ELSE null END as Course,CASE WHEN (SELECT PROFILE_ID FROM `student_profile` WHERE PROFILE_ID=profile.ID) THEN (SELECT NAME FROM course_batch WHERE ID=(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID=profile.ID)) ELSE null END as Batch,IMAGE1 FROM profile WHERE ID IN(SELECT PROFILE_ID FROM `employee_profile` UNION SELECT PROFILE_ID FROM `student_profile`) ORDER BY DATE_FORMAT(DOB,'%m-%d')";
+				return $this->db->query($sql, $return_object = TRUE)->result_array();
+			}
 		}
 
 		public function checktodayBirthDayList(){

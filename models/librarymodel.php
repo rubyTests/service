@@ -54,12 +54,12 @@
 		// BookTaken
 		
 		public function getBookTakenData($profileId){
-			$sql="SELECT BOOK_ID,(SELECT NAME FROM l_book WHERE CODE=BOOK_ID)as BOOK_NAME,ISSUED_DATETIME,DUE_DATETIME,DATEDIFF(CURDATE(),DUE_DATETIME)as daysLeft FROM l_book_issue WHERE PROFILE_ID='$profileId' AND BOOK_RETURN='NO'";
+			$sql="SELECT BOOK_ID,(SELECT NAME FROM l_book WHERE CODE=BOOK_ID)as BOOK_NAME,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,DATEDIFF(CURDATE(),DUE_DATETIME)as daysLeft FROM l_book_issue WHERE PROFILE_ID='$profileId' AND BOOK_RETURN='NO'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
 		public function fetchBookIdDetails($id){
-			$sql="SELECT ID,NAME,CODE,CATEGORY_ID,DEPT_ID,SUBJECT_ID,AUTHOR,REGULATION,YEAROFPUBLISHED,ISBN,PUBLISHER,EDITION,PRICE,RACKNO,C_QUANTITY,IMAGE, 
+			$sql="SELECT ID,NAME,CODE,CATEGORY_ID,DEPT_ID,SUBJECT_ID,AUTHOR,REGULATION,DATE_FORMAT(YEAROFPUBLISHED, '%d-%b-%Y') as YEAROFPUBLISHED,ISBN,PUBLISHER,EDITION,PRICE,RACKNO,C_QUANTITY,IMAGE, 
 			(SELECT NAME FROM l_category WHERE ID = CATEGORY_ID) AS CATEGORY_NAME,
 			(SELECT NAME FROM department WHERE ID = DEPT_ID) AS DEPARTMENT_NAME,
 			(SELECT NAME FROM subject WHERE ID = SUBJECT_ID) AS SUBJECT_NAME
@@ -127,7 +127,7 @@
 		}
 		
 		public function getAllBookIssueDetails(){
-			$sql="SELECT ID,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE BOOK_RETURN = 'NO'";
+			$sql="SELECT ID,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE BOOK_RETURN = 'NO'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		
@@ -138,7 +138,7 @@
 			if($result){
 
 				if($result[0]['TYPE'] == "Student"){
-					$sql="SELECT ID,TYPE,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,
+					$sql="SELECT ID,TYPE,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,
 					(SELECT COURSEBATCH_ID FROM student_profile where PROFILE_ID=l_book_issue.PROFILE_ID) as batchId,
 					(SELECT COURSE_ID FROM course_batch where ID=batchId) as courseId 
 					FROM l_book_issue WHERE ID='$id'";
@@ -146,7 +146,7 @@
 
 				}else if($result[0]['TYPE'] == "Employee"){
 
-					$sql="SELECT TYPE,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,
+					$sql="SELECT TYPE,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,
 					(SELECT DEPT_ID FROM employee_profile where PROFILE_ID = l_book_issue.PROFILE_ID) as deptId 
 					FROM l_book_issue WHERE ID='$id'";
 					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -161,7 +161,7 @@
 			if($result){
 
 				if($result[0]['TYPE'] == "Student"){
-					$sql="SELECT ID,TYPE,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,
+					$sql="SELECT ID,TYPE,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,
 					(SELECT NAME FROM l_book where CODE = BOOK_ID) as BOOK_NAME, 
 					(SELECT AUTHOR FROM l_book where CODE = BOOK_ID) as AUTHOR, 
 					(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) as profileName,
@@ -174,7 +174,7 @@
 
 				}else if($result[0]['TYPE'] == "Employee"){
 
-					$sql="SELECT ID,TYPE,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,
+					$sql="SELECT ID,TYPE,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,
 					(SELECT NAME FROM l_book where CODE = BOOK_ID) as BOOK_NAME, 
 					(SELECT AUTHOR FROM l_book where CODE = BOOK_ID) as AUTHOR, 
 					(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) as profileName,
@@ -275,11 +275,11 @@
 		}
 
 		public function getAllBookReturnDetails(){
-			$sql="SELECT ID,BOOK_ISSUE_ID,RETURN_DATE,REMARK,
+			$sql="SELECT ID,BOOK_ISSUE_ID,DATE_FORMAT(RETURN_DATE, '%d-%b-%Y') as RETURN_DATE,REMARK,
 			(SELECT PROFILE_ID FROM l_book_issue where ID=BOOK_ISSUE_ID) as profile_id,
 			(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=profile_id) as profileName,
-			(SELECT ISSUED_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as issue_date,
-			(SELECT DUE_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as due_date,
+			(SELECT DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as issue_date,
+			(SELECT DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as due_date,
 			(SELECT BOOK_ID FROM l_book_issue where ID=BOOK_ISSUE_ID) as BOOK_ID,
 			(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_return";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -287,7 +287,7 @@
 
 		public function getBookReturnIdViewData($id){
 
-			$sqlData = "SELECT ID,BOOK_ISSUE_ID,RETURN_DATE,REMARK,
+			$sqlData = "SELECT ID,BOOK_ISSUE_ID,DATE_FORMAT(RETURN_DATE, '%d-%b-%Y') as RETURN_DATE,REMARK,
 						(SELECT TYPE FROM l_book_issue where ID=BOOK_ISSUE_ID) as user_type
 						FROM l_book_return WHERE ID = '$id'";
 			$result = $this->db->query($sqlData, $return_object = TRUE)->result_array();
@@ -296,7 +296,7 @@
 
 				if($result[0]['user_type'] == "Student"){
 
-					$sql="SELECT ID,BOOK_ISSUE_ID,RETURN_DATE,REMARK,
+					$sql="SELECT ID,BOOK_ISSUE_ID,DATE_FORMAT(RETURN_DATE, '%d-%b-%Y') as RETURN_DATE,REMARK,
 					(SELECT TYPE FROM l_book_issue where ID=BOOK_ISSUE_ID) as user_type,
 					(SELECT PROFILE_ID FROM l_book_issue where ID=BOOK_ISSUE_ID) as profileData_id,
 					(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=profileData_id) as profileName,
@@ -304,8 +304,8 @@
 					(SELECT NAME FROM course_batch where ID = batchId) as BATCH_NAME,
 					(SELECT COURSE_ID FROM course_batch where ID = batchId) as courseId,
 					(SELECT NAME FROM course where ID = courseId) as COURSE_NAME,
-					(SELECT ISSUED_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as issue_date,
-					(SELECT DUE_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as due_date,
+					(SELECT DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as issue_date,
+					(SELECT DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as due_date,
 					(SELECT BOOK_ID FROM l_book_issue where ID=BOOK_ISSUE_ID) as BOOK_ID,
 					(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME,
 					(SELECT IMAGE FROM l_book where CODE = BOOK_ID)as BOOK_IMAGE,
@@ -314,14 +314,14 @@
 					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
 				}else if($result[0]['user_type'] == "Employee"){
-					$sql="SELECT ID,BOOK_ISSUE_ID,RETURN_DATE,REMARK,
+					$sql="SELECT ID,BOOK_ISSUE_ID,DATE_FORMAT(RETURN_DATE, '%d-%b-%Y') as RETURN_DATE,REMARK,
 					(SELECT TYPE FROM l_book_issue where ID=BOOK_ISSUE_ID) as user_type,
 					(SELECT PROFILE_ID FROM l_book_issue where ID = BOOK_ISSUE_ID) as profileData_id,
 					(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID = profileData_id) as profileName,
 					(SELECT DEPT_ID FROM employee_profile where PROFILE_ID = profileData_id) as deptId,
 					(SELECT NAME FROM department where ID = deptId) as DEPT_NAME
-					(SELECT ISSUED_DATETIME FROM l_book_issue where ID = BOOK_ISSUE_ID) as issue_date,
-					(SELECT DUE_DATETIME FROM l_book_issue where ID = BOOK_ISSUE_ID) as due_date,
+					(SELECT DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME FROM l_book_issue where ID = BOOK_ISSUE_ID) as issue_date,
+					(SELECT DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME FROM l_book_issue where ID = BOOK_ISSUE_ID) as due_date,
 					(SELECT BOOK_ID FROM l_book_issue where ID = BOOK_ISSUE_ID) as BOOK_ID,
 					(SELECT NAME FROM l_book where CODE = BOOK_ID)as BOOK_NAME,
 					(SELECT IMAGE FROM l_book where CODE = BOOK_ID)as BOOK_IMAGE,
@@ -331,14 +331,14 @@
 				}
 			}
 
-			$sql="SELECT ID,BOOK_ISSUE_ID,RETURN_DATE,REMARK,
+			$sql="SELECT ID,BOOK_ISSUE_ID,DATE_FORMAT(RETURN_DATE, '%d-%b-%Y') as RETURN_DATE,REMARK,
 
 			(SELECT TYPE FROM l_book_issue where ID=BOOK_ISSUE_ID) as user_type,
 			(SELECT PROFILE_ID FROM l_book_issue where ID=BOOK_ISSUE_ID) as profile_id,
 			
 			-- (SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=profile_id) as profileName,
-			-- (SELECT ISSUED_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as issue_date,
-			-- (SELECT DUE_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as due_date,
+			-- (SELECT DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as issue_date,
+			-- (SELECT DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME FROM l_book_issue where ID=BOOK_ISSUE_ID) as due_date,
 			-- (SELECT BOOK_ID FROM l_book_issue where ID=BOOK_ISSUE_ID) as BOOK_ID,
 			-- (SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME
 
@@ -355,12 +355,12 @@
 		}
 
 		public function getIssuedBookReportAll_details(){
-			$sql="SELECT ID,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE BOOK_RETURN = 'NO'";
+			$sql="SELECT ID,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE BOOK_RETURN = 'NO'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 
 		public function getIssuedBookReport_details($fromDate,$toDate){
-			$sql="SELECT ID,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE BOOK_RETURN = 'NO' AND ISSUED_DATETIME BETWEEN '$fromDate' AND '$toDate'";
+			$sql="SELECT ID,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE BOOK_RETURN = 'NO' AND ISSUED_DATETIME BETWEEN '$fromDate' AND '$toDate'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 
@@ -383,12 +383,12 @@
 		}
 
 		public function getStudentIssuedBookReport_details($id){
-			$sql="SELECT ID,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE PROFILE_ID = '$id' AND BOOK_RETURN = 'NO'";
+			$sql="SELECT ID,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE PROFILE_ID = '$id' AND BOOK_RETURN = 'NO'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 
 		public function getStudentReturnedBookReport_details($id){
-			$sql="SELECT ID,PROFILE_ID,BOOK_ID,ISSUED_DATETIME,DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE PROFILE_ID = '$id' AND BOOK_RETURN = 'YES'";
+			$sql="SELECT ID,PROFILE_ID,BOOK_ID,DATE_FORMAT(ISSUED_DATETIME, '%d-%b-%Y') as ISSUED_DATETIME,DATE_FORMAT(DUE_DATETIME, '%d-%b-%Y') as DUE_DATETIME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID)as profileName,(SELECT NAME FROM l_book where CODE=BOOK_ID)as BOOK_NAME FROM l_book_issue WHERE PROFILE_ID = '$id' AND BOOK_RETURN = 'YES'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 

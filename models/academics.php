@@ -359,11 +359,11 @@
 				);
 				$this->db->insert('subject', $data); 
 				$subjectID= $this->db->insert_id();
-				$sql1="SELECT NAME,ID FROM subject WHERE ID='$subjectID'";
-					$result=$this->db->query($sql1, $return_object = TRUE)->result_array();
-					if(!empty($result)){
-						return array('status'=>true, 'message'=>"Record Inserted Successfully",'SUBJECT_NAME'=>$result[0]['NAME'],'SUBJECT_ID'=>$result[0]['ID']);
-					}
+				// $sql1="SELECT NAME,ID FROM subject WHERE ID='$subjectID'";
+					// $result=$this->db->query($sql1, $return_object = TRUE)->result_array();
+					// if(!empty($result)){
+						// return array('status'=>true, 'message'=>"Record Inserted Successfully",'SUBJECT_NAME'=>$result[0]['NAME'],'SUBJECT_ID'=>$result[0]['ID']);
+					// }
 				if(!empty($subjectID)){
 					$data = array(
 					   'COURSE_ID' => $value['COURSE_ID'],
@@ -576,10 +576,16 @@
 			}			
 		}
 		
-		public function getSyllabusDetailsAll(){
-			$sql="SELECT * FROM subject_syllabus_view";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			return $result;
+		public function getSyllabusDetailsAll($profileId,$roleId){
+			if($roleId==2){
+				$sql="SELECT * FROM subject_syllabus_view WHERE COURSE_ID IN(SELECT ID FROM course WHERE DEPT_ID IN(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID=$profileId))";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				return $result;
+			}else{
+				$sql="SELECT * FROM subject_syllabus_view";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				return $result;
+			}
 		}
 		
 		public function getSyllabusDetails($id){
@@ -619,6 +625,14 @@
 			return $result;
 		}
 		public function getCourseList(){
+			// $headers = apache_request_headers();
+			// $access_token=$headers['access_token'];
+			// // print_r($access_token);exit;
+			// $sql="SELECT user_id FROM oauth_access_tokens WHERE access_token=$access_token";
+			// $res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// if($res){
+				
+			// }
 			$sql="SELECT * FROM course";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			return $result;

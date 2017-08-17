@@ -383,12 +383,12 @@
 	  // 		$sql="SELECT * FROM material_request";
 			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
-			 $sql="SELECT ID,REQ_NUMBER,REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request";
+			 $sql="SELECT ID,REQ_NUMBER,DATE_FORMAT(REQ_DATE, '%d-%b-%Y') as REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request";
 			 return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
 	    function getAllMaterialRequestData($id){
-			$sql="SELECT ID,REQ_NUMBER,REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_DATA_ID FROM material_request where ID='$id'";
+			$sql="SELECT ID,REQ_NUMBER,DATE_FORMAT(REQ_DATE, '%d-%b-%Y') as REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_DATA_ID FROM material_request where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			foreach ($result as $key => $value) {
 				$material_req_id=$value['ID'];
@@ -466,12 +466,12 @@
 	    }
 
 	    function getAllPurchaseOrder_details(){
-			 $sql="SELECT ID,PO_NUMBER,PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order";
+			 $sql="SELECT ID,PO_NUMBER,DATE_FORMAT(PO_DATE, '%d-%b-%Y') as PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order";
 			 return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
 	    function getAllPurchaseOrderData($id){
-			$sql="SELECT ID,PO_NUMBER,PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order where ID='$id'";
+			$sql="SELECT ID,PO_NUMBER,DATE_FORMAT(PO_DATE, '%d-%b-%Y') as PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
 			foreach ($result as $key => $value) {
@@ -547,12 +547,12 @@
 	    }
 
 	    function getAllBilling_details(){
-			 $sql="SELECT ID,INVOICE_NUMBER,INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM billing";
+			 $sql="SELECT ID,INVOICE_NUMBER,DATE_FORMAT(INVOICE_DATE, '%d-%b-%Y') as INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM billing";
 			 return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
 	    function getAllBillingData($id){
-			$sql="SELECT ID,INVOICE_NUMBER,INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM billing where ID='$id'";
+			$sql="SELECT ID,INVOICE_NUMBER,DATE_FORMAT(INVOICE_DATE, '%d-%b-%Y') as INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM billing where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
 			foreach ($result as $key => $value) {
@@ -656,7 +656,7 @@
 	    }
 
 	    function getAllGRN_details(){
-			 $sql="SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE, 
+			 $sql="SELECT ID,GRN_NUMBER,DATE_FORMAT(GRN_DATE, '%d-%b-%Y') as GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,DATE_FORMAT(INVOICE_DATE, '%d-%b-%Y') as INVOICE_DATE, 
 			 (SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER, 
 			 (SELECT SUPPLIER_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS SUPP_ID,
 			 (SELECT NAME FROM supplier WHERE ID=SUPP_ID) AS SUPP_NAME, 
@@ -666,7 +666,7 @@
 	    }
 
 	    function getAllGRNData($id){
-			$sql="SELECT ID,INVOICE_NUMBER,INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM grn where ID='$id'";
+			$sql="SELECT ID,INVOICE_NUMBER,DATE_FORMAT(INVOICE_DATE, '%d-%b-%Y') as INVOICE_DATE,STORE_ID,AMOUNT,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM grn where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
 			foreach ($result as $key => $value) {
@@ -686,7 +686,7 @@
 	  		// $sql="SELECT * FROM grn where ID ='$id'";
 			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
-			$sql="SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE,AMOUNT,
+			$sql="SELECT ID,GRN_NUMBER,DATE_FORMAT(GRN_DATE, '%d-%b-%Y') as GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,DATE_FORMAT(INVOICE_DATE, '%d-%b-%Y') as INVOICE_DATE,AMOUNT,
 			(SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER 
 			FROM grn where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
@@ -735,23 +735,23 @@
 	    //Inventory report
 
 	    function getMaterialReport_details($id,$fromDate,$toDate){
-	    	$sql="SELECT ID,REQ_NUMBER,REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request where REQ_DATE BETWEEN '$fromDate' AND '$toDate'";
+	    	$sql="SELECT ID,REQ_NUMBER,DATE_FORMAT(REQ_DATE, '%d-%b-%Y') as REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request where REQ_DATE BETWEEN '$fromDate' AND '$toDate'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
 	    function getMaterialReportAll_details($id,$fromDate,$toDate){
-	    	$sql="SELECT ID,REQ_NUMBER,REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request";
+	    	$sql="SELECT ID,REQ_NUMBER,DATE_FORMAT(REQ_DATE, '%d-%b-%Y') as REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
 	    function getPurchaseOrderReport_details($id,$fromDate,$toDate){
-	    	$sql="SELECT ID,PO_NUMBER,PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order where PO_DATE BETWEEN '$fromDate' AND '$toDate'";
+	    	$sql="SELECT ID,PO_NUMBER,DATE_FORMAT(PO_DATE, '%d-%b-%Y') as PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order where PO_DATE BETWEEN '$fromDate' AND '$toDate'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    	
 	    }
 
 	    function getPurchaseOrderReportAll_details($id,$fromDate,$toDate){
-	    	$sql="SELECT ID,PO_NUMBER,PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order";
+	    	$sql="SELECT ID,PO_NUMBER,DATE_FORMAT(PO_DATE, '%d-%b-%Y') as PO_DATE,STORE_ID,SUPPLIER_TYPE_ID,SUPPLIER_ID,AMOUNT, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME, (SELECT NAME FROM supplier WHERE ID=SUPPLIER_ID) AS SUPPLIER_NAME FROM purchase_order";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    	
 	    }
@@ -765,7 +765,7 @@
 			 // (SELECT STORE_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS STORE_ID,
 			 // (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM grn
 
-	    	$sql="SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE, 
+	    	$sql="SELECT ID,GRN_NUMBER,DATE_FORMAT(GRN_DATE, '%d-%b-%Y') as GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,DATE_FORMAT(INVOICE_DATE, '%d-%b-%Y') as INVOICE_DATE, 
 			 (SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER, 
 			 (SELECT SUPPLIER_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS SUPP_ID,
 			 (SELECT NAME FROM supplier WHERE ID=SUPP_ID) AS SUPP_NAME, 
@@ -776,7 +776,7 @@
 	    }
 
 	    function getGRNReportAll_details($id,$fromDate,$toDate){
-	    	$sql="SELECT ID,GRN_NUMBER,GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,INVOICE_DATE, 
+	    	$sql="SELECT ID,GRN_NUMBER,DATE_FORMAT(GRN_DATE, '%d-%b-%Y') as GRN_DATE,PURCHASE_ORDER_ID,INVOICE_NO,DATE_FORMAT(INVOICE_DATE, '%d-%b-%Y') as INVOICE_DATE, 
 			 (SELECT PO_NUMBER FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS PO_NUMBER, 
 			 (SELECT SUPPLIER_ID FROM purchase_order WHERE ID=PURCHASE_ORDER_ID) AS SUPP_ID,
 			 (SELECT NAME FROM supplier WHERE ID=SUPP_ID) AS SUPP_NAME, 

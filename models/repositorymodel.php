@@ -40,9 +40,19 @@
 	    	return $this->db->affected_rows();
 		}
 		
-		public function getAllRepPostDetails(){
-			$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser,(SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME FROM repository_post";
-			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		public function getAllRepPostDetails($type,$role_id,$profileId){
+			if($type=='dashboard'){
+				if($role_id==2){
+					$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser,(SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME FROM repository_post WHERE CRT_USER_ID IN('$profileId') ORDER BY postDate DESC LIMIT 3";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}else{
+					$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser,(SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME FROM repository_post ORDER BY postDate DESC LIMIT 3";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
+			}else{
+				$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser,(SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME FROM repository_post";
+				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}
 		}
 		
 		public function getRepPostDetails($id){
