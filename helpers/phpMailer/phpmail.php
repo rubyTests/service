@@ -14,7 +14,7 @@ include 'PHPMailer/PHPMailerAutoload.php';
 		$mail->From = "admin@rubycampus.com";
 		$mail->FromName = "Administrator";
 		$mail->Subject = "Rubycampus mail Verification";
-		$body = '<html><head><title>Mail from Cloudlogic</title></head> <body>'.$msg.'</body> </html>';
+		$body = '<html><head><title>Mail from Rubycampus</title></head> <body>'.$msg.'</body> </html>';
 		$mail->MsgHTML($body);
 		$mail->addAddress($email);
 		//$mail->AddAttachment($path);
