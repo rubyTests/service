@@ -25,13 +25,45 @@
 		
 		// Bulk SMS sending
 		public function bulkSmsSent($values){
-			if(count($values['batchId'])==1){
-				$batchId=$values['batchId'];
-			}else{
-				$batchId=implode(',', $values['batchId']);
+			// batch
+			// if(count($values['batchId'])==1){
+				// $batchId=$values['batchId'];
+			// }else{
+				// $batchId=implode(',', $values['batchId']);
+			// }
+			// $sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROFILE_ID FROM student_profile WHERE COURSEBATCH_ID IN($batchId)) AND PHONE_NO_1 IS NOT NULL";
+			
+			//Course
+			//$sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROFILE_ID FROM student_profile WHERE COURSEBATCH_ID IN(SELECT ID FROM course_batch WHERE COURSE_ID IN (SELECT ID FROM course))) AND PHONE_NO_1 IS NOT NULL";
+			
+			//Course and parents
+			// $sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROF_ID as PROFILE_ID FROM student_relation WHERE STU_PROF_ID IN(SELECT PROFILE_ID FROM student_profile) AND PROF_ID IS NOT NULL UNION SELECT PROFILE_ID FROM student_profile) AND PHONE_NO_1 IS NOT NULL";
+			
+			// //Over All 
+			// $sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROF_ID as PROFILE_ID FROM student_relation WHERE STU_PROF_ID IN(SELECT PROFILE_ID FROM student_profile) AND PROF_ID IS NOT NULL UNION SELECT PROFILE_ID FROM student_profile) AND PHONE_NO_1 IS NOT NULL";
+			// return $res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			
+			if($values['usertype']=='All'){
+				$sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROF_ID FROM student_relation WHERE STU_PROF_ID IN(SELECT PROFILE_ID FROM student_profile) AND PROF_ID IS NOT NULL UNION SELECT PROFILE_ID FROM student_profile WHERE PROFILE_ID IS NOT NULL UNION SELECT PROFILE_ID FROM employee_profile) AND PHONE_NO_1 IS NOT NULL";
+				return $res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}else if($values['usertype']=='Employee'){
+				if(count($values['dept'])==1){
+					$dept=$values['dept'];
+				}else{
+					$dept=implode(',', $values['dept']);
+				}
+				$sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROFILE_ID FROM employee_profile WHERE DEPT_ID IN($dept)) AND PHONE_NO_1 IS NOT NULL";
+				return $res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			}else if($values['usertype']=='Student'){
+				if(count($values['batchId'])==1){
+					$batchId=$values['batchId'];
+				}else{
+					$batchId=implode(',', $values['batchId']);
+				}
+				$sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROFILE_ID FROM student_profile WHERE COURSEBATCH_ID IN($batchId)) AND PHONE_NO_1 IS NOT NULL";
+				return $res = $this->db->query($sql, $return_object = TRUE)->result_array();
 			}
-			$sql="SELECT PHONE_NO_1 FROM profile WHERE ID IN (SELECT PROFILE_ID FROM student_profile WHERE COURSEBATCH_ID IN($batchId)) AND PHONE_NO_1 IS NOT NULL";
-			return $res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			
 		}
 		
 		public function bulkSmsSentDetials($values,$cDetails){
