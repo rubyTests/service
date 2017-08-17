@@ -646,8 +646,8 @@ class ProfileAPI extends REST_Controller {
 	}
 
 	function birthDayList_get(){
-		$result=$this->profilemodel->checkbirthDayList();
-		
+		$show=$this->get('showcase');
+		$result=$this->profilemodel->checkbirthDayList($show);
 		if (!empty($result)){
 			$this->set_response(['status' =>TRUE,'result'=>$result], REST_Controller::HTTP_OK); 
 		}

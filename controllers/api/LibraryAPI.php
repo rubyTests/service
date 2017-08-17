@@ -106,7 +106,7 @@ class LibraryAPI extends REST_Controller {
 		$data['SUBJECT_ID']=$this->post('subjectId');
 		$data['AUTHOR']=$this->post('author');
 		$data['REGULATION']=$this->post('regulation');
-		$data['YEAROFPUBLISHED']=$this->post('yearOfPublished');
+		$data['YEAROFPUBLISHED']=date("Y-m-d", strtotime($this->post('yearOfPublished')));
 		$data['ISBN']=$this->post('ISBN');
 		$data['PUBLISHER']=$this->post('publisher');
 		$data['EDITION']=$this->post('edition');
@@ -189,8 +189,8 @@ class LibraryAPI extends REST_Controller {
 		$data['BOOK_ID']=$this->post('code');
 		$data['TYPE']=$this->post('type');
 		$data['PROFILE_ID']=$this->post('profileId');
-		$data['ISSUED_DATETIME']=$this->post('issued_date');
-		$data['DUE_DATETIME']=$this->post('due_date');
+		$data['ISSUED_DATETIME']=date("Y-m-d", strtotime($this->post('issued_date')));
+		$data['DUE_DATETIME']=date("Y-m-d", strtotime($this->post('due_date')));
 		if($id==null){
 			$result=$this->librarymodel->addBookIssueDetails($data);
 			if (!empty($result)){
@@ -263,7 +263,7 @@ class LibraryAPI extends REST_Controller {
 	function lBookReturn_post(){
 		$id=$this->post('book_return_id');
 		$data['BOOK_ISSUE_ID']=$this->post('book_issue_id');
-		$data['RETURN_DATE']=$this->post('return_date');
+		$data['RETURN_DATE']=date("Y-m-d", strtotime($this->post('return_date')));
 		$data['REMARK']=$this->post('remark');
 		$data['BOOK_ID']=$this->post('book_code');
 		if($id==null){
@@ -336,8 +336,8 @@ class LibraryAPI extends REST_Controller {
 
 	function IssuedBookReport_get(){
 		$id=$this->get('id');
-    	$fromDate=$this->get('fromDate');
-    	$toDate=$this->get('toDate');
+    	$fromDate=date("Y-m-d", strtotime($this->get('fromDate')));
+    	$toDate=date("Y-m-d", strtotime($this->get('toDate')));
     	if ($id != null)
         {
         	

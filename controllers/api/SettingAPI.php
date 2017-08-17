@@ -102,10 +102,12 @@ class SettingAPI extends REST_Controller {
 	
 	// Bulk sms sending
 	function bulkSms_post(){
+		$data['usertype']=$this->post('usertype');
+		$data['dept']=$this->post('dept');
 		$data['courseId']=$this->post('courseId');
 		$data['batchId']=$this->post('batchId');
-		// print_r($data['batchId']);exit;
 		$data['msg']=$this->post('msg');
+		print_r($data);exit;
 		$result=$this->setting_model->bulkSmsSent($data);
 		if (!empty($result)){
 			print_r($result);exit;

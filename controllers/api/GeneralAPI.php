@@ -80,7 +80,7 @@ class GeneralAPI extends REST_Controller {
 		$msg=$valu['error_description'];
 	}
 	
-	//print_r($user_token);exit;
+	// print_r($user_token);exit;
 	
     
     // $path=APPPATH;
@@ -323,19 +323,21 @@ class GeneralAPI extends REST_Controller {
 	}
 
 	function logout_get(){
-		
-		$this->session->unset_userdata('user_token');
-		$this->session->unset_userdata('USER_ID');
-    	$this->session->unset_userdata('USER_FIRST_NAME');
-    	$this->session->unset_userdata('USER_LAST_NAME');
-    	$this->session->unset_userdata('USER_EMAIL');
-    	$this->session->unset_userdata('USER_ROLE_ID');
-    	$this->session->unset_userdata('USER_READ');
-    	$this->session->unset_userdata('USER_WRITE');
-    	$this->session->unset_userdata('USER_EDIT');
-    	$this->session->unset_userdata('USER_DELETE');
-		$this->set_response(['status' =>TRUE,'message'=>'Log Out Successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
-
+		$token=$this->get('access_token');
+		$access_token=$this->GeneralMod->logoutDetail($token);
+		if($access_token){
+			$this->session->unset_userdata('user_token');
+			$this->session->unset_userdata('USER_ID');
+			$this->session->unset_userdata('USER_FIRST_NAME');
+			$this->session->unset_userdata('USER_LAST_NAME');
+			$this->session->unset_userdata('USER_EMAIL');
+			$this->session->unset_userdata('USER_ROLE_ID');
+			$this->session->unset_userdata('USER_READ');
+			$this->session->unset_userdata('USER_WRITE');
+			$this->session->unset_userdata('USER_EDIT');
+			$this->session->unset_userdata('USER_DELETE');
+			$this->set_response(['status' =>TRUE,'message'=>'Log Out Successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
 	}
 	
 	// Send Email via MailGun

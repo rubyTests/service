@@ -28,7 +28,7 @@ class AssignmentAPI extends REST_Controller {
     	$data['course_id']=$this->post('course_id');
     	$data['batch_id']=$this->post('batch_id');
     	$data['subject_id']=$this->post('subject_id');
-    	$data['due_date']=$this->post('due_date');
+    	$data['due_date']=date("Y-m-d", strtotime($this->post('due_date')));
     	$data['userId']=$this->post('userId');
 		$result=$this->assignment_model->assignmentDetails($data);
     	if($result['status']==true){

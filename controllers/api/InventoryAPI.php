@@ -588,7 +588,7 @@ class InventoryAPI extends REST_Controller {
     {
     	$data['id']=$this->post('materialReq_id');
     	$data['req_num']=$this->post('request_no');
-    	$data['req_date']=$this->post('request_date');
+    	$data['req_date']=date("Y-m-d", strtotime($this->post('request_date')));
     	$data['store_id']=$this->post('store_id');
     	$data['notesData']=$this->post('notesData');
     	$data['itemData']=$this->post('itemData');
@@ -687,7 +687,7 @@ class InventoryAPI extends REST_Controller {
     {
     	$data['id']=$this->post('purchaseOrder_id');
     	$data['po_num']=$this->post('po_number');
-    	$data['po_date']=$this->post('po_date');
+    	$data['po_date']=date("Y-m-d", strtotime($this->post('po_date')));
     	$data['store_id']=$this->post('store_id');
     	$data['supp_type_id']=$this->post('supplier_type_id');
     	$data['supp_id']=$this->post('supplier_id');
@@ -788,7 +788,7 @@ class InventoryAPI extends REST_Controller {
     {
     	$data['id']=$this->post('billing_id');
     	$data['invoice_no']=$this->post('invoice_no');
-    	$data['invoice_date']=$this->post('invoice_date');
+    	$data['invoice_date']=date("Y-m-d", strtotime($this->post('invoice_date')));
     	$data['store_id']=$this->post('store_id');
     	$data['notes']=$this->post('notes');
     	$data['total_amount']=$this->post('total_amount');
@@ -889,10 +889,10 @@ class InventoryAPI extends REST_Controller {
 
     	$data['id']=$this->post('grn_id');
     	$data['grn_number']=$this->post('grn_number');
-    	$data['grn_date']=$this->post('grn_date');
+    	$data['grn_date']=date("Y-m-d", strtotime($this->post('grn_date')));
     	$data['po_id']=$this->post('po_id');
     	$data['invoice_no']=$this->post('invoice_number');
-    	$data['invoice_date']=$this->post('invoice_date');
+    	$data['invoice_date']=date("Y-m-d", strtotime($this->post('invoice_date')));
     	$data['total_amount']=$this->post('total_amount');
     	$data['itemData']=$this->post('itemData');
     	$data['institute_id']=$this->post('institute_id');
@@ -1044,8 +1044,8 @@ class InventoryAPI extends REST_Controller {
 
     function materialRequestReport_get(){
     	$id=$this->get('id');
-    	$fromDate=$this->get('fromDate');
-    	$toDate=$this->get('toDate');
+    	$fromDate=date("Y-m-d", strtotime($this->get('fromDate')));
+    	$toDate=date("Y-m-d", strtotime($this->get('toDate')));
     	if ($id != null)
         {
         	
@@ -1070,8 +1070,8 @@ class InventoryAPI extends REST_Controller {
 
 	function purchaseOrderReport_get(){
     	$id=$this->get('id');
-    	$fromDate=$this->get('fromDate');
-    	$toDate=$this->get('toDate');
+    	$fromDate=date("Y-m-d", strtotime($this->get('fromDate')));
+    	$toDate=date("Y-m-d", strtotime($this->get('toDate')));
     	if ($id != null)
         {
         	
@@ -1096,8 +1096,8 @@ class InventoryAPI extends REST_Controller {
 
 	function GRNReport_get(){
 		$id=$this->get('id');
-    	$fromDate=$this->get('fromDate');
-    	$toDate=$this->get('toDate');
+    	$fromDate=date("Y-m-d", strtotime($this->get('fromDate')));
+    	$toDate=date("Y-m-d", strtotime($this->get('toDate')));
     	if ($id != null)
         {
         	if( $fromDate != NULL && $toDate !=NULL ){

@@ -80,8 +80,11 @@ class RepositoryAPI extends REST_Controller {
 	
 	function Rep_Post_get(){ 
 		$id=$this->get('id');
+		$type=$this->get('type');
+		$role_id=$this->get('role_id');
+		$profileId=$this->get('profileId');
 		if($id==null){
-			$result=$this->repositorymodel->getAllRepPostDetails();
+			$result=$this->repositorymodel->getAllRepPostDetails($type,$role_id,$profileId);
 			if (!empty($result)){
 				$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 			}else{
