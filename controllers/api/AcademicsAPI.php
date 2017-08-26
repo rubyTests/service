@@ -416,14 +416,13 @@ class AcademicsAPI extends REST_Controller {
 	
 	function syllabusDetail_delete(){
 		$id = $this->delete('id');
-		$syl_id = $this->delete('syllabus_id');
 		if($id==NULL){
 				$this->set_response([
 				'status' => FALSE,
 				'message' => 'Syllabus Details could not be found'
 				], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}else{
-			$users=$this->academics->deleteSyllabusDetails($id,$syl_id);
+			$users=$this->academics->deleteSyllabusDetails($id);
 			if ($users!=0){
 				$this->set_response(['status' =>TRUE,'message'=>'Syllabus Detail deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 			}
