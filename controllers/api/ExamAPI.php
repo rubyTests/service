@@ -278,8 +278,8 @@ class ExamAPI extends REST_Controller {
 		$data['NAME']=$this->post('name');
 		$data['ASSESSMENT_ID']=$this->post('assessmentId');
 		$data['COURSE_ID']=$this->post('courseId');
-		$data['START_DATE']=$this->post('startDate');
-		$data['END_DATE']=$this->post('endDate');
+		$data['START_DATE']=date("Y-m-d", strtotime($this->post('startDate')));
+		$data['END_DATE']=date("Y-m-d", strtotime($this->post('endDate')));
 		if($id==null){
 			$result=$this->exammodel->addSetAssignExamDetails($data);
 			if (!empty($result)){
@@ -519,7 +519,7 @@ class ExamAPI extends REST_Controller {
 		$data['BATCH_ID']=$this->post('batch_id');
 		$data['EXAM_ID']=$this->post('exam_id');
 		$data['SUBJECT_ID']=$this->post('subject_id');
-		$data['DATE']=$this->post('exam_date');
+		$data['DATE']=date("Y-m-d", strtotime($this->post('exam_date')));
 		$data['START_TIME']=$this->post('starttime');
 		$data['END_TIME']=$this->post('endtime');
 		$data['PASS_MARK']=$this->post('passMark');

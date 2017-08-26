@@ -42,7 +42,7 @@ class InstitutionAPI extends REST_Controller {
     function institutionContactDetails_post(){
 
     	$data['address']=$this->post('address');
-    	$data['contact_name']=$this->post('contact_name');
+    	// $data['contact_name']=$this->post('contact_name');
     	$data['city']=$this->post('city');
     	$data['state']=$this->post('state');
     	$data['pincode']=$this->post('pincode');
