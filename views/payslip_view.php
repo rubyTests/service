@@ -151,7 +151,7 @@
             <div id="headerpreview" >
                 <img class="logo headStyle" width="100px" src="https://images.g2crowd.com/uploads/product/image/detail/detail_1483704915/rubycampus.png">
                 <h3 style="font-family: Roboto;color: #000000;margin-left: 40px; margin-top: 10px;text-align: justify-all;" class="headStyle allfontStyle">
-                <b>Srinivasan Engineering College</b><br>
+                <b>Rubycampus Application</b><br>
                 <span style="font-size:10px;text-align:left;">No: 28, Bajanai madam street, Pondicherry <br>0413-654 6542 | school@edu.com</span>
                 </h3>
                 <!-- <h5>No: 28, Bajanai madam street, Pondicherry <br>0413-654 6542 | school@edu.com</h5> -->
