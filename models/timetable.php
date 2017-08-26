@@ -88,8 +88,29 @@
 			return $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function getAllTimetableDetail(){
-			$sql="SELECT ID,COURSE_ID,BATCH_ID,(SELECT NAME FROM COURSE WHERE ID=COURSE_ID) AS COURSE_NAME,(SELECT NAME FROM COURSE_BATCH WHERE ID=BATCH_ID) AS BATCH_NAME FROM TIMETABLE GROUP BY COURSE_ID,BATCH_ID";
-			return $this->db->query($sql, $return_object = TRUE)->result_array();
+			$headers = apache_request_headers();
+			$access_token=$headers['access_token'];
+			$sql="SELECT user_id,(SELECT USER_ROLE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as Role,(SELECT USER_PROFILE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as ProfileId FROM oauth_access_tokens WHERE access_token='$access_token'";
+			$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($res){
+				$roleId=$res[0]['Role'];
+				$ProfileId=$res[0]['ProfileId'];
+				if($roleId==2){
+					// $sql="SELECT * FROM course WHERE DEPT_ID IN(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID=$ProfileId)";
+					// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					
+					$sql="SELECT (SELECT NAME FROM COURSE WHERE ID=COURSE_ID) AS COURSE_NAME,(SELECT NAME FROM COURSE_BATCH WHERE ID=BATCH_ID) AS BATCH_NAME,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID) as SUBJECT_NAME,DAY,START_TIME,END_TIME FROM TIMETABLE WHERE PROFILE_ID IN($ProfileId) GROUP BY COURSE_ID,BATCH_ID";
+					return $this->db->query($sql, $return_object = TRUE)->result_array();
+					
+				}else if($roleId==3){
+					$sql = "SELECT ID,SUBJECT_ID,PROFILE_ID,START_TIME,END_TIME,DAY,COURSE_ID,BATCH_ID,(SELECT NAME FROM SUBJECT WHERE ID=SUBJECT_ID) AS SUBJECT_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=PROFILE_ID) AS STAFF_NAME FROM TIMETABLE WHERE BATCH_ID=(SELECT COURSEBATCH_ID FROM student_profile WHERE PROFILE_ID='$ProfileId')";
+					return $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
+				else{
+					$sql="SELECT ID,COURSE_ID,BATCH_ID,(SELECT NAME FROM COURSE WHERE ID=COURSE_ID) AS COURSE_NAME,(SELECT NAME FROM COURSE_BATCH WHERE ID=BATCH_ID) AS BATCH_NAME FROM TIMETABLE GROUP BY COURSE_ID,BATCH_ID";
+					return $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
+			}
 		}
 		function deleteTimetableDetails($course_id,$batch_id){
 			$sql="SELECT * FROM TIMETABLE where COURSE_ID='$course_id' AND BATCH_ID='$batch_id'";

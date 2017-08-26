@@ -142,7 +142,7 @@
 			$res = $this->db->query($sql, $return_object = TRUE)->result_array();
 			if($res){
 				$batchId=$res[0]['COURSEBATCH_ID'];
-				$sql="SELECT ID as assignID,NAME,SUBJECT_ID,DUE_DATE,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)as SUBJECT_NAME,CASE WHEN (SELECT STATUS FROM assignment_status WHERE ASSIGNMENT_ID=assignID AND PROFILE_ID='$proId')='Completed' THEN 'Completed' ELSE 'Pending' END as STATUS FROM assignment WHERE BATCH_ID='$batchId'";
+				$sql="SELECT ID as assignID,NAME,SUBJECT_ID,DUE_DATE,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)as SUBJECT_NAME,CASE WHEN (SELECT STATUS FROM assignment_status WHERE ASSIGNMENT_ID=assignID AND PROFILE_ID='$proId')='Completed' THEN 'Completed' ELSE 'Pending' END as STATUS FROM assignment WHERE BATCH_ID='$batchId' ORDER BY `assignment`.`DUE_DATE` DESC";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 				return $result;
 			}

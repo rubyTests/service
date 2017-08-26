@@ -139,7 +139,7 @@
 				ROUND(((((SELECT TOTAL_DAYS FROM attendance_report WHERE PROFILE_ID=student_attendance.PROFILE_ID AND COURSEBATCH_ID
 				=student_attendance.COURSEBATCH_ID)-(SELECT COUNT(ID) FROM student_leave WHERE PROFILE_ID=student_attendance.PROFILE_ID))*100)/(SELECT TOTAL_DAYS FROM attendance_report WHERE PROFILE_ID=student_attendance.PROFILE_ID AND COURSEBATCH_ID
 				=student_attendance.COURSEBATCH_ID)),-1)
-				  ELSE '0' END AS PERCENTAGE
+				  ELSE '100' END AS PERCENTAGE
 	    	FROM student_attendance WHERE COURSE_ID='$courseId' AND COURSEBATCH_ID='$batchId' GROUP BY PROFILE_ID";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 

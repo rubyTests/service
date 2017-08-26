@@ -194,14 +194,36 @@
 		}
 		
 		public function getCourseDetailsAll(){
-			$sql="SELECT * FROM course";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			foreach ($result as $key => $value) {
-				$dept_id=$value['DEPT_ID'];
-				$sql1="SELECT * FROM department where ID='$dept_id'";
-				$result[$key]['deptData'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			$headers = apache_request_headers();
+			$access_token=$headers['access_token'];
+			$sql="SELECT user_id,(SELECT USER_ROLE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as Role,(SELECT USER_PROFILE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as ProfileId FROM oauth_access_tokens WHERE access_token='$access_token'";
+			$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($res){
+				$roleId=$res[0]['Role'];
+				$ProfileId=$res[0]['ProfileId'];
+				if($roleId==2){
+					// $sql="SELECT * FROM course WHERE DEPT_ID IN(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID=$ProfileId)";
+					// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					$sql="SELECT * FROM course WHERE DEPT_ID IN(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID=$ProfileId)";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					foreach ($result as $key => $value) {
+						$dept_id=$value['DEPT_ID'];
+						$sql1="SELECT * FROM department where ID='$dept_id'";
+						$result[$key]['deptData'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+					}
+					return $result;
+					
+				}else{
+					$sql="SELECT * FROM course";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					foreach ($result as $key => $value) {
+						$dept_id=$value['DEPT_ID'];
+						$sql1="SELECT * FROM department where ID='$dept_id'";
+						$result[$key]['deptData'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
+					}
+					return $result;
+				}
 			}
-			return $result;
 		}
 		
 		public function getCourseDetails($id){
@@ -246,7 +268,7 @@
 		
 		public function addBatchDetails($value){
 			$checkDate=date("Y", strtotime($value['PERIOD_FROM']));
-			$batchName=$checkDate.'-'.$value['NAME'];
+			$batchName=$checkDate.' - '.$value['NAME'];
 
 			$name=$value['NAME'];
 			$course_id=$value['COURSE_ID'];
@@ -273,7 +295,7 @@
 		
 		public function editBatchDetails($id,$value){
 			$checkDate=date("Y", strtotime($value['PERIOD_FROM']));
-			$batchName=$checkDate.'-'.$value['NAME'];
+			$batchName=$checkDate.' - '.$value['NAME'];
 
 			$sql="SELECT * FROM course_batch where ID='$id'";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();			
@@ -447,10 +469,21 @@
 			return $result;
 		}
 		public function getSubjectFilterData($id){
-			$sql="SELECT SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)AS NAME FROM course_subject where COURSE_ID='$id'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-		   // echo "<pre>";print_r($result);exit();
-			return $result;
+			$headers = apache_request_headers();
+			$access_token=$headers['access_token'];
+			$sql="SELECT user_id,(SELECT USER_ROLE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as Role,(SELECT USER_PROFILE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as ProfileId FROM oauth_access_tokens WHERE access_token='$access_token'";
+			$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($res){
+				$roleId=$res[0]['Role'];
+				$ProfileId=$res[0]['ProfileId'];
+				if($roleId==2){
+					$sql="SELECT SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)AS NAME FROM course_subject where COURSE_ID='$id' AND SUBJECT_ID IN(SELECT SUBJECT_ID FROM employee_subject WHERE EMP_PROFILE_ID='$ProfileId')";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}else{
+					$sql="SELECT SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID)AS NAME FROM course_subject where COURSE_ID='$id'";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
+			}
 		}
 
 		
@@ -578,7 +611,8 @@
 		
 		public function getSyllabusDetailsAll($profileId,$roleId){
 			if($roleId==2){
-				$sql="SELECT * FROM subject_syllabus_view WHERE COURSE_ID IN(SELECT ID FROM course WHERE DEPT_ID IN(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID=$profileId))";
+				// $sql="SELECT * FROM subject_syllabus_view WHERE COURSE_ID IN(SELECT ID FROM course WHERE DEPT_ID IN(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID=$profileId))";
+				$sql="SELECT COURSE_ID,(SELECT NAME FROM course WHERE ID=COURSE_ID) as COURSE_NAME,SUBJECT_ID,(SELECT NAME FROM subject WHERE ID=SUBJECT_ID) as SUBJECT_NAME,CASE WHEN (SELECT count(*) FROM subject_syllabus as ss WHERE ss.COURSE_ID=employee_subject.COURSE_ID AND ss.SUBJECT_ID=employee_subject.SUBJECT_ID)!=0 THEN (SELECT ID FROM subject_syllabus WHERE COURSE_ID=employee_subject.COURSE_ID AND SUBJECT_ID=employee_subject.SUBJECT_ID) ELSE 'No' END as subject_syllabus_id FROM employee_subject WHERE EMP_PROFILE_ID='$profileId'";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 				return $result;
 			}else{
@@ -594,7 +628,7 @@
 			return $result;
 		}
 		
-		public function deleteSyllabusDetails($id,$syl_id){
+		public function deleteSyllabusDetails($id){
 			// $sql1="SELECT * FROM syllabus WHERE ID='$id'";
 			// $result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
 			// // print_r($result1);
@@ -603,7 +637,7 @@
 			//   	echo $sql2="DELETE FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
 			// 	$result2 = $this->db->query($sql2);
 			// }exit;
-			$sql2="DELETE FROM syllabus where SUB_SYLLABUS_ID='$syl_id'";
+			$sql2="DELETE FROM syllabus where SUB_SYLLABUS_ID='$id'";
 			$result2 = $this->db->query($sql2);
 
 			$sql="DELETE FROM subject_syllabus where ID='$id'";
@@ -625,17 +659,22 @@
 			return $result;
 		}
 		public function getCourseList(){
-			// $headers = apache_request_headers();
-			// $access_token=$headers['access_token'];
-			// // print_r($access_token);exit;
-			// $sql="SELECT user_id FROM oauth_access_tokens WHERE access_token=$access_token";
-			// $res = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// if($res){
-				
-			// }
-			$sql="SELECT * FROM course";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			return $result;
+			$headers = apache_request_headers();
+			$access_token=$headers['access_token'];
+			// print_r($access_token);exit;
+			$sql="SELECT user_id,(SELECT USER_ROLE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as Role,(SELECT USER_PROFILE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as ProfileId FROM oauth_access_tokens WHERE access_token='$access_token'";
+			$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($res){
+				$roleId=$res[0]['Role'];
+				$ProfileId=$res[0]['ProfileId'];
+				if($roleId==2){
+					$sql="SELECT * FROM course WHERE DEPT_ID IN(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID=$ProfileId)";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}else{
+					$sql="SELECT * FROM course";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
+			}
 		}
 		public function getSubjectList(){
 			$sql="SELECT * FROM subject";
@@ -738,9 +777,23 @@
 		}
 		
 		public function getParticularSubjectList($id){
-			$sql="SELECT (SELECT ID FROM subject WHERE ID=course_subject.SUBJECT_ID) AS COU_ID,(SELECT NAME FROM subject WHERE ID=course_subject.SUBJECT_ID) AS COURSE_NAME
-				FROM course_subject WHERE COURSE_ID='$id'";
-			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			
+			$headers = apache_request_headers();
+			$access_token=$headers['access_token'];
+			$sql="SELECT user_id,(SELECT USER_ROLE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as Role,(SELECT USER_PROFILE_ID FROM user WHERE USER_EMAIL=oauth_access_tokens.user_id) as ProfileId FROM oauth_access_tokens WHERE access_token='$access_token'";
+			$res = $this->db->query($sql, $return_object = TRUE)->result_array();
+			if($res){
+				$roleId=$res[0]['Role'];
+				$ProfileId=$res[0]['ProfileId'];
+				if($roleId==2){
+					$sql="SELECT (SELECT ID FROM subject WHERE ID=course_subject.SUBJECT_ID) AS COU_ID,(SELECT NAME FROM subject WHERE ID=course_subject.SUBJECT_ID) AS COURSE_NAME FROM course_subject WHERE COURSE_ID='$id' AND SUBJECT_ID IN(SELECT SUBJECT_ID FROM employee_subject WHERE EMP_PROFILE_ID='$ProfileId')";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}else{
+					$sql="SELECT (SELECT ID FROM subject WHERE ID=course_subject.SUBJECT_ID) AS COU_ID,(SELECT NAME FROM subject WHERE ID=course_subject.SUBJECT_ID) AS COURSE_NAME FROM course_subject WHERE COURSE_ID='$id'";
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				}
+			}
+			
 		}
 		public function getParticularEmployeeList($id){
 			$sql="SELECT (SELECT ID FROM profile WHERE ID=employee_profile.PROFILE_ID) AS EMP_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile WHERE ID=employee_profile.PROFILE_ID) AS EMP_ANME
@@ -792,14 +845,15 @@
 		}
 		//written By Manivannan
 		public function assignRoleDetails(){
-			$sql="SELECT * ,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=USER_ID) as PROFILE_NAME,(SELECT NAME FROM department WHERE ID=DEPT_ID)as DEPT_NAME FROM assign_role";
+			$sql="SELECT * ,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=(SELECT USER_PROFILE_ID FROM user WHERE user.USER_ID=assign_role.USER_ID)) as PROFILE_NAME,(SELECT NAME FROM department WHERE ID=DEPT_ID)as DEPT_NAME FROM assign_role";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			foreach ($result as $key => $value) {
 				$role_id = $value['ROLL_NAME'];
-				$sql1="SELECT role_name FROM user_roles WHERE id IN ($role_id)";
+				$sql1="SELECT role_name FROM user_roles WHERE id IN ('$role_id')";
 				$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
 				$result[$key]['role_name'] = $result1;
 			}
+			// print_r($result);exit;
 			return $result;
 		}
 		public function getParticularAssignRoleDetails($id){

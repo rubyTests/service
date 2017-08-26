@@ -1025,11 +1025,11 @@
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			$data['profileId']=$result[0]['ID'];
 			$data['admission_no']=$result[0]['ADMISSION_NO'];
-			$data['admission_date']=$result[0]['ADMISSION_DATE'];
+			$data['admission_date']=date("d-M-Y", strtotime($result[0]['ADMISSION_DATE']));
 			$data['first_name']=$result[0]['FIRSTNAME'];
 			$data['last_name']=$result[0]['LASTNAME'];
 			$data['gender']=$result[0]['GENDER'];
-			$data['wizard_birth']=$result[0]['DOB'];
+			$data['wizard_birth']=date("d-M-Y", strtotime($result[0]['DOB']));
 			$data['filename']=$result[0]['IMAGE1'];
 			$data['email']=$result[0]['EMAIL'];
 			$data['wizard_phone']=$result[0]['PHONE_NO_1'];
@@ -1094,8 +1094,8 @@
 					$data['course_name']=$result[0]['courseName'];
 					$data['dept_id']=$result[0]['deptId'];
 					$data['dept_name']=$result[0]['deptName'];
-					$data['batch_from']=$result[0]['PERIOD_FROM'];
-					$data['batch_to']=$result[0]['PERIOD_TO'];
+					$data['batch_from']=date("d-M-Y", strtotime($result[0]['PERIOD_FROM']));
+					$data['batch_to']=date("d-M-Y", strtotime($result[0]['PERIOD_TO']));
 				}
 				
 				//Sibling Details
@@ -1150,7 +1150,7 @@
 						$data1[$key]['p_last_name']=$value['LASTNAME'];
 						$data1[$key]['p_relation']=$value['RELATION_TYPE'];
 						$data1[$key]['availabe']=$value['AVAILABLE'];
-						$data1[$key]['p_dob']=$value['DOB'];
+						$data1[$key]['p_dob']=date("d-M-Y", strtotime($value['DOB']));
 						$data1[$key]['p_education']=$value['EDUCATION'];
 						$data1[$key]['occupation']=$value['OCCUPATION'];
 						$data1[$key]['p_income']=$value['INCOME'];
@@ -1198,7 +1198,7 @@
 					$data2[$key]['preEdu_id']=$value['ID'];
 					$data2[$key]['institute']=$value['INSTITUTE'];
 					$data2[$key]['course_name']=$value['LEVEL'];
-					$data2[$key]['completion']=$value['YEAR_COMPLETION'];
+					$data2[$key]['completion']=date("d-M-Y", strtotime($value['YEAR_COMPLETION']));
 					$data2[$key]['total_mark']=$value['TOTAL_GRADE'];
 				}
 			}else{
@@ -1364,6 +1364,35 @@
 					}
 					return $data;
 				}
+			}else if($roleId==2){
+				$sql="SELECT * FROM student_profile WHERE COURSEBATCH_ID IN(SELECT ID FROM course_batch WHERE COURSE_ID IN(SELECT ID FROM course WHERE DEPT_ID IN(SELECT DEPT_ID FROM employee_profile WHERE PROFILE_ID='$profileId')))";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				foreach($result as $key => $value){
+					$data[$key]['profileId']=$value['PROFILE_ID'];
+					$pId=$value['PROFILE_ID'];
+					$cbId=$value['COURSEBATCH_ID'];
+					$sql="SELECT ADMISSION_NO,FIRSTNAME,LASTNAME,IMAGE1,EMAIL,PHONE_NO_1 FROM profile where ID='$pId'";
+					$proDetail = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($proDetail){
+						$data[$key]['adm_no']=$proDetail[0]['ADMISSION_NO'];
+					$data[$key]['fname']=$proDetail[0]['FIRSTNAME'];
+					$data[$key]['lname']=$proDetail[0]['LASTNAME'];
+					$data[$key]['image']=$proDetail[0]['IMAGE1'];
+					$data[$key]['email']=$proDetail[0]['EMAIL'];
+					$data[$key]['phone']=$proDetail[0]['PHONE_NO_1'];
+					}
+					
+					$sql="SELECT NAME,COURSE_ID,(SELECT NAME FROM course where ID=course_batch.COURSE_ID)as courseName,(SELECT DEPT_ID FROM course where ID=course_batch.COURSE_ID)as deptId,(SELECT NAME FROM department where ID=deptId)as deptName FROM course_batch where ID='$cbId'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					if($result){
+						$data[$key]['batch_name']=$result[0]['NAME'];
+					$data[$key]['course_id']=$result[0]['COURSE_ID'];
+					$data[$key]['course_name']=$result[0]['courseName'];
+					$data[$key]['dept_id']=$result[0]['deptId'];
+					$data[$key]['dept_name']=$result[0]['deptName'];
+					}
+				}
+				return $data;
 			}else{
 				$sql="SELECT * FROM student_profile";
 				$result = $this->db->query($sql, $return_object = TRUE)->result_array();

@@ -8,77 +8,67 @@
 			// $Images=$value['image_file'];
 			// 	print_r($Images);exit;
 
-			$sql="SELECT * FROM COURSE_BATCH";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// print_r(count($result));exit;
-			if(count($result) > 0){
-				return array('status'=>'false');
-			}else {
+			// $sql="SELECT * FROM COURSE_BATCH";
+			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// // print_r(count($result));exit;
+			// if(count($result) > 0){
+			// 	return array('status'=>'false');
+			// }else {
 				if($value['institution_id']!=''){
 
-					// $Images=$value['image_file'];
-					// // printer_abort($Images);exit;
-				 //   	$ImageSplit = explode(',', $Images);        
-			  //       $ImageResult = base64_decode($ImageSplit[1]);
-			  //       $im = imagecreatefromstring($ImageResult); 
-			  //       if ($im !== false) 
-			  //       {
-			  //           $fileName = date('Ymdhis') .".png";
-			  //           $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
-			  //           imagedestroy($im);
-			  //       } 
-
-
-					// $Images=$value['image_file'];
-					// $ImageSplit = explode(',', $Images);  
-					// $ImageSplit1 = explode(':', $ImageSplit[0]);
-					// if($ImageSplit1[0]=='http') {
-					// 	$IMG = $value['image_file'];
-					// 	$splitIMage = explode('/', $IMG);
-					// 	$fileName=$splitIMage[5];
-					// }else {
-					// 	$ImageResult = base64_decode($ImageSplit[1]);
-				 //        $im = imagecreatefromstring($ImageResult); 
-				 //        if ($im !== false) 
-				 //        {
-				 //            $fileName = date('Ymdhis') .".png";
-				 //            $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'rubyServices/upload/'.$fileName);
-				 //            imagedestroy($im);
-				 //        }
-					// }
-					
-			        $profile = array(
-					   'FIRSTNAME' => $value['institute_name']
-					);
-					$this->db->where('ID', $value['profile_id']);
-					$this->db->update('profile', $profile);
-
-					if($value['profile_id']){
-						$institution = array(
-						   'CODE' => $value['inst_code'],
-						   'PROF_ID' => $value['profile_id'],
-						   'TYPE' => $value['type'],
-						   'TIME_ZONE' => $value['time_zone'],
-						   'CURRENCY' => $value['currency'],
-						   'LOGO' => $value['image_file']
+					$instID=$value['institution_id'];
+					$sql="SELECT * FROM institution WHERE ID='$instID'";
+					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					// print_r($result);exit;
+					if($result[0]['TYPE']==$value['type']){
+						$profile = array(
+						   'FIRSTNAME' => $value['institute_name']
 						);
-						$this->db->where('ID', $value['institution_id']);
-						$this->db->update('institution', $institution);
+						$this->db->where('ID', $value['profile_id']);
+						$this->db->update('profile', $profile);
+
+						if($value['profile_id']){
+							$institution = array(
+							   'CODE' => $value['inst_code'],
+							   'PROF_ID' => $value['profile_id'],
+							   'TYPE' => $value['type'],
+							   'TIME_ZONE' => $value['time_zone'],
+							   'CURRENCY' => $value['currency'],
+							   'LOGO' => $value['image_file']
+							);
+							$this->db->where('ID', $value['institution_id']);
+							$this->db->update('institution', $institution);
+						}
+						return array('status'=>'true', 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$value['profile_id'],'INSTITUTION_ID'=>$value['institution_id']);
+					}else{
+						$sql="SELECT * FROM COURSE_BATCH";
+						$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+						if(count($result) > 0){
+							return array('status'=>'false');
+						}else {
+							$profile = array(
+							   'FIRSTNAME' => $value['institute_name']
+							);
+							$this->db->where('ID', $value['profile_id']);
+							$this->db->update('profile', $profile);
+
+							if($value['profile_id']){
+								$institution = array(
+								   'CODE' => $value['inst_code'],
+								   'PROF_ID' => $value['profile_id'],
+								   'TYPE' => $value['type'],
+								   'TIME_ZONE' => $value['time_zone'],
+								   'CURRENCY' => $value['currency'],
+								   'LOGO' => $value['image_file']
+								);
+								$this->db->where('ID', $value['institution_id']);
+								$this->db->update('institution', $institution);
+							}
+							return array('status'=>'true', 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$value['profile_id'],'INSTITUTION_ID'=>$value['institution_id']);
+						}
 					}
-					return array('status'=>'true', 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$value['profile_id'],'INSTITUTION_ID'=>$value['institution_id']);
 
 				}else {
-					// $Images=$value['image_file'];
-				 //   	$ImageSplit = explode(',', $Images);        
-			  //       $ImageResult = base64_decode($ImageSplit[1]);
-			  //       $im = imagecreatefromstring($ImageResult); 
-			  //       if ($im !== false) 
-			  //       {
-			  //           $fileName = date('Ymdhis') .".png";
-			  //           $resp = imagepng($im, $_SERVER['DOCUMENT_ROOT'].'smartedu/upload/'.$fileName);
-			  //           imagedestroy($im);
-			  //       }  
-
 					$data = array(
 					   'FIRSTNAME' => $value['institute_name'],
 					);
@@ -98,7 +88,7 @@
 						return array('status'=>'true', 'message'=>"Record Inserted Successfully",'PROFILE_ID'=>$profile_id,'INSTITUTION_ID'=>$inst_id);
 					}
 				}
-			}
+			// }
 		}
 
 		function addInstitutionContactDetails($value){
@@ -127,11 +117,11 @@
 					$this->db->where('ID', $value['profile_id']);
 					$this->db->update('profile', $profile1);
 
-					$ins = array(
-					   'CONTACT_PERSON' => $value['contact_name']
-					);
-					$this->db->where('ID', $value['lnstut_id']);
-					$this->db->update('institution', $ins);
+					// $ins = array(
+					//    'CONTACT_PERSON' => $value['contact_name']
+					// );
+					// $this->db->where('ID', $value['lnstut_id']);
+					// $this->db->update('institution', $ins);
 
 					return array('status'=>true, 'message'=>"Record Updated Successfully",'PROFILE_ID'=>$value['profile_id'],'LOCATION_ID'=>$value['location_id']);
 				}else {
@@ -158,11 +148,11 @@
 						$this->db->update('profile', $profile);
 					}
 
-					$ins = array(
-					   'CONTACT_PERSON' => $value['contact_name']
-					);
-					$this->db->where('ID', $value['lnstut_id']);
-					$this->db->update('institution', $ins);
+					// $ins = array(
+					//    'CONTACT_PERSON' => $value['contact_name']
+					// );
+					// $this->db->where('ID', $value['lnstut_id']);
+					// $this->db->update('institution', $ins);
 
 					return array('status'=>true, 'message'=>"Record Inserted Successfully",'PROFILE_ID'=>$value['profile_id'],'LOCATION_ID'=>$locat_id);
 				}
