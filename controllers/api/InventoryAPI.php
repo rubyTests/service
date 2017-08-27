@@ -593,6 +593,7 @@ class InventoryAPI extends REST_Controller {
     	$data['notesData']=$this->post('notesData');
     	$data['itemData']=$this->post('itemData');
     	$data['inst_id']=$this->post('inst_id');
+    	$data['profileId']=$this->post('profileId');
     	
 		$result=$this->inventory_model->materialRequestDetails($data);
 		
