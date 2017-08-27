@@ -351,7 +351,8 @@
 				   'REQ_NUMBER' => $value['req_num'],
 				   'REQ_DATE' => $value['req_date'],
 				   'NOTES' => $value['notesData'],
-				   'STORE_ID' => $value['store_id']
+				   'STORE_ID' => $value['store_id'],
+				   'CRT_USER_ID' => $value['profileId']
 				);
 				$this->db->insert('material_request', $data);
 				$req_id=$this->db->insert_id();
@@ -383,7 +384,7 @@
 	  // 		$sql="SELECT * FROM material_request";
 			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 
-			 $sql="SELECT ID,REQ_NUMBER,DATE_FORMAT(REQ_DATE, '%d-%b-%Y') as REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME FROM material_request";
+			 $sql="SELECT ID,REQ_NUMBER,DATE_FORMAT(REQ_DATE, '%d-%b-%Y') as REQ_DATE,STORE_ID,NOTES, (SELECT NAME FROM store WHERE ID=STORE_ID) AS STORE_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM PROFILE WHERE ID=material_request.CRT_USER_ID) AS PROFILE_NAME FROM material_request";
 			 return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 	    }
 
@@ -457,7 +458,7 @@
 					$inst = array(
 						'ORDER_NO' => $incrementNo
 					);
-					$this->db->where('ID', $value['inst_id']);
+					$this->db->where('ID', $value['institute_id']);
 					$this->db->update('INSTITUTION_SETTING', $inst);
 
 					return array('status'=>true, 'message'=>"Record Inserted Successfully",'PO_ID'=>$po_id);
