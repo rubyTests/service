@@ -238,8 +238,8 @@ class LeavemgmntAPI extends REST_Controller {
     		// print_r($this->post());exit;
 		$id = $this->post('id');
 		$data['leave_typeID']=$this->post('leave_typeID');
-		$data['from_date']=$this->post('from_date');
-		$data['upto_date']=$this->post('upto_date');
+		$data['from_date']=date("Y-m-d", strtotime($this->post('from_date')));
+		$data['upto_date']=date("Y-m-d", strtotime($this->post('upto_date')));
 		$data['description']=$this->post('description');
 		$data['total_leave']=$this->post('total_leave');
 		$data['employee_id']=$this->post('employee_id');

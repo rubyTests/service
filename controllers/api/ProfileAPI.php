@@ -41,12 +41,12 @@ class ProfileAPI extends REST_Controller {
 		// exit;
     	$id=$this->post('profileId');
     	$data['ADMISSION_NO']=$this->post('admission_no');
-    	$data['ADMISSION_DATE']=$this->post('admission_date');
+    	$data['ADMISSION_DATE']=date("Y-m-d", strtotime($this->post('admission_date')));
     	$data['FIRSTNAME']=$this->post('first_name');
     	$data['LASTNAME']=$this->post('last_name');
 		$data['IMAGE1']=$this->post('filename');
     	$data['GENDER']=$this->post('gender');
-    	$data['DOB']=$this->post('wizard_birth');
+    	$data['DOB']=date("Y-m-d", strtotime($this->post('wizard_birth')));
     	$data['NATIONALITY']=$this->post('nationality');
     	$data['MOTHER_TONGUE']=$this->post('mother_tongue');
     	$data['RELIGION']=$this->post('religion');

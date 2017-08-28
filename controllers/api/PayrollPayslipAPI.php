@@ -406,8 +406,8 @@ class PayrollPayslipAPI extends REST_Controller {
 		$data['DEFAULT']=$this->post('default_data');
 		$data['ADDON']=$this->post('addon_data');
 		$data['Net_pay']=$this->post('Net_pay');
-		$data['from_date']=$this->post('fromdate');
-		$data['end_date']=$this->post('enddate');
+		$data['from_date']=date("Y-m-d", strtotime($this->post('fromdate')));
+		$data['end_date']=date("Y-m-d", strtotime($this->post('enddate')));
 		$data['basicPay']=$this->post('basicPay');
 		if($id==NULL){
 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
@@ -500,8 +500,8 @@ class PayrollPayslipAPI extends REST_Controller {
 
 	function payslipReport_get(){
 		$deptid = $this->get('dept_id');
-		$fromdate = $this->get('fromdate');
-		$uptodate = $this->get('uptodate');
+		$fromdate = date("Y-m-d", strtotime($this->get('fromdate')));
+		$uptodate = date("Y-m-d", strtotime($this->get('uptodate')));
 		if($deptid==NULL){
 			$result=$this->payroll_payslip->fetchPayslipDetailforAllEmployee();
 			if (!empty($result)){

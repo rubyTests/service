@@ -191,12 +191,12 @@ class EmployeemgmntAPI extends REST_Controller {
 		// print_r($this->post());exit;
 		$id = $this->post('employee_id');
 		$data['admission_no']=$this->post('admission_no');
-		$data['join_date']=$this->post('join_date');
+		$data['join_date']=date("Y-m-d", strtotime($this->post('join_date')));
 		$data['profile_image']=$this->post('profile_image');
 		$data['first_name']=$this->post('first_name');
 		$data['last_name']=$this->post('last_name');
 		$data['gender']=$this->post('gender');
-		$data['dob']=$this->post('dob');
+		$data['dob']=date("Y-m-d", strtotime($this->post('dob')));
 		$data['marital_status']=$this->post('marital_status');
 		$data['nationality']=$this->post('nationality');
 		$data['qualification']=$this->post('qualification');
@@ -443,7 +443,7 @@ class EmployeemgmntAPI extends REST_Controller {
     	$data['profile']=$this->post('Profile_id');
 		$data['emp_profile_id']=$this->post('EMP_PROF_ID');
 		$data['profile_extra_id']=$this->post('Profile_extra_id');
-		$data['dob']=$this->post('dob');
+		$data['dob']=date("Y-m-d", strtotime($this->post('dob')));
 		$data['profile_image']=$this->post('image_file');
 		$data['natoinality']=$this->post('natoinality');
 		$data['marital']=$this->post('marital');
@@ -565,7 +565,7 @@ class EmployeemgmntAPI extends REST_Controller {
     	$EMP_PROFILE_ID=$this->post('EMP_PROFILE_ID');
     	$data['FirstName']=$this->post('FirstName');
 		$data['LastName']=$this->post('LastName');
-		$data['DateofBirth']=$this->post('DateofBirth');
+		$data['DateofBirth']=date("Y-m-d", strtotime($this->post('DateofBirth')));
 		$data['MotherTongue']=$this->post('MotherTongue');
 		$data['Gender']=$this->post('Gender');
 		$data['Nationality']=$this->post('Nationality');
@@ -613,8 +613,8 @@ class EmployeemgmntAPI extends REST_Controller {
     	$data['Institution_Id']=$this->post('Institution_Id');
     	$data['InstitueName']=$this->post('InstitueName');
 		$data['EmpRoll']=$this->post('EmpRoll');
-		$data['PeriodFrom']=$this->post('PeriodFrom');
-		$data['PeriodTo']=$this->post('PeriodTo');
+		$data['PeriodFrom']=date("Y-m-d", strtotime($this->post('PeriodFrom')));
+		$data['PeriodTo']=date("Y-m-d", strtotime($this->post('PeriodTo')));
 		$data['Address']=$this->post('Address');
 		$data['State']=$this->post('State');
 		$data['Country']=$this->post('Country');
