@@ -430,7 +430,7 @@
 					$data1 = array(
 						'FIRSTNAME' => $values['father']['p_first_name'],
 						'LASTNAME' => $values['father']['p_last_name'],
-						'DOB' => $values['father']['p_dob'],
+						'DOB' => date("Y-m-d", strtotime($values['father']['p_dob'])),
 						'PHONE_NO_2' => $values['father']['p_mobile_no'],
 						'FACEBOOK_LINK' => $values['father']['facebook'],
 						'GOOGLE_LINK' => $values['father']['google'],
@@ -512,7 +512,7 @@
 					$data1 = array(
 						'FIRSTNAME' => $values['father']['p_first_name'],
 						'LASTNAME' => $values['father']['p_last_name'],
-						'DOB' => $values['father']['p_dob'],
+						'DOB' => date("Y-m-d", strtotime($values['father']['p_dob'])),
 						'PHONE_NO_1' => $values['father']['p_phone'],
 						'PHONE_NO_2' => $values['father']['p_mobile_no'],
 						'EMAIL' => $values['father']['p_email'],
@@ -576,7 +576,7 @@
 					$data1 = array(
 						'FIRSTNAME' => $values['mother']['p_first_name'],
 						'LASTNAME' => $values['mother']['p_last_name'],
-						'DOB' => $values['mother']['p_dob'],
+						'DOB' => date("Y-m-d", strtotime($values['mother']['p_dob'])),
 						'PHONE_NO_1' => $values['mother']['p_phone'],
 						'PHONE_NO_2' => $values['mother']['p_mobile_no'],
 						'EMAIL' => $values['mother']['p_email'],
@@ -622,7 +622,7 @@
 					$data5 = array(
 						'FIRSTNAME' => $values['mother']['p_first_name'],
 						'LASTNAME' => $values['mother']['p_last_name'],
-						'DOB' => $values['mother']['p_dob'],
+						'DOB' => date("Y-m-d", strtotime($values['mother']['p_dob'])),
 						'PHONE_NO_1' => $values['mother']['p_phone'],
 						'PHONE_NO_2' => $values['mother']['p_mobile_no'],
 						'EMAIL' => $values['mother']['p_email'],
@@ -678,7 +678,7 @@
 					$data1 = array(
 						'FIRSTNAME' => $values['guardian']['p_first_name'],
 						'LASTNAME' => $values['guardian']['p_last_name'],
-						'DOB' => $values['guardian']['p_dob'],
+						'DOB' => date("Y-m-d", strtotime($values['guardian']['p_dob'])),
 						'PHONE_NO_1' => $values['guardian']['p_phone'],
 						'PHONE_NO_2' => $values['guardian']['p_mobile_no'],
 						'EMAIL' => $values['guardian']['p_email'],
@@ -720,7 +720,7 @@
 						$data9 = array(
 							'FIRSTNAME' => $values['guardian']['p_first_name'],
 							'LASTNAME' => $values['guardian']['p_last_name'],
-							'DOB' => $values['guardian']['p_dob'],
+							'DOB' => date("Y-m-d", strtotime($values['guardian']['p_dob'])),
 							'PHONE_NO_1' => $values['guardian']['p_phone'],
 							'PHONE_NO_2' => $values['guardian']['p_mobile_no'],
 							'EMAIL' => $values['guardian']['p_email'],
@@ -802,7 +802,7 @@
 					$data1 = array(
 						'FIRSTNAME' => $values['fname'][$i]['company'],
 						'LASTNAME' => $values['lname'][$i]['company'],
-						'DOB' => $values['dob'][$i]['company'],
+						'DOB' => date("Y-m-d", strtotime($values['dob'][$i]['company'])),
 						'EMAIL' => $values['p_email'][$i]['company'],
 						'PHONE_NO_1' => $values['p_phone'][$i]['company'],
 						'PHONE_NO_2' => $values['p_mobile_no'][$i]['company']
@@ -842,7 +842,7 @@
 						$data1 = array(
 							'FIRSTNAME' => $values['fname'][$i]['company'],
 							'LASTNAME' => $values['lname'][$i]['company'],
-							'DOB' => $values['dob'][$i]['company'],
+							'DOB' => date("Y-m-d", strtotime($values['dob'][$i]['company'])),
 							'EMAIL' => $values['p_email'][$i]['company'],
 							'PHONE_NO_1' => $values['p_phone'][$i]['company'],
 							'PHONE_NO_2' => $values['p_mobile_no'][$i]['company'],
@@ -892,7 +892,7 @@
 					$data1 = array(
 						'FIRSTNAME' => $values['fname'][$i]['company'],
 						'LASTNAME' => $values['lname'][$i]['company'],
-						'DOB' => $values['dob'][$i]['company'],
+						'DOB' => date("Y-m-d", strtotime($values['dob'][$i]['company'])),
 						'EMAIL' => $values['p_email'][$i]['company'],
 						'PHONE_NO_1' => $values['p_phone'][$i]['company'],
 						'PHONE_NO_2' => $values['p_mobile_no'][$i]['company']
@@ -932,7 +932,7 @@
 						$data1 = array(
 							'FIRSTNAME' => $values['fname'][$i]['company'],
 							'LASTNAME' => $values['lname'][$i]['company'],
-							'DOB' => $values['dob'][$i]['company'],
+							'DOB' => date("Y-m-d", strtotime($values['dob'][$i]['company'])),
 							'EMAIL' => $values['p_email'][$i]['company'],
 							'PHONE_NO_1' => $values['p_phone'][$i]['company'],
 							'PHONE_NO_2' => $values['p_mobile_no'][$i]['company'],
@@ -993,7 +993,7 @@
 					$data1 = array(
 						'FIRSTNAME' => $values[$i]['p_first_name'],
 						'LASTNAME' => $values[$i]['p_last_name'],
-						'DOB' => $values[$i]['p_dob'],
+						'DOB' => date("Y-m-d", strtotime($values[$i]['p_dob'])),
 						'EMAIL' => $values[$i]['p_email'],
 						'PHONE_NO_1' => $values[$i]['p_phone'],
 						'PHONE_NO_2' => $values[$i]['p_mobile_no'],
@@ -1211,7 +1211,7 @@
 		public function profileEdit($values){
 			//print_r($values);exit;
 			$data = array (
-				'DOB' => $values['profile']['wizard_birth'],
+				'DOB' => date("Y-m-d", strtotime($values['profile']['wizard_birth'])),
 				'IMAGE1' => $values['profile']['filename'],
 				'NATIONALITY' => $values['profile']['nationality'],
 				'RELIGION' => $values['profile']['religion'],
@@ -1288,7 +1288,7 @@
 					$data4 = array (
 						'FIRSTNAME' => $values['p_first_name'],
 						'LASTNAME' => $values['p_last_name'],
-						'DOB' => $values['p_dob'],
+						'DOB' => date("Y-m-d", strtotime($values['p_dob'])),
 						'FACEBOOK_LINK' => $values['p_facebook'],
 						'GOOGLE_LINK' => $values['p_google'],
 						'LINKEDIN_LINK' => $values['p_linkedin'],

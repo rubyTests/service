@@ -355,8 +355,8 @@
 								   'DESIGNATION' =>  $value['prev_inst_data'][$i]['employee_role'],
 								   'INST_NAME' =>  $value['prev_inst_data'][$i]['p_institute_name'],
 								   'LOCATION_ID' =>  $value['prev_inst_data'][$i]['locationID'],
-								   'PERIOD_FROM' =>  $value['prev_inst_data'][$i]['prev_period_from'],
-								   'PERIOD_TO' =>  $value['prev_inst_data'][$i]['prev_period_to'],
+								   'PERIOD_FROM' =>  date("Y-m-d", strtotime($value['prev_inst_data'][$i]['prev_period_from'])),
+								   'PERIOD_TO' =>  date("Y-m-d", strtotime($value['prev_inst_data'][$i]['prev_period_to'])),
 								   'EMP_PROF_ID' => $value['emp_profile_id']
 								);
 								$this->db->where('ID', $in_id);
@@ -383,8 +383,8 @@
 								   'DESIGNATION' =>  $value['prev_inst_data'][$i]['employee_role'],
 								   'INST_NAME' =>  $value['prev_inst_data'][$i]['p_institute_name'],
 								   'LOCATION_ID' =>  $value['prev_inst_data'][$i]['locationID'],
-								   'PERIOD_FROM' =>  $value['prev_inst_data'][$i]['prev_period_from'],
-								   'PERIOD_TO' =>  $value['prev_inst_data'][$i]['prev_period_to'],
+								   'PERIOD_FROM' =>  date("Y-m-d", strtotime($value['prev_inst_data'][$i]['prev_period_from'])),
+								   'PERIOD_TO' =>  date("Y-m-d", strtotime($value['prev_inst_data'][$i]['prev_period_to'])),
 								   'EMP_PROF_ID' => $value['emp_profile_id']
 								);
 								$this->db->insert('previous_institute', $emp_data);
@@ -420,8 +420,8 @@
 							   'DESIGNATION' => $total[$i]['employee_role'],
 							   'INST_NAME' => $total[$i]['p_institute_name'],
 							   'LOCATION_ID' => $loc_id,
-							   'PERIOD_FROM' => $total[$i]['prev_period_from'],
-							   'PERIOD_TO' => $total[$i]['prev_period_to'],
+							   'PERIOD_FROM' => date("Y-m-d", strtotime($total[$i]['prev_period_from'])),
+							   'PERIOD_TO' => date("Y-m-d", strtotime($total[$i]['prev_period_to'])),
 							   'EMP_PROF_ID' => $empProfileID
 							);
 							$this->db->insert('previous_institute', $emp_data);
@@ -771,8 +771,8 @@
 							   'DESIGNATION' =>  $value['prvious_work'][$i]['DESIGNATION'],
 							   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
 							   'LOCATION_ID' =>  $value['prvious_work'][$i]['LOCATION_ID'],
-							   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
-							   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
+							   'PERIOD_FROM' =>  date("Y-m-d", strtotime($value['prvious_work'][$i]['PERIOD_FROM'])),
+							   'PERIOD_TO' =>  date("Y-m-d", strtotime($value['prvious_work'][$i]['PERIOD_TO'])),
 							);
 							$this->db->where('ID', $value['prvious_work'][$i]['ID']);
 							$this->db->update('previous_institute', $inst);
@@ -793,8 +793,8 @@
 								   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
 								   'EMP_PROF_ID' =>  $value['emp_profile_id'],
 								   'LOCATION_ID' =>  $locID_id,
-								   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
-								   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
+								   'PERIOD_FROM' =>  date("Y-m-d", strtotime($value['prvious_work'][$i]['PERIOD_FROM'])),
+								   'PERIOD_TO' =>  date("Y-m-d", strtotime($value['prvious_work'][$i]['PERIOD_TO']))
 								);
 								$this->db->insert('previous_institute', $newinst);
 							}
@@ -976,8 +976,8 @@
 									   'INST_NAME' =>  $value['prvious_work'][$i]['INST_NAME'],
 									   'EMP_PROF_ID' =>  $value['emp_profile_id'],
 									   'LOCATION_ID' =>  $locID_id,
-									   'PERIOD_FROM' =>  $value['prvious_work'][$i]['PERIOD_FROM'],
-									   'PERIOD_TO' =>  $value['prvious_work'][$i]['PERIOD_TO']
+									   'PERIOD_FROM' =>  date("Y-m-d", strtotime($value['prvious_work'][$i]['PERIOD_FROM'])),
+									   'PERIOD_TO' =>  date("Y-m-d", strtotime($value['prvious_work'][$i]['PERIOD_TO']))
 									);
 									$this->db->insert('previous_institute', $newinst);
 								}

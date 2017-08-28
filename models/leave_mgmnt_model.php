@@ -71,7 +71,7 @@
 				$data = array(
 				   'LEAVE_TYPE_ID' => $value['leave_list'][$i]['leave_category'],
 				   'LEAVETYPE_COUNT' => $value['leave_list'][$i]['leave_count'],
-				   'VALID_FROM' => $value['leave_list'][$i]['valid_from'],
+				   'VALID_FROM' => date("Y-m-d", strtotime($value['leave_list'][$i]['valid_from'])),
 				   'EMP_PROFILE_ID' => $value['emp_id']
 				);
 				$this->db->insert('leave_entitlement', $data); 
@@ -86,7 +86,7 @@
 						$data = array(
 						   'LEAVE_TYPE_ID' => $value['leave_list'][$i]['LEAVE_TYPE_ID'],
 						   'LEAVETYPE_COUNT' => $value['leave_list'][$i]['LEAVETYPE_COUNT'],
-						   'VALID_FROM' => $value['leave_list'][$i]['VALID_FROM'],
+						   'VALID_FROM' => date("Y-m-d", strtotime($value['leave_list'][$i]['VALID_FROM'])),
 						   'EMP_PROFILE_ID' => $value['emp_id']
 						);
 						$this->db->where('ID', $value['leave_list'][$i]['ID']);
@@ -95,7 +95,7 @@
 						$data = array(
 						   'LEAVE_TYPE_ID' => $value['leave_list'][$i]['LEAVE_TYPE_ID'],
 						   'LEAVETYPE_COUNT' => $value['leave_list'][$i]['LEAVETYPE_COUNT'],
-						   'VALID_FROM' => $value['leave_list'][$i]['VALID_FROM'],
+						   'VALID_FROM' => date("Y-m-d", strtotime($value['leave_list'][$i]['VALID_FROM'])),
 						   'EMP_PROFILE_ID' => $value['emp_id']
 						);
 						$this->db->insert('leave_entitlement', $data);
@@ -158,9 +158,9 @@
 			   'LEAVE_TYPE_ID' => $value['leave_typeID'],
 			   'EMP_PROFILE_ID' => $value['employee_id'],
 			   'DESCRIPTION' => $value['description'],
-			   'FROM_DATE' => $value['from_date'],
+			   'FROM_DATE' => date("Y-m-d", strtotime($value['from_date'])),
 			   'TOTAL_LEAVE' => $totaleLeave,
-			   'TO_DATE' => $value['upto_date'],
+			   'TO_DATE' => date("Y-m-d", strtotime($value['upto_date'])),
 			   'STATUS' => 'Pending',
 			);
 			$this->db->insert('employee_leave', $data);
@@ -242,7 +242,7 @@
 						$leavedata = array(
 							'DEPT_ID' =>$val['dept_id'],
 							'PROFILE_ID' =>$val['details'][$i]['PROFILE_ID'],
-							'DATE' =>$val['attendance_date'],
+							'DATE' =>date("Y-m-d", strtotime($val['attendance_date'])),
 							'REASON' =>$remark,
 							'DURATION' =>$duration,
 							'LEAVE_TYPE' =>$leavetype,
@@ -255,7 +255,7 @@
 						$leavedata = array(
 							'DEPT_ID' =>$val['dept_id'],
 							'PROFILE_ID' =>$val['details'][$i]['PROFILE_ID'],
-							'DATE' =>$val['attendance_date'],
+							'DATE' =>date("Y-m-d", strtotime($val['attendance_date'])),
 							'REASON' =>$remark,
 							'DURATION' =>$duration,
 							'LEAVE_TYPE' =>$leavetype,
@@ -269,7 +269,7 @@
 				$data = array(
 					'DEPT_ID' =>$val['dept_id'],
 					'PROFILE_ID' =>$val['details'][$i]['PROFILE_ID'],
-					'DATE' =>$val['attendance_date'],
+					'DATE' =>date("Y-m-d", strtotime($val['attendance_date'])),
 					'REASON' =>$remark,
 					'DURATION' =>$duration,
 					'LEAVE_TYPE' =>$leavetype,

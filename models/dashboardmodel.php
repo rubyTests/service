@@ -155,7 +155,7 @@
 		
 		public function getLast5daysRegCalc(){
 			// $sql="SELECT (((SELECT count(*) FROM student_profile)-count(*))/(SELECT count(*) FROM student_profile))*100 as Percentage,FROMDATE,DAYNAME(FROMDATE) as DAYNAME FROM `student_leave` WHERE FROMDATE BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND NOW() GROUP BY FROMDATE";
-			$sql="SELECT ((SELECT count(*) FROM student_profile)-count(*)) as stuTotal,FROMDATE,DAYNAME(FROMDATE) as DAYNAME FROM `student_leave` WHERE FROMDATE BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND NOW() GROUP BY FROMDATE";
+			$sql="SELECT ((SELECT count(*) FROM student_profile)-count(*)) as stuTotal,DATE,DAYNAME(DATE) as DAYNAME FROM `student_leave` WHERE DATE BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND NOW() GROUP BY DATE";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		

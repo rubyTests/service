@@ -319,7 +319,7 @@
 			}else {
 				if($value['PAYSLIP_ID']){
 		    		$data = array(
-					   'GENERATION_DATE' => $value['GENERATION_DATE'],
+					   'GENERATION_DATE' => date("Y-m-d", strtotime($value['GENERATION_DATE'])),
 					   'EMP_PROFILE_ID' => $id,
 					   'PAYSTRUCTURE_ID' => $value['STRUCTURE_ID'],
 					   'STATUS' => $value['PAYSLIP_Status'],
@@ -368,7 +368,7 @@
 					return array('status'=>true, 'message'=>"Payslip Generated Successfully");
 		    	}else {
 		    		$data = array(
-					   'GENERATION_DATE' => $value['GENERATION_DATE'],
+					   'GENERATION_DATE' => date("Y-m-d", strtotime($value['GENERATION_DATE'])),
 					   'EMP_PROFILE_ID' => $id,
 					   'PAYSTRUCTURE_ID' => $value['STRUCTURE_ID'],
 					   'STATUS' => 'Pending',
@@ -379,7 +379,7 @@
 					$payslip_id= $this->db->insert_id();
 
 					$data = array(
-					   'GENERATION_DATE' => $value['GENERATION_DATE'],
+					   'GENERATION_DATE' => date("Y-m-d", strtotime($value['GENERATION_DATE'])),
 					   'EMP_PROFILE_ID' => $id,
 					   'PAYSTRUCTURE_ID' => $value['STRUCTURE_ID'],
 					   'STATUS' => 'Pending',
