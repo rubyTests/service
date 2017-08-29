@@ -93,7 +93,7 @@
 			$result=$this->db->query($sql, $return_object = TRUE)->result_array();
 			foreach ($result as $key => $value) {
 				$fineId=$value['ID'];
-				$sql1="SELECT ID,FEE_FINE_ID,DUE_DATE,VALUE,MODE,count(FEE_FINE_ID) as total_count FROM feefine_slabs where FEE_FINE_ID='$fineId'";
+				$sql1="SELECT ID,FEE_FINE_ID,DUE_DATE,VALUE,count(FEE_FINE_ID) as total_count FROM feefine_slabs where FEE_FINE_ID='$fineId'";
 				$result[$key]['fine_slobs']=$this->db->query($sql1, $return_object = TRUE)->result_array();
 			}
 			return $result;
@@ -126,8 +126,7 @@
 						$fine = array(
 						   'FEE_FINE_ID' => $fine_id,
 						   'DUE_DATE' => $value['item'][$i]['Days_After'],
-						   'VALUE' => $value['item'][$i]['Fine_Value'],
-						   'MODE' => $value['item'][$i]['mode']
+						   'VALUE' => $value['item'][$i]['Fine_Value']
 						);  
 						$this->db->insert('feefine_slabs', $fine);
 					}
@@ -151,8 +150,7 @@
 						$fine = array(
 						   'FEE_FINE_ID' => $value['item'][$i]['FEE_FINE_ID'],
 						   'DUE_DATE' => $value['item'][$i]['DUE_DATE'],
-						   'VALUE' => $value['item'][$i]['VALUE'],
-						   'MODE' => $value['item'][$i]['MODE']
+						   'VALUE' => $value['item'][$i]['VALUE']
 						);
 						$this->db->where('ID', $value['item'][$i]['ID']);
 						$this->db->update('feefine_slabs', $fine);
@@ -160,8 +158,7 @@
 						$fine = array(
 						   'FEE_FINE_ID' => $id,
 						   'DUE_DATE' => $value['item'][$i]['DUE_DATE'],
-						   'VALUE' => $value['item'][$i]['VALUE'],
-						   'MODE' => $value['item'][$i]['MODE']
+						   'VALUE' => $value['item'][$i]['VALUE']
 						);
 						$this->db->insert('feefine_slabs', $fine);
 					}
@@ -184,8 +181,7 @@
 							$fine = array(
 							   'FEE_FINE_ID' => $value['item'][$i]['FEE_FINE_ID'],
 							   'DUE_DATE' => $value['item'][$i]['DUE_DATE'],
-							   'VALUE' => $value['item'][$i]['VALUE'],
-							   'MODE' => $value['item'][$i]['MODE']
+							   'VALUE' => $value['item'][$i]['VALUE']
 							);
 							$this->db->where('ID', $value['item'][$i]['ID']);
 							$this->db->update('feefine_slabs', $fine);
@@ -193,8 +189,7 @@
 							$fine = array(
 							   'FEE_FINE_ID' => $id,
 							   'DUE_DATE' => $value['item'][$i]['DUE_DATE'],
-							   'VALUE' => $value['item'][$i]['VALUE'],
-							   'MODE' => $value['item'][$i]['MODE']
+							   'VALUE' => $value['item'][$i]['VALUE']
 							);
 							$this->db->insert('feefine_slabs', $fine);
 						}
@@ -248,9 +243,14 @@
 
 					// }					
 					for($i=0;$i<count($value['fee_data']);$i++){
+						if(isset($value['fee_data'][$i]['feefine'])){
+							$fineId=$value['fee_data'][$i]['feefine'];
+						}else{
+							$fineId='';
+						}
 						$data = array(
 						   'FEE_ITEM_ID' => $value['fee_data'][$i]['feeitem'],
-						   'FEE_FINE_ID' => $value['fee_data'][$i]['feefine'],
+						   'FEE_FINE_ID' => $fineId,
 						   'FEE_STRUCTURE_ID' => $stru_id,
 						   'DUE_DATE' => $value['fee_data'][$i]['due_date'],
 						   'AMOUNT' => $value['fee_data'][$i]['amount'],
@@ -348,7 +348,7 @@
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function getBatchNamebasedoncourse($id){
-			$sql="SELECT course_batch.ID,course_batch.NAME FROM student_fee INNER JOIN course_batch on student_fee.BATCH_ID=course_batch.ID where student_fee.COURSE_ID='$id'";
+			$sql="SELECT course_batch.ID,course_batch.NAME,course_batch.BATCH_DISPLAY_NAME FROM student_fee INNER JOIN course_batch on student_fee.BATCH_ID=course_batch.ID where student_fee.COURSE_ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function getStudentListbasedon_batch($batchid){
@@ -456,58 +456,68 @@
 			return $this->db->affected_rows();
 		}
 		function getStudentFeeStructure($id){
-			// $sql="SELECT PROFILE_ID,FEE_STRUCTURE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) AS STUDENT_NAME,(SELECT ADMISSION_NO FROM profile where ID=PROFILE_ID) AS ADM_NO,(SELECT NAME FROM course_batch where ID=17) AS BATCH_NAME,(SELECT COURSE_ID FROM course_batch where ID='$id') AS COURSEID,(SELECT NAME FROM COURSE where ID=COURSEID) AS COURSE_NAME FROM student_profile where COURSEBATCH_ID='$id' and FEE_STRUCTURE_ID !=''";
-			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// foreach ($result as $key => $value) {
-			// 	$Str_id=$value['FEE_STRUCTURE_ID'];
-			// 	$sql1="SELECT SUM(AMOUNT) as total_fee FROM fee_item_structure where FEE_STRUCTURE_ID='$Str_id'";
-			// 	$result[$key]['total_amount'] = $this->db->query($sql1, $return_object = TRUE)->result_array();
-			// }
-			// return $result;
-
-			// MODIFIED ON 25-05-17
-
-			// $sql="SELECT P.ID AS PROFILE_ID,concat(P.FIRSTNAME,' ',P.LASTNAME) AS STUDENT_NAME,P.ADMISSION_NO,P.IMAGE1 AS IMAGE,C.NAME AS COURSE_NAME,B.NAME AS BATCH_NAME from course_batch as B INNER JOIN course as C ON B.COURSE_ID = C.ID INNER JOIN student_profile as SP ON SP.COURSEBATCH_ID = B.ID INNER JOIN profile as P ON SP.PROFILE_ID=P.ID WHERE B.ID='$id'";.
-
-			// $sql="SELECT student_fee.ID,student_fee.STUDENT_PROFILE_ID,course_batch.NAME AS BATCH_NAME,COURSE.NAME AS COURSE_NAME,
-			// 	CONCAT(PROFILE.FIRSTNAME,' ',PROFILE.LASTNAME) AS STUDENT_NAME,PROFILE.ADMISSION_NO
-			// 	FROM student_fee
-			// 	INNER JOIN PROFILE ON student_fee.STUDENT_PROFILE_ID=PROFILE.ID
-			// 	INNER JOIN COURSE ON student_fee.COURSE_ID=COURSE.ID
-			// 	INNER JOIN course_batch ON student_fee.BATCH_ID=course_batch.ID
-			// 	WHERE student_fee.BATCH_ID='$id'";
-			// return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
-
-			// Modified on 31-05-17
-
-			// $sql="SELECT student_fee.ID,student_fee.STUDENT_PROFILE_ID,course_batch.NAME AS BATCH_NAME,COURSE.NAME AS COURSE_NAME,
-			// 	CONCAT(PROFILE.FIRSTNAME,' ',PROFILE.LASTNAME) AS STUDENT_NAME,PROFILE.ADMISSION_NO,student_fee.FEE_STRUCTURE_ID,
-			// 	fee_payment.STUDENT_FEE_ID,
-   //              case when fee_payment.STUDENT_FEE_ID = student_fee.ID then 
-			// 		(select SUM(AMOUNT) from fee_item_structure where fee_item_structure.FEE_STRUCTURE_ID=student_fee.FEE_STRUCTURE_ID)
-			// 		else
-			// 		(select SUM(AMOUNT) from fee_item_structure where fee_item_structure.FEE_STRUCTURE_ID=student_fee.FEE_STRUCTURE_ID)
-			// 		end as TOTAL_AMOUNT,
-			// 		case when fee_payment.ID = (select FEE_PAYMENT_ID from student_fee_status where FEE_PAYMENT_ID IN(fee_payment.ID) GROUP BY FEE_PAYMENT_ID) then 
-			// 		(select SUM(PAID_AMOUNT) from student_fee_status where fee_payment.ID = student_fee_status.FEE_PAYMENT_ID)
-			// 		else
-			// 		0
-			// 		end as TOTAL_PAID_AMOUNT
-   //              FROM student_fee
-			// 		INNER JOIN COURSE ON student_fee.COURSE_ID=COURSE.ID
-			// 		INNER JOIN course_batch ON student_fee.BATCH_ID=course_batch.ID
-			// 		INNER JOIN PROFILE ON student_fee.STUDENT_PROFILE_ID=PROFILE.ID			
-			// 		LEFT JOIN fee_payment ON fee_payment.STUDENT_FEE_ID=student_fee.ID
-			// 		WHERE student_fee.BATCH_ID='$id'";
-			// return $result=$this->db->query($sql, $return_object = TRUE)->result_array();
+			
 
 
 			// **************** NEW QUERY MODIFIED ON 14-06-17 ***************************
 
+			// $sql="SELECT student_fee.ID,student_fee.COURSE_ID,student_fee.STUDENT_PROFILE_ID,student_fee.FEE_STRUCTURE_ID,
+			// 	concat(profile.FIRSTNAME,' ',profile.LASTNAME) AS STUDENT_NAME,profile.ADMISSION_NO,
+			// 	COURSE.NAME AS COURSE_NAME,
+			// 	(SELECT BATCH_DISPLAY_NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
+			// 	FROM 
+			// 	student_fee 
+			// 	INNER JOIN profile ON student_fee.STUDENT_PROFILE_ID=profile.ID
+			// 	INNER JOIN course ON student_fee.COURSE_ID=course.ID
+			// 	INNER JOIN student_profile ON student_fee.STUDENT_PROFILE_ID=student_profile.PROFILE_ID
+			// 	WHERE student_fee.BATCH_ID='$id' GROUP BY student_fee.STUDENT_PROFILE_ID";
+			// $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// // print_r($result);exit;
+			// foreach ($result as $key => $value) {
+			// 	$PROFILEid=$value['STUDENT_PROFILE_ID'];
+			// 	$sql1="SELECT student_fee.FEE_STRUCTURE_ID,fee_item_structure.AMOUNT,
+			// 			CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+			// 				(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+			// 			ELSE 
+			// 			0
+			// 			END AS TOTAL_PAID_AMOUNT,
+			// 			CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
+			// 				(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
+			// 				ELSE
+			// 				0
+			// 				END AS FINE_AMOUNT,
+			// 			CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+			// 				(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+			// 			ELSE 
+			// 			0
+			// 			END AS TOTAL_PAID_FINE_AMOUNT
+			// 			from student_fee 
+			// 			LEFT JOIN fee_item_structure ON student_fee.FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID
+			// 			WHERE student_fee.STUDENT_PROFILE_ID='$PROFILEid'";
+			// 	$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			// 	$totalItemAmount=0;
+			// 	$totalPaidAmount=0;
+			// 	$totalFineAmount=0;
+			// 	$totalPaidFineAmount=0;
+			// 	foreach($result1 as $key1 => $value1){
+			// 		$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
+			// 		$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
+			// 		$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
+			// 		$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
+			// 	}
+			// 	$result[$key]['Total_Amount']=$totalItemAmount;
+			// 	$result[$key]['Total_Paid']=$totalPaidAmount;
+			// 	$result[$key]['Total_Fine']=$totalFineAmount;
+			// 	$result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
+
+			// }
+			// // print_r($result);exit;
+			// return $result;	
+
 			$sql="SELECT student_fee.ID,student_fee.COURSE_ID,student_fee.STUDENT_PROFILE_ID,student_fee.FEE_STRUCTURE_ID,
 				concat(profile.FIRSTNAME,' ',profile.LASTNAME) AS STUDENT_NAME,profile.ADMISSION_NO,
 				COURSE.NAME AS COURSE_NAME,
-				(SELECT NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
+				(SELECT BATCH_DISPLAY_NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
 				FROM 
 				student_fee 
 				INNER JOIN profile ON student_fee.STUDENT_PROFILE_ID=profile.ID
@@ -515,47 +525,56 @@
 				INNER JOIN student_profile ON student_fee.STUDENT_PROFILE_ID=student_profile.PROFILE_ID
 				WHERE student_fee.BATCH_ID='$id' GROUP BY student_fee.STUDENT_PROFILE_ID";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			// print_r($result);exit;
+
+			foreach ($result as $key => $value) {
+				$profileArray[$key]=array();
+				$PROFILEid=$value['STUDENT_PROFILE_ID'];
+				$sql22="SELECT * FROM student_fee WHERE STUDENT_PROFILE_ID='$PROFILEid'";
+				$result22 = $this->db->query($sql22, $return_object = TRUE)->result_array();
+
+				foreach($result22 as $key1 =>$val){
+					if($PROFILEid==$val['STUDENT_PROFILE_ID']){
+						$stu_id=$val['FEE_STRUCTURE_ID'];
+						array_push($profileArray[$key], $stu_id);
+					}
+				}
+			}
+			$totalIemAmont2=0;
+			$totalFineAmont2=0;
 			foreach ($result as $key => $value) {
 				$PROFILEid=$value['STUDENT_PROFILE_ID'];
-				$sql1="SELECT student_fee.FEE_STRUCTURE_ID,fee_item_structure.AMOUNT,
-						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
-							(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
-						ELSE 
-						0
-						END AS TOTAL_PAID_AMOUNT,
-						CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
-							(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
-							ELSE
-							0
-							END AS FINE_AMOUNT,
-						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
-							(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
-						ELSE 
-						0
-						END AS TOTAL_PAID_FINE_AMOUNT
-						from student_fee 
-						LEFT JOIN fee_item_structure ON student_fee.FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID
-						WHERE student_fee.STUDENT_PROFILE_ID='$PROFILEid'";
-				$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
-				$totalItemAmount=0;
-				$totalPaidAmount=0;
-				$totalFineAmount=0;
-				$totalPaidFineAmount=0;
-				foreach($result1 as $key1 => $value1){
-					$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
-					$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
-					$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
-					$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
-				}
-				$result[$key]['Total_Amount']=$totalItemAmount;
-				$result[$key]['Total_Paid']=$totalPaidAmount;
-				$result[$key]['Total_Fine']=$totalFineAmount;
-				$result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
+				$totalIemAmont1=0;
+				$totalFineAmont1=0;
+				$strId=implode(",", $profileArray[$key]);
+				// print_r($strId);
+				$sql22="SELECT * FROM student_fee WHERE STUDENT_PROFILE_ID='$PROFILEid'";
+				$result22 = $this->db->query($sql22, $return_object = TRUE)->result_array();
+				foreach($result22 as $key1 =>$val){
+					if($PROFILEid==$val['STUDENT_PROFILE_ID']){
+						// $strId[]=$val['FEE_STRUCTURE_ID'];
+						$totalIemAmont=0;
+						$totalFineAmont=0;
+					$sql123="SELECT SUM(AMOUNT) as TOT_ITEM_AMT,CASE WHEN (SELECT DATEDIFF(CURDATE(),DUE_DATE) FROM fee_item_fine WHERE FEE_STRUCTURE_ID IN ($strId) GROUP BY FEE_STRUCTURE_ID) > 0 THEN
+						(SELECT FINE_AMOUNT FROM fee_item_fine WHERE FEE_STRUCTURE_ID IN ($strId) and DAYS_AFTER_DUE_DATE <= (DATEDIFF(CURDATE(),DUE_DATE)) ORDER BY ID DESC LIMIT 1) ELSE 0 END AS TOTAL_FINE_AMT,CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) > 0 THEN 
+						(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) ELSE  0 END AS TOTAL_PAID_AMOUNT,CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) > 0 THEN 
+						(SELECT SUM(AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) ELSE  0 END AS TOTAL_PAID_FINE_AMOUNT
+						FROM fee_item_structure WHERE FEE_STRUCTURE_ID IN ($strId)";
+						$result22= $this->db->query($sql123, $return_object = TRUE)->result_array();
+						// print_r($result22);
+					}	
+					$result[$key]['total_fee_amount']=$result22[0]['TOT_ITEM_AMT']+$result22[0]['TOTAL_FINE_AMT'];
+					$result[$key]['total_paid_amount']=$result22[0]['TOTAL_PAID_AMOUNT']+$result22[0]['TOTAL_PAID_FINE_AMOUNT'];
+					$result[$key]['total_due_amount']=($result22[0]['TOT_ITEM_AMT']+$result22[0]['TOTAL_FINE_AMT']) - ($result22[0]['TOTAL_PAID_AMOUNT']+$result22[0]['TOTAL_PAID_FINE_AMOUNT']);
 
+					$result[$key]['total_fee_amount1']=$result22[0]['TOT_ITEM_AMT'];
+					$result[$key]['total_fee_amount2']=$result22[0]['TOTAL_FINE_AMT'];
+					$result[$key]['total_fee_amount3']=$result22[0]['TOTAL_PAID_AMOUNT'];
+					$result[$key]['total_fee_amount4']=$result22[0]['TOTAL_PAID_FINE_AMOUNT'];
+				}
 			}
-			// print_r($result);exit;
-			return $result;	
+			// print_r($result);
+			// exit;
+			return $result;
 		}
 		function fetchStudentList($id,$check,$structureid,$bacthcourseid){
 			if($check=='course'){
@@ -574,7 +593,7 @@
 
 				// 09-06-17
 				$sql="SELECT student_profile.ID AS STUD_PROFILE_ID,student_profile.PROFILE_ID,concat(profile.FIRSTNAME,' ',profile.LASTNAME) AS STUDENT_NAME,profile.ADMISSION_NO,profile.IMAGE1 AS IMAGE,
-					CASE WHEN student_profile.ID NOT IN(SELECT STUDENT_PROFILE_ID FROM student_fee WHERE COURSE_ID='$id' AND FEE_STRUCTURE_ID='$structureid') THEN 'Yes'
+					CASE WHEN student_profile.PROFILE_ID NOT IN(SELECT STUDENT_PROFILE_ID FROM student_fee WHERE COURSE_ID='$id' AND FEE_STRUCTURE_ID='$structureid') THEN 'Yes'
                     ELSE 'No' END AS STATUS
 					FROM course_batch 
 					INNER JOIN student_profile ON COURSEBATCH_ID=course_batch.ID
@@ -601,7 +620,7 @@
     //                 ELSE 'No' END AS STATUS FROM student_profile where COURSEBATCH_ID='$id'";
 
 
-				$sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) AS STUDENT_NAME,(SELECT ADMISSION_NO FROM profile where ID=PROFILE_ID) AS ADMISSION_NO,(SELECT IMAGE1 FROM profile where ID=PROFILE_ID) AS IMAGE,CASE WHEN student_profile.ID NOT IN(SELECT STUDENT_PROFILE_ID FROM student_fee WHERE FEE_STRUCTURE_ID='$structureid' AND COURSE_ID='$bacthcourseid') THEN 'Yes'
+				$sql="SELECT PROFILE_ID,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=PROFILE_ID) AS STUDENT_NAME,(SELECT ADMISSION_NO FROM profile where ID=PROFILE_ID) AS ADMISSION_NO,(SELECT IMAGE1 FROM profile where ID=PROFILE_ID) AS IMAGE,CASE WHEN student_profile.PROFILE_ID NOT IN(SELECT STUDENT_PROFILE_ID FROM student_fee WHERE FEE_STRUCTURE_ID='$structureid' AND COURSE_ID='$bacthcourseid') THEN 'Yes'
                     ELSE 'No' END AS STATUS FROM student_profile where COURSEBATCH_ID='$id'";
 				return $result=$this->db->query($sql, $return_object = TRUE)->result_array();
 			}
@@ -670,7 +689,7 @@
 			$sql="SELECT student_fee.ID,student_fee.COURSE_ID,student_fee.STUDENT_PROFILE_ID,student_fee.FEE_STRUCTURE_ID,
 				concat(profile.FIRSTNAME,' ',profile.LASTNAME) AS STUDENT_NAME,profile.ADMISSION_NO,
 				COURSE.NAME AS COURSE_NAME,
-				(SELECT NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
+				(SELECT BATCH_DISPLAY_NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
 				FROM 
 				student_fee 
 				INNER JOIN profile ON student_fee.STUDENT_PROFILE_ID=profile.ID
@@ -679,43 +698,84 @@
 				WHERE student_fee.STUDENT_PROFILE_ID='$stu_id' GROUP BY student_fee.STUDENT_PROFILE_ID";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
 			// print_r($result);exit;
+			// foreach ($result as $key => $value) {
+			// 	$PROFILEid=$value['STUDENT_PROFILE_ID'];
+			// 	$sql1="SELECT student_fee.FEE_STRUCTURE_ID,fee_item_structure.AMOUNT,
+			// 			CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+			// 				(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+			// 			ELSE 
+			// 			0
+			// 			END AS TOTAL_PAID_AMOUNT,
+			// 			CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
+			// 				(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
+			// 				ELSE
+			// 				0
+			// 				END AS FINE_AMOUNT,
+			// 			CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+			// 				(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+			// 			ELSE 
+			// 			0
+			// 			END AS TOTAL_PAID_FINE_AMOUNT
+			// 			from student_fee 
+			// 			LEFT JOIN fee_item_structure ON student_fee.FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID
+			// 			WHERE student_fee.STUDENT_PROFILE_ID='$PROFILEid'";
+			// 	$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
+			// 	$totalItemAmount=0;
+			// 	$totalPaidAmount=0;
+			// 	$totalFineAmount=0;
+			// 	$totalPaidFineAmount=0;
+			// 	foreach($result1 as $key1 => $value1){
+			// 		$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
+			// 		$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
+			// 		$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
+			// 		$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
+			// 	}
+			// 	$result[$key]['Total_Amount']=$totalItemAmount;
+			// 	$result[$key]['Total_Paid']=$totalPaidAmount;
+			// 	$result[$key]['Total_Fine']=$totalFineAmount;
+			// 	$result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
+
+			// }
+			foreach ($result as $key => $value) {
+				$profileArray[$key]=array();
+				$PROFILEid=$value['STUDENT_PROFILE_ID'];
+				$sql22="SELECT * FROM student_fee WHERE STUDENT_PROFILE_ID='$PROFILEid'";
+				$result22 = $this->db->query($sql22, $return_object = TRUE)->result_array();
+
+				foreach($result22 as $key1 =>$val){
+					if($PROFILEid==$val['STUDENT_PROFILE_ID']){
+						$stu_id=$val['FEE_STRUCTURE_ID'];
+						array_push($profileArray[$key], $stu_id);
+					}
+				}
+			}
+			$totalIemAmont2=0;
+			$totalFineAmont2=0;
 			foreach ($result as $key => $value) {
 				$PROFILEid=$value['STUDENT_PROFILE_ID'];
-				$sql1="SELECT student_fee.FEE_STRUCTURE_ID,fee_item_structure.AMOUNT,
-						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
-							(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
-						ELSE 
-						0
-						END AS TOTAL_PAID_AMOUNT,
-						CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
-							(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
-							ELSE
-							0
-							END AS FINE_AMOUNT,
-						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
-							(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
-						ELSE 
-						0
-						END AS TOTAL_PAID_FINE_AMOUNT
-						from student_fee 
-						LEFT JOIN fee_item_structure ON student_fee.FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID
-						WHERE student_fee.STUDENT_PROFILE_ID='$PROFILEid'";
-				$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
-				$totalItemAmount=0;
-				$totalPaidAmount=0;
-				$totalFineAmount=0;
-				$totalPaidFineAmount=0;
-				foreach($result1 as $key1 => $value1){
-					$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
-					$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
-					$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
-					$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
+				$totalIemAmont1=0;
+				$totalFineAmont1=0;
+				$strId=implode(",", $profileArray[$key]);
+				// print_r($strId);
+				$sql22="SELECT * FROM student_fee WHERE STUDENT_PROFILE_ID='$PROFILEid'";
+				$result22 = $this->db->query($sql22, $return_object = TRUE)->result_array();
+				foreach($result22 as $key1 =>$val){
+					if($PROFILEid==$val['STUDENT_PROFILE_ID']){
+						// $strId[]=$val['FEE_STRUCTURE_ID'];
+						$totalIemAmont=0;
+						$totalFineAmont=0;
+						$sql123="SELECT SUM(AMOUNT) as TOT_ITEM_AMT,CASE WHEN (SELECT DATEDIFF(CURDATE(),DUE_DATE) FROM fee_item_fine WHERE FEE_STRUCTURE_ID IN ($strId) GROUP BY FEE_STRUCTURE_ID) > 0 THEN
+						(SELECT FINE_AMOUNT FROM fee_item_fine WHERE FEE_STRUCTURE_ID IN ($strId) and DAYS_AFTER_DUE_DATE <= (DATEDIFF(CURDATE(),DUE_DATE)) ORDER BY ID DESC LIMIT 1) ELSE 0 END AS TOTAL_FINE_AMT,CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) > 0 THEN 
+						(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) ELSE  0 END AS TOTAL_PAID_AMOUNT,CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) > 0 THEN 
+						(SELECT SUM(AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) ELSE  0 END AS TOTAL_PAID_FINE_AMOUNT
+						FROM fee_item_structure WHERE FEE_STRUCTURE_ID IN ($strId)";
+						$result22= $this->db->query($sql123, $return_object = TRUE)->result_array();
+						// print_r($result22);
+					}	
+					$result[$key]['total_fee_amount']=$result22[0]['TOT_ITEM_AMT']+$result22[0]['TOTAL_FINE_AMT'];
+					$result[$key]['total_paid_amount']=$result22[0]['TOTAL_PAID_AMOUNT']+$result22[0]['TOTAL_PAID_FINE_AMOUNT'];
+					$result[$key]['total_due_amount']=($result22[0]['TOT_ITEM_AMT']+$result22[0]['TOTAL_FINE_AMT']) - ($result22[0]['TOTAL_PAID_AMOUNT']+$result22[0]['TOTAL_PAID_FINE_AMOUNT']);
 				}
-				$result[$key]['Total_Amount']=$totalItemAmount;
-				$result[$key]['Total_Paid']=$totalPaidAmount;
-				$result[$key]['Total_Fine']=$totalFineAmount;
-				$result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
-
 			}
 			// print_r($result);exit;
 			return $result;	
@@ -724,15 +784,25 @@
 		function addAssignFeeStructure($id,$value){
 			// print_r($value);exit;
 			for($i=0;$i<count($value['student']);$i++){
-				$data = array(
-				   'COURSE_ID' => $value['course_id'],
-				   'BATCH_ID' => $value['batch_id'],
-				   'STUDENT_PROFILE_ID' => $value['student'][$i],
-				   'FEE_STRUCTURE_ID' => $id
-				);
-				$this->db->insert('student_fee', $data); 
+
+				$course_id=$value['course_id'];
+				$batch_id=$value['batch_id'];
+				$profile_id=$value['student'][$i];
+				$sql="SELECT * FROM student_fee where FEE_STRUCTURE_ID='$id' AND COURSE_ID='$course_id' AND STUDENT_PROFILE_ID='$profile_id'";
+				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				if($result){
+					return array('status'=>false, 'message'=>"Already Assigned");
+				}else{
+					$data = array(
+					   'COURSE_ID' => $value['course_id'],
+					   'BATCH_ID' => $value['batch_id'],
+					   'STUDENT_PROFILE_ID' => $value['student'][$i],
+					   'FEE_STRUCTURE_ID' => $id
+					);
+					$this->db->insert('student_fee', $data);
+				}
 			}
-			return array('status'=>true, 'message'=>"Record Inserted Successfully");
+			return array('status'=>true, 'message'=>"Fees Assigned Successfully");
 		}
 		function fetchAssingedFeeStructure(){
 			$sql="SELECT fee_structure.NAME,student_fee.FEE_STRUCTURE_ID,COUNT(*) AS TOTAL_STUDENT FROM student_fee INNER JOIN fee_structure ON fee_structure.ID = student_fee.FEE_STRUCTURE_ID GROUP BY student_fee.FEE_STRUCTURE_ID";
@@ -744,12 +814,12 @@
 	    	return $this->db->affected_rows();
 		}
 		function getAssignedFeeStructureforStudent($id){
-			$sql="SELECT P.ID,CONCAT(P.FIRSTNAME,' ',P.LASTNAME) AS STUDENT_NAME,P.ADMISSION_NO,P.IMAGE1 FROM student_fee
+			$sql="SELECT P.ID,CONCAT(P.FIRSTNAME,' ',P.LASTNAME) AS STUDENT_NAME,P.ADMISSION_NO,P.IMAGE1,student_fee.ID as student_fee_id FROM student_fee
 				INNER JOIN PROFILE AS P ON student_fee.STUDENT_PROFILE_ID=P.ID WHERE student_fee.FEE_STRUCTURE_ID='$id'";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
 		function deleteAssignedStudent($id){
-			$sql="DELETE FROM student_fee where STUDENT_PROFILE_ID='$id'";
+			$sql="DELETE FROM student_fee where ID='$id'";
 			$result = $this->db->query($sql);
 	    	return $this->db->affected_rows();
 		}
@@ -869,7 +939,7 @@
 			$sql="SELECT student_fee.ID,student_fee.COURSE_ID,student_fee.STUDENT_PROFILE_ID,student_fee.FEE_STRUCTURE_ID,
 				concat(profile.FIRSTNAME,' ',profile.LASTNAME) AS STUDENT_NAME,profile.ADMISSION_NO,
 				COURSE.NAME AS COURSE_NAME,
-				(SELECT NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
+				(SELECT BATCH_DISPLAY_NAME FROM course_batch WHERE ID=student_profile.COURSEBATCH_ID) AS BATCH_NAME
 				FROM 
 				student_fee 
 				INNER JOIN profile ON student_fee.STUDENT_PROFILE_ID=profile.ID
@@ -877,47 +947,83 @@
 				INNER JOIN student_profile ON student_fee.STUDENT_PROFILE_ID=student_profile.PROFILE_ID
 				WHERE student_fee.COURSE_ID='$courseId' GROUP BY student_fee.STUDENT_PROFILE_ID";
 			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
+
+			foreach ($result as $key => $value) {
+				// echo $key;
+				$profileArray[$key]=array();
+				// print_r($profileArray);
+
+				$PROFILEid=$value['STUDENT_PROFILE_ID'];
+				$sql22="SELECT * FROM student_fee WHERE STUDENT_PROFILE_ID='$PROFILEid'";
+				$result22 = $this->db->query($sql22, $return_object = TRUE)->result_array();
+
+				foreach($result22 as $key1 =>$val){
+					if($PROFILEid==$val['STUDENT_PROFILE_ID']){
+						$stu_id=$val['FEE_STRUCTURE_ID'];
+						array_push($profileArray[$key], $stu_id);
+					}
+				}
+			}
+			// echo "<pre>";
+			// foreach ($profileArray as $key => $value) {		
+				
+			// 	$usersdetails[]=implode(",", $value);
+			// }
+			// print_r($usersdetails);
+			// exit;
+
 			// print_r($result);exit;
+			$totalIemAmont2=0;
+			$totalFineAmont2=0;
 			foreach ($result as $key => $value) {
 				$PROFILEid=$value['STUDENT_PROFILE_ID'];
-				$sql1="SELECT student_fee.FEE_STRUCTURE_ID,fee_item_structure.AMOUNT,
-						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
-							(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
-						ELSE 
-						0
-						END AS TOTAL_PAID_AMOUNT,
-						CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
-							(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
-							ELSE
-							0
-							END AS FINE_AMOUNT,
-						CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
-							(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
-						ELSE 
-						0
-						END AS TOTAL_PAID_FINE_AMOUNT
-						from student_fee 
-						LEFT JOIN fee_item_structure ON student_fee.FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID
-						WHERE student_fee.STUDENT_PROFILE_ID='$PROFILEid'";
-				$result1 = $this->db->query($sql1, $return_object = TRUE)->result_array();
-				$totalItemAmount=0;
-				$totalPaidAmount=0;
-				$totalFineAmount=0;
-				$totalPaidFineAmount=0;
-				foreach($result1 as $key1 => $value1){
-					$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
-					$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
-					$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
-					$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
+				// $feeStucId=$value['FEE_STRUCTURE_ID'];
+				$totalIemAmont1=0;
+				$totalFineAmont1=0;
+				$strId=implode(",", $profileArray[$key]);
+				// print_r($strId);
+				$sql22="SELECT * FROM student_fee WHERE STUDENT_PROFILE_ID='$PROFILEid'";
+				$result22 = $this->db->query($sql22, $return_object = TRUE)->result_array();
+				foreach($result22 as $key1 =>$val){
+					if($PROFILEid==$val['STUDENT_PROFILE_ID']){
+						// $strId[]=$val['FEE_STRUCTURE_ID'];
+						$totalIemAmont=0;
+						$totalFineAmont=0;
+						$sql123="SELECT SUM(AMOUNT) as TOT_ITEM_AMT,CASE WHEN (SELECT DATEDIFF(CURDATE(),DUE_DATE) FROM fee_item_fine WHERE FEE_STRUCTURE_ID IN ($strId) GROUP BY FEE_STRUCTURE_ID) > 0 THEN
+						(SELECT FINE_AMOUNT FROM fee_item_fine WHERE FEE_STRUCTURE_ID IN ($strId) and DAYS_AFTER_DUE_DATE <= (DATEDIFF(CURDATE(),DUE_DATE)) ORDER BY ID DESC LIMIT 1) ELSE 0 END AS TOTAL_FINE_AMT,CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) > 0 THEN 
+						(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) ELSE  0 END AS TOTAL_PAID_AMOUNT,CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) > 0 THEN 
+						(SELECT SUM(AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID IN ($strId) AND STUDENT_PROFILE_ID=$PROFILEid) ELSE  0 END AS TOTAL_PAID_FINE_AMOUNT
+						FROM fee_item_structure WHERE FEE_STRUCTURE_ID IN ($strId)";
+						$result22= $this->db->query($sql123, $return_object = TRUE)->result_array();
+						// print_r($result22);
+					}	
+					$result[$key]['total_fee_amount']=$result22[0]['TOT_ITEM_AMT']+$result22[0]['TOTAL_FINE_AMT'];
+					$result[$key]['total_paid_amount']=$result22[0]['TOTAL_PAID_AMOUNT']+$result22[0]['TOTAL_PAID_FINE_AMOUNT'];
+					$result[$key]['total_due_amount']=($result22[0]['TOT_ITEM_AMT']+$result22[0]['TOTAL_FINE_AMT']) - ($result22[0]['TOTAL_PAID_AMOUNT']+$result22[0]['TOTAL_PAID_FINE_AMOUNT']);
 				}
-				$result[$key]['Total_Amount']=$totalItemAmount;
-				$result[$key]['Total_Paid']=$totalPaidAmount;
-				$result[$key]['Total_Fine']=$totalFineAmount;
-				$result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
-
 			}
+			// print_r($result);
+			// exit;
+			return $result;
+				
+				// $totalItemAmount=0;
+				// $totalPaidAmount=0;
+				// $totalFineAmount=0;
+				// $totalPaidFineAmount=0;
+				// foreach($result1 as $key1 => $value1){
+				// 	$totalItemAmount=$totalItemAmount+$value1['AMOUNT'];
+				// 	$totalPaidAmount=$totalPaidAmount+$value1['TOTAL_PAID_AMOUNT'];
+				// 	$totalFineAmount=$totalFineAmount+$value1['FINE_AMOUNT'];
+				// 	$totalPaidFineAmount=$totalPaidFineAmount+$value1['TOTAL_PAID_FINE_AMOUNT'];
+				// }
+				// $result[$key]['Total_Amount']=$totalItemAmount;
+				// $result[$key]['Total_Paid']=$totalPaidAmount;
+				// $result[$key]['Total_Fine']=$totalFineAmount;
+				// $result[$key]['Total_Paid_Fine']=$totalPaidFineAmount;
+
+			// }
 			// print_r($result);exit;
-			return $result;			
+			// return $result;			
 		}
 		function getStudentBasicDetails($id){
 			// Modified on 25-05-17
@@ -930,7 +1036,7 @@
 			// 	FROM student_fee where student_fee.STUDENT_PROFILE_ID='$id'";
 			$sql="SELECT ID,COURSE_ID,BATCH_ID,STUDENT_PROFILE_ID,
 				(SELECT NAME FROM COURSE WHERE ID=COURSE_ID) AS COURSE_NAME,
-				(SELECT NAME FROM course_batch WHERE ID=BATCH_ID) AS BATCH_NAME,
+				(SELECT BATCH_DISPLAY_NAME FROM course_batch WHERE ID=BATCH_ID) AS BATCH_NAME,
 				(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile WHERE ID=STUDENT_PROFILE_ID) AS STUDENT_NAME,
 				(SELECT ADMISSION_NO FROM profile WHERE ID=STUDENT_PROFILE_ID) AS ADMISSION_NO
 				FROM student_fee where student_fee.ID='$id'";
@@ -1007,26 +1113,42 @@
 				// 	FROM fee_item_structure WHERE fee_item_structure.FEE_STRUCTURE_ID IN($feestruc_id)";
 				// $result[$key]['list']=$this->db->query($sql1, $return_object = TRUE)->result_array();
 
-				// MODIFIED ON 12-06-17
-				$sql1="SELECT fee_item_structure.AMOUNT,fee_item_structure.FEE_ITEM_ID,fee_item_structure.FEE_FINE_ID,fee_item_structure.DUE_DATE,fee_item_structure.FEE_STRUCTURE_ID,
-					(SELECT NAME FROM fee_structure WHERE ID=fee_item_structure.FEE_STRUCTURE_ID) AS STRUCTURE_NAME,
-					(SELECT NAME FROM feeitem WHERE ID=fee_item_structure.FEE_ITEM_ID) AS ITEM_NAME,
-					CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
-						(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
-					ELSE 
-					0
-					END AS TOTAL_PAID_AMOUNT,
-						CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
-					(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
-					ELSE
-					0
-					END AS FINE_AMOUNT,
-					CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
-						(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
-					ELSE 
-					0
-					END AS TOTAL_PAID_FINE_AMOUNT
-					FROM fee_item_structure WHERE fee_item_structure.FEE_STRUCTURE_ID IN($feestruc_id)";
+				// // MODIFIED ON 12-06-17
+				// $sql1="SELECT fee_item_structure.AMOUNT,fee_item_structure.FEE_ITEM_ID,fee_item_structure.FEE_FINE_ID,fee_item_structure.DUE_DATE,fee_item_structure.FEE_STRUCTURE_ID,
+				// 	(SELECT NAME FROM fee_structure WHERE ID=fee_item_structure.FEE_STRUCTURE_ID) AS STRUCTURE_NAME,
+				// 	(SELECT NAME FROM feeitem WHERE ID=fee_item_structure.FEE_ITEM_ID) AS ITEM_NAME,
+				// 	CASE WHEN (SELECT count(FEE_ITEM_ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+				// 		(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+				// 	ELSE 
+				// 	0
+				// 	END AS TOTAL_PAID_AMOUNT,
+				// 	CASE WHEN (SELECT COUNT(ID) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID='$feestruc_id' and STUDENT_PROFILE_ID='$studprofId') > 0 THEN 
+				// 		(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID='$feestruc_id' and STUDENT_PROFILE_ID='$studprofId')
+				// 		ELSE 0 END AS TOTAL_PAID_AMT,
+				// 		CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
+				// 	(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
+				// 	ELSE
+				// 	0
+				// 	END AS FINE_AMOUNT,
+				// 	CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+				// 		(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID)
+				// 	ELSE 
+				// 	0
+				// 	END AS TOTAL_PAID_FINE_AMOUNT
+				// 	FROM fee_item_structure WHERE fee_item_structure.FEE_STRUCTURE_ID IN($feestruc_id)";
+
+				// modified on 28-08-17
+				$sql1="SELECT AMOUNT,FEE_ITEM_ID,FEE_FINE_ID,DUE_DATE,FEE_STRUCTURE_ID,
+					CASE WHEN fee_item_structure.FEE_FINE_ID IS NULL or fee_item_structure.FEE_FINE_ID='' THEN 0 ELSE 
+					(SELECT FINE_AMOUNT FROM fee_item_fine WHERE FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND DAYS_AFTER_DUE_DATE <= (DATEDIFF(CURDATE(),fee_item_fine.DUE_DATE)) ORDER BY ID DESC LIMIT 1)
+					 END AS FINE_AMOUNT,
+					 CASE WHEN (SELECT COUNT(ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+					 (SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) ELSE 0 END AS TOTAL_PAID_AMOUNT,
+					 CASE WHEN (SELECT COUNT(ID) FROM STUDENT_FEE_FINE WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+					 (SELECT AMOUNT FROM STUDENT_FEE_FINE WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) ELSE 0 END AS TOTAL_PAID_FINE_AMOUNT,
+					 (SELECT NAME FROM fee_structure WHERE ID=fee_item_structure.FEE_STRUCTURE_ID) AS STRUCTURE_NAME,
+					(SELECT NAME FROM feeitem WHERE ID=fee_item_structure.FEE_ITEM_ID) AS ITEM_NAME
+					FROM fee_item_structure WHERE fee_item_structure.FEE_STRUCTURE_ID IN ($feestruc_id)";
 				$result[$key]['list']=$this->db->query($sql1, $return_object = TRUE)->result_array();
 			}
 			return $result;
@@ -1095,20 +1217,34 @@
 			foreach ($result as $key => $value) {
 				$studprofId=$value['STUDENT_PROFILE_ID'];
 				$feestruc_id=$value['FEE_STRUCTURE_ID'];
-				$sql1="SELECT fee_item_structure.AMOUNT,fee_item_structure.FEE_ITEM_ID,fee_item_structure.FEE_FINE_ID,fee_item_structure.DUE_DATE,fee_item_structure.FEE_STRUCTURE_ID,DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) AS DAYS,	
-					CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
-					(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
-					ELSE
-					0
-					END AS FINE_AMOUNT,
-					CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID) > 0 THEN 
-						(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID)
-					ELSE 
-					0
-					END AS TOTAL_PAID_FINE_AMOUNT,
-					(SELECT NAME FROM fee_structure WHERE ID=fee_item_structure.FEE_STRUCTURE_ID) AS STRUCTURE_NAME,
+				// $sql1="SELECT fee_item_structure.AMOUNT,fee_item_structure.FEE_ITEM_ID,fee_item_structure.FEE_FINE_ID,fee_item_structure.DUE_DATE,fee_item_structure.FEE_STRUCTURE_ID,DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) AS DAYS,	
+				// 	CASE WHEN DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) > 0 THEN
+				// 	(SELECT VALUE FROM feefine_slabs WHERE FEE_FINE_ID=fee_item_structure.FEE_FINE_ID and DUE_DATE <= DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE) ORDER BY ID DESC LIMIT 1)
+				// 	ELSE
+				// 	0
+				// 	END AS FINE_AMOUNT,
+				// 	CASE WHEN (SELECT COUNT(ID) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID='$feestruc_id' and STUDENT_PROFILE_ID='$studprofId') > 0 THEN 
+				// 		(SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_STRUCTURE_ID='$feestruc_id' and STUDENT_PROFILE_ID='$studprofId')
+				// 		ELSE 0 END AS TOTAL_PAID_AMT,
+				// 	CASE WHEN (SELECT count(FEE_ITEM_ID) FROM student_fee_fine WHERE FEE_STRUCTURE_ID='$feestruc_id' and STUDENT_PROFILE_ID='$studprofId') > 0 THEN 
+				// 		(SELECT SUM(AMOUNT) FROM student_fee_fine WHERE FEE_STRUCTURE_ID='$feestruc_id' and STUDENT_PROFILE_ID='$studprofId')
+				// 	ELSE 
+				// 	0
+				// 	END AS TOTAL_PAID_FINE_AMOUNT,
+				// 	(SELECT NAME FROM fee_structure WHERE ID=fee_item_structure.FEE_STRUCTURE_ID) AS STRUCTURE_NAME,
+				// 	(SELECT NAME FROM feeitem WHERE ID=fee_item_structure.FEE_ITEM_ID) AS ITEM_NAME
+				// 	FROM fee_item_structure WHERE fee_item_structure.FEE_STRUCTURE_ID IN($feestruc_id)";
+				$sql1="SELECT AMOUNT,FEE_ITEM_ID,FEE_FINE_ID,DUE_DATE,FEE_STRUCTURE_ID,
+					CASE WHEN fee_item_structure.FEE_FINE_ID IS NULL or fee_item_structure.FEE_FINE_ID='' THEN 0 ELSE 
+					(SELECT FINE_AMOUNT FROM fee_item_fine WHERE FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID AND FEE_FINE_ID=fee_item_structure.FEE_FINE_ID AND DAYS_AFTER_DUE_DATE <= (DATEDIFF(CURDATE(),fee_item_structure.DUE_DATE)) ORDER BY ID DESC LIMIT 1)
+					 END AS FINE_AMOUNT,
+					 CASE WHEN (SELECT COUNT(ID) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+					 (SELECT SUM(PAID_AMOUNT) FROM STUDENT_FEE_STATUS WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) ELSE 0 END AS TOTAL_PAID_AMOUNT,
+					 CASE WHEN (SELECT COUNT(ID) FROM STUDENT_FEE_FINE WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) > 0 THEN 
+					 (SELECT AMOUNT FROM STUDENT_FEE_FINE WHERE FEE_ITEM_ID=fee_item_structure.FEE_ITEM_ID AND FEE_STRUCTURE_ID=fee_item_structure.FEE_STRUCTURE_ID) ELSE 0 END AS TOTAL_PAID_FINE_AMOUNT,
+					 (SELECT NAME FROM fee_structure WHERE ID=fee_item_structure.FEE_STRUCTURE_ID) AS STRUCTURE_NAME,
 					(SELECT NAME FROM feeitem WHERE ID=fee_item_structure.FEE_ITEM_ID) AS ITEM_NAME
-					FROM fee_item_structure WHERE fee_item_structure.FEE_STRUCTURE_ID IN($feestruc_id)";
+					FROM fee_item_structure WHERE fee_item_structure.FEE_STRUCTURE_ID IN ($feestruc_id)";
 				$result[$key]['finelist']=$this->db->query($sql1, $return_object = TRUE)->result_array();
 			}
 			// print_r($result);exit;
@@ -1142,7 +1278,20 @@
 			$this->db->insert('modeofpayment', $data); 
 			$modePay_id= $this->db->insert_id();
 			if(!empty($modePay_id)){
-				$receiptnum='REC'.mt_rand(10000, 99999);
+
+				$sql_q="SELECT * FROM institution_setting";
+				$res=$this->db->query($sql_q, $return_object = TRUE)->result_array();
+				if($res){
+					$receiptnum=$res[0]['GOODS_RECEIPT_PREFIX'].$res[0]['GOODS_RECEIPT'];
+					$insId=$res[0]['ID'];
+					$ins = array(
+						'GOODS_RECEIPT' => $res[0]['GOODS_RECEIPT']+1,
+					);
+					$this->db->where('ID', $insId);	
+					$this->db->update('institution_setting', $ins);
+				}else{
+					$receiptnum='REC'.mt_rand(10000, 99999);
+				}
 				$feepayment = array(
 				   'STUDENT_FEE_ID' => $value['fee_id'],
 				   'PAYMENT_DATE' => $value['payment_date'],
@@ -1154,8 +1303,6 @@
 				$this->db->insert('fee_payment', $feepayment); 
 				$feePay_id= $this->db->insert_id();
 				if(!empty($feePay_id)){
-
-
 					$data = array(
 					   'NAME' => 'Student Fees',
 					   'DESCRIPTION' => 'Fee Payment',
@@ -1189,7 +1336,8 @@
 									   'FEE_FINE_ID' => $value['item_data'][$i]['list'][$j]['FEE_FINE_ID'],
 									   'AMOUNT' => $payAmount,
 									   'FEE_STRUCTURE_ID' => $value['item_data'][$i]['list'][$j]['FEE_STRUCTURE_ID'],
-									   'FEE_PAYMENT_ID' => $feePay_id
+									   'FEE_PAYMENT_ID' => $feePay_id,
+									   'STUDENT_PROFILE_ID' => $value['profileId']
 									);
 									$this->db->insert('student_fee_fine', $feeFine);
 								}else{
@@ -1201,7 +1349,8 @@
 										   'FEE_FINE_ID' => $value['item_data'][$i]['list'][$j]['FEE_FINE_ID'],
 										   'AMOUNT' => $fine[1],
 										   'FEE_STRUCTURE_ID' => $value['item_data'][$i]['list'][$j]['FEE_STRUCTURE_ID'],
-										   'FEE_PAYMENT_ID' => $feePay_id
+										   'FEE_PAYMENT_ID' => $feePay_id,
+										   'STUDENT_PROFILE_ID' => $value['profileId']
 										);
 										$this->db->insert('student_fee_fine', $feeFine);
 
@@ -1211,7 +1360,8 @@
 										   'FEE_ITEM_ID' => $value['item_data'][$i]['list'][$j]['FEE_ITEM_ID'],
 										   'PAID_AMOUNT' => $X,
 										   'FEE_STRUCTURE_ID' => $value['item_data'][$i]['list'][$j]['FEE_STRUCTURE_ID'],
-										   'PAY_STATUS' => ''
+										   'PAY_STATUS' => '',
+										   'STUDENT_PROFILE_ID'=>$value['profileId']
 										);
 										$this->db->insert('student_fee_status', $feestatus);
 									}else{
@@ -1220,7 +1370,8 @@
 										   'FEE_ITEM_ID' => $value['item_data'][$i]['list'][$j]['FEE_ITEM_ID'],
 										   'PAID_AMOUNT' => $payAmount,
 										   'FEE_STRUCTURE_ID' => $value['item_data'][$i]['list'][$j]['FEE_STRUCTURE_ID'],
-										   'PAY_STATUS' => ''
+										   'PAY_STATUS' => '',
+										   'STUDENT_PROFILE_ID'=>$value['profileId']
 										);
 										$this->db->insert('student_fee_status', $feestatus);
 									}
@@ -1343,7 +1494,7 @@
 			return array('status'=>true, 'message'=>"Record Inserted Successfully",'FEEPAYMENT_ID'=>$feePay_id);
 		}
 		function getStudentFeeDetails($id){
-			$sql="select ID,STUDENT_FEE_ID,MODEOF_PAYMENT_ID,PAYMENT_DATE,TOTAL_AMOUNT,
+			$sql="select ID,STUDENT_FEE_ID,MODEOF_PAYMENT_ID,PAYMENT_DATE,TOTAL_AMOUNT,RECIEPT_NO,
 				(select STUDENT_PROFILE_ID from student_fee where ID=STUDENT_FEE_ID) AS PROFILEID,
 				(select BATCH_ID from student_fee where ID=STUDENT_FEE_ID) AS BATCHID,
 				(select COURSE_ID from student_fee where ID=STUDENT_FEE_ID) AS COURSEID,
