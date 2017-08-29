@@ -159,37 +159,37 @@
 		
 		public function mGetAllRepPostDetails(){
 			$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser, (SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,COURSE_ID,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME FROM repository_post ORDER BY `repository_post`.`CRT_DT` DESC";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result){
-				foreach($result as $key => $value){
-					 $path=$value['UPLOAD_FILE'];
-					//$path='https://www.w3schools.com/css/trolltunga.jpg';
-					$imgData = base64_encode(file_get_contents($path));
-					$mimeType=mime_content_type($path);
-					// Format the image SRC:  data:{mime};base64,{data};
-					$src = 'data: '.$mimeType.';base64,'.$imgData;
-					$result[$key]['image']=$src;
-					//print_r($src);
-					//exit;
-				}
-				return $result;
-			}
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// if($result){
+				// foreach($result as $key => $value){
+					 // $path=$value['UPLOAD_FILE'];
+					// //$path='https://www.w3schools.com/css/trolltunga.jpg';
+					// $imgData = base64_encode(file_get_contents($path));
+					// $mimeType=mime_content_type($path);
+					// // Format the image SRC:  data:{mime};base64,{data};
+					// $src = 'data: '.$mimeType.';base64,'.$imgData;
+					// $result[$key]['image']=$src;
+					// //print_r($src);
+					// //exit;
+				// }
+				// return $result;
+			// }
 		}
 		
 		public function mGetRepPostDetails($id){
 			$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser, (SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME FROM repository_post WHERE ID='$id'";
-			$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-			if($result){
-				foreach($result as $key => $value){
-					$path=$value['UPLOAD_FILE'];
-					$imgData = base64_encode(file_get_contents($path));
-					$mimeType=mime_content_type($path);
-					// Format the image SRC:  data:{mime};base64,{data};
-					$src = 'data: '.$mimeType.';base64,'.$imgData;
-					$result[$key]['image']=$src;
-				}
-				return $result;
-			}
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+			// if($result){
+				// foreach($result as $key => $value){
+					// $path=$value['UPLOAD_FILE'];
+					// $imgData = base64_encode(file_get_contents($path));
+					// $mimeType=mime_content_type($path);
+					// // Format the image SRC:  data:{mime};base64,{data};
+					// $src = 'data: '.$mimeType.';base64,'.$imgData;
+					// $result[$key]['image']=$src;
+				// }
+				// return $result;
+			// }
 		}
 		
 		
@@ -201,55 +201,55 @@
 				if($res){
 					$ress=$res[0]['COURSE_ID'];
 					$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser, (SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME FROM repository_post WHERE COURSE_ID='$ress'";
-					$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-					if($result){
-						foreach($result as $key => $value){
-							//$path='uploads/'.$value['UPLOAD_FILE']; 
-							$path=$value['UPLOAD_FILE']; 
-							// print_r($path);exit;
-							$data = file_get_contents($path);
-							//$imgData = base64_encode(file_get_contents($path));
-							$mimeType=mime_content_type($value['UPLOAD_FILE']);
-							// Format the image SRC:  data:{mime};base64,{data};
-							$src = 'data: '.$mimeType.';base64,'.base64_encode($data);
-							$result[$key]['image']=$src;
-						}
-						return $result;
-					}
+					return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+					// if($result){
+						// foreach($result as $key => $value){
+							// //$path='uploads/'.$value['UPLOAD_FILE']; 
+							// $path=$value['UPLOAD_FILE']; 
+							// // print_r($path);exit;
+							// $data = file_get_contents($path);
+							// //$imgData = base64_encode(file_get_contents($path));
+							// $mimeType=mime_content_type($value['UPLOAD_FILE']);
+							// // Format the image SRC:  data:{mime};base64,{data};
+							// $src = 'data: '.$mimeType.';base64,'.base64_encode($data);
+							// $result[$key]['image']=$src;
+						// }
+						// return $result;
+					// }
 				}
 			}else if($roleId==2){
 				$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser, (SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME,COURSE_ID FROM repository_post WHERE CRT_USER_ID IN ($id)";
-				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($result){
-					foreach($result as $key => $value){
-						//$path='uploads/'.$value['UPLOAD_FILE']; 
-						$path=$value['UPLOAD_FILE']; 
-						// print_r($path);exit;
-						$data = file_get_contents($path);
-						//$imgData = base64_encode(file_get_contents($path));
-						$mimeType=mime_content_type($value['UPLOAD_FILE']);
-						// Format the image SRC:  data:{mime};base64,{data};
-						$src = 'data: '.$mimeType.';base64,'.base64_encode($data);
-						$result[$key]['image']=$src;
-					}
-					return $result;
-				}
+				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				// if($result){
+					// foreach($result as $key => $value){
+						// //$path='uploads/'.$value['UPLOAD_FILE']; 
+						// $path=$value['UPLOAD_FILE']; 
+						// // print_r($path);exit;
+						// $data = file_get_contents($path);
+						// //$imgData = base64_encode(file_get_contents($path));
+						// $mimeType=mime_content_type($value['UPLOAD_FILE']);
+						// // Format the image SRC:  data:{mime};base64,{data};
+						// $src = 'data: '.$mimeType.';base64,'.base64_encode($data);
+						// $result[$key]['image']=$src;
+					// }
+					// return $result;
+				// }
 			}else{
 				$sql="SELECT ID,TITLE,REP_CATEGORY_ID,CONTENT,UPLOAD_FILE,CRT_DT,COALESCE(UPD_DT,CRT_DT)as postDate,COALESCE(UPD_USER_ID,CRT_USER_ID)as postUser, (SELECT NAME FROM repository_category WHERE ID = REP_CATEGORY_ID) AS CATEGORY_NAME,(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) FROM profile where ID=postUser)as ProfileName,(SELECT NAME FROM course WHERE ID=COURSE_ID)as COURSE_NAME FROM repository_post";
-				$result = $this->db->query($sql, $return_object = TRUE)->result_array();
-				if($result){
-					foreach($result as $key => $value){
-						$path=$value['UPLOAD_FILE'];
-						$imgData = base64_encode(file_get_contents($path));
-						$mimeType=mime_content_type($path);
-						// Format the image SRC:  data:{mime};base64,{data};
-						$src = 'data: '.$mimeType.';base64,'.$imgData;
-						$result[$key]['image']=$src;
-						//print_r($src);
-						//exit;
-					}
-					return $result;
-				}
+				return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+				// if($result){
+					// foreach($result as $key => $value){
+						// $path=$value['UPLOAD_FILE'];
+						// $imgData = base64_encode(file_get_contents($path));
+						// $mimeType=mime_content_type($path);
+						// // Format the image SRC:  data:{mime};base64,{data};
+						// $src = 'data: '.$mimeType.';base64,'.$imgData;
+						// $result[$key]['image']=$src;
+						// //print_r($src);
+						// //exit;
+					// }
+					// return $result;
+				// }
 			}
 			
 		}
