@@ -445,7 +445,7 @@ class PayrollPayslipAPI extends REST_Controller {
 	function fetchPaySlipAddonDetails_get(){
 		$Empid = $this->get('empId');
 		$Struc_id = $this->get('pay_struc_ID');
-		$gen_date = $this->get('genDate');
+		$gen_date = date("Y-m-d", strtotime($this->get('genDate')));
 		if($Empid==NULL){
 				$this->set_response([
 				'status' => FALSE,
@@ -654,7 +654,7 @@ class PayrollPayslipAPI extends REST_Controller {
 
 		$data['empid']=$this->post('empid');
 		$data['struc_id']=$this->post('struc_id');
-		$data['generatoin_date']=$this->post('generatoin_date');
+		$data['generatoin_date']=date("Y-m-d", strtotime($this->post('generatoin_date')));
 		
 		if($id==NULL){
 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
@@ -744,8 +744,8 @@ class PayrollPayslipAPI extends REST_Controller {
 		$data['DEFAULT']=$this->post('default_data');
 		$data['ADDON']=$this->post('addon_data');
 		$data['Net_pay']=$this->post('Net_pay');
-		$data['from_date']=$this->post('fromdate');
-		$data['end_date']=$this->post('enddate');
+		$data['from_date']=date("Y-m-d", strtotime($this->post('fromdate')));
+		$data['end_date']=date("Y-m-d", strtotime($this->post('enddate')));
 		$data['basicPay']=$this->post('basicPay');
 		if($id==NULL){
 			$this->set_response(['status' =>FALSE,'message'=>"Failure"], REST_Controller::HTTP_CREATED);
