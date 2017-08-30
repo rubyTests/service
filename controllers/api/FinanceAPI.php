@@ -509,7 +509,7 @@ class FinanceAPI extends REST_Controller {
 		}else{
 			$result=$this->financemodel->deleteParticularFeeStructure($id);
 			if ($result!=0){
-				$this->set_response(['status' =>TRUE,'message'=>'Record deleted successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+				$this->set_response(['status' =>TRUE,'message'=>'Fee Structure Deleted Successfully'], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
 			}
 			else
 			{
