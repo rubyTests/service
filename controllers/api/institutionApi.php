@@ -715,4 +715,19 @@ class InstitutionAPI extends REST_Controller {
 			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
 		}
 	}
+
+	function countryCode_get(){
+		$countryId=$this->get('id');
+		$result=$this->institution_model->getCountryCode($countryId);
+    	if (!empty($result)){
+			$this->set_response(['status' =>TRUE,'data'=>$result], REST_Controller::HTTP_OK); // OK (200) being the HTTP response code
+		}
+		else
+		{
+			$this->set_response([
+			'status' => FALSE,
+			'message' => 'Data could not be found'
+			], REST_Controller::HTTP_OK); // NOT_FOUND (404) being the HTTP response code
+		}
+	}
 }
