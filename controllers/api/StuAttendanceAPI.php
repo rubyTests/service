@@ -145,7 +145,6 @@ class StuAttendanceAPI extends REST_Controller {
 		$profileid=$this->get('profileid');
 		$subjectId=$this->get('subjectId');
 		$result=$this->stuattendance_model->getStudentBasicandPercentage($profileid,$subjectId);
-		// print_r($result);exit;
 		if ($result){
 			$this->set_response(['status' =>TRUE,'message'=>$result], REST_Controller::HTTP_OK); 
 		}else{
