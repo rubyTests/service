@@ -799,5 +799,9 @@
 			$sql="SELECT * FROM INSTITUTION_SETTING";
 			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
 		}
+		function getCountryCode($countryId){
+			$sql="SELECT * FROM COUNTRY where ID='$countryId'";
+			return $result = $this->db->query($sql, $return_object = TRUE)->result_array();
+		}
 	}
 ?>
